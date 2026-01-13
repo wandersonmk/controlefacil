@@ -49,9 +49,17 @@ export function useAuth() {
     isLoading.value = true
     errorMessage.value = null
     try {
+      const emailRedirectTo = process.client ? `${window.location.origin}/login` : undefined
       const { data, error } = await supabase.auth.signUp({
         email,
-        password
+        password,
+        options: {
+          emailRedirectTo,
+          data: {
+            name,
+            companyName
+          }
+        }
       })
       if (error) throw error
       // Registrar usuário na tabela usuarios

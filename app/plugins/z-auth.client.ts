@@ -24,6 +24,46 @@ export default defineNuxtPlugin(async () => {
       
       const supabase = nuxtApp.$supabase as SupabaseClient
       console.log('[Auth Plugin] Cliente Supabase obtido')
+
+      // Se a URL atual tem um code (PKCE) vindo de confirmação/magic link, precisamos trocar por sessão
+      // para que o Supabase consiga persistir o login e o app consiga redirecionar corretamente.
+      try {
+        const currentUrl = new URL(window.location.href)
+        const code = currentUrl.searchParams.get('code')
+        const error = currentUrl.searchParams.get('error')
+        const errorDescription = currentUrl.searchParams.get('error_description')
+
+        if (error || errorDescription) {
+          console.error('[Auth Plugin] Erro no callback do Supabase:', { error, errorDescription })
+        }
+
+        if (code) {
+          console.log('[Auth Plugin] Code detectado na URL, trocando por sessão...')
+          const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(window.location.href)
+
+          if (exchangeError) {
+            console.error('[Auth Plugin] Falha ao trocar code por sessão:', exchangeError)
+          } else if (exchangeData?.session) {
+            console.log('[Auth Plugin] Sessão criada via PKCE')
+            user.value = exchangeData.session.user
+            session.value = exchangeData.session
+          }
+
+          // Limpar parâmetros da URL para não reprocessar o code em refresh
+          currentUrl.searchParams.delete('code')
+          currentUrl.searchParams.delete('error')
+          currentUrl.searchParams.delete('error_description')
+          history.replaceState({}, document.title, currentUrl.pathname + (currentUrl.searchParams.toString() ? `?${currentUrl.searchParams.toString()}` : '') + currentUrl.hash)
+
+          // Se veio pelo fluxo de confirmação e agora já temos sessão, manda para o dashboard
+          if (exchangeData?.session) {
+            await navigateTo('/', { replace: true })
+            return
+          }
+        }
+      } catch (callbackError) {
+        console.error('[Auth Plugin] Erro ao processar callback do Supabase:', callbackError)
+      }
       
       // Verificar se existe uma sessão salva
       const { data, error } = await supabase.auth.getSession()
