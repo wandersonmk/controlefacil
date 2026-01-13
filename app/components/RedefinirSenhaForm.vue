@@ -36,7 +36,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useToastSafe } from '~/composables/useToastSafe'
-import { useSupabaseClient } from '~/composables/useSupabaseClient'
 
 const password = ref('')
 const confirmPassword = ref('')
@@ -44,45 +43,56 @@ const error = ref('')
 const isLoading = ref(false)
 const router = useRouter()
 const route = useRoute()
-const supabase = useSupabaseClient()
+
+// Inicializar supabase apenas no cliente
+let supabase: any = null
+if (process.client) {
+  const { useSupabaseClient } = await import('~/composables/useSupabaseClient')
+  supabase = useSupabaseClient()
+}
 
 const isFormValid = computed(() => {
   return password.value.length >= 6 && confirmPassword.value === password.value
 })
 
 onMounted(async () => {
-  if (process.client) {
-    // O Supabase redireciona com access_token e refresh_token no hash (#)
-    const hashParams = new URLSearchParams(window.location.hash.substring(1))
-    const accessToken = hashParams.get('access_token')
-    const refreshToken = hashParams.get('refresh_token')
-    const type = hashParams.get('type')
+  if (!supabase) return
+  
+  // O Supabase redireciona com access_token e refresh_token no hash (#)
+  const hashParams = new URLSearchParams(window.location.hash.substring(1))
+  const accessToken = hashParams.get('access_token')
+  const refreshToken = hashParams.get('refresh_token')
+  const type = hashParams.get('type')
+  
+  if (type === 'recovery' && accessToken && refreshToken) {
+    // Estabelecer a sessão com os tokens recebidos
+    const { error: sessionError } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    })
     
-    if (type === 'recovery' && accessToken && refreshToken) {
-      // Estabelecer a sessão com os tokens recebidos
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken
-      })
-      
-      if (sessionError) {
-        console.error('Erro ao estabelecer sessão:', sessionError)
-        error.value = 'Link inválido ou expirado. Solicite um novo link de redefinição.'
-      }
-      
-      // Limpar hash da URL
-      window.history.replaceState(null, '', window.location.pathname)
-    } else {
-      // Verificar se já existe uma sessão válida
-      const { data } = await supabase.auth.getSession()
-      if (!data.session) {
-        error.value = 'Sessão expirada. Solicite um novo link de redefinição.'
-      }
+    if (sessionError) {
+      console.error('Erro ao estabelecer sessão:', sessionError)
+      error.value = 'Link inválido ou expirado. Solicite um novo link de redefinição.'
+    }
+    
+    // Limpar hash da URL
+    window.history.replaceState(null, '', window.location.pathname)
+  } else {
+    // Verificar se já existe uma sessão válida
+    const { data } = await supabase.auth.getSession()
+    if (!data.session) {
+      error.value = 'Sessão expirada. Solicite um novo link de redefinição.'
     }
   }
 })
 
 async function handleSubmit() {
+  if (!supabase) {
+    error.value = 'Erro ao conectar com o serviço.'
+    return
+  }
+  
   error.value = ''
   if (!isFormValid.value) {
     error.value = 'Preencha corretamente os campos.'
