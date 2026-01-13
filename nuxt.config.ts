@@ -7,6 +7,14 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
   modules: ['@nuxtjs/tailwindcss'],
+  nitro: {
+    preset: process.env.VERCEL ? 'vercel' : 'node-server'
+  },
+  vite: {
+    build: {
+      modulePreload: false
+    }
+  },
   tailwindcss: {
     cssPath: resolvePath(__dirname, 'assets/css/tailwind.css')
   },
