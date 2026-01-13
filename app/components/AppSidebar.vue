@@ -17,7 +17,7 @@
           <h1 class="text-lg font-bold truncate">
             Controle Fácil
           </h1>
-          <p class="text-xs text-muted-foreground">Sistema de Relatório</p>
+          <p class="text-xs text-muted-foreground">Sistema de Controle</p>
         </div>
       </div>
 
@@ -134,7 +134,7 @@
           <h1 class="text-lg font-bold truncate">
             Controle Fácil
           </h1>
-          <p class="text-xs text-muted-foreground">Sistema de Relatório</p>
+          <p class="text-xs text-muted-foreground">Sistema de Controle</p>
         </div>
         
         <!-- Botão fechar -->

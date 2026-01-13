@@ -412,7 +412,7 @@ async function exportToPDF() {
     
     doc.setFontSize(14)
     doc.setFont('helvetica', 'normal')
-    doc.text('Sistema de Relatórios', 20, 30)
+    doc.text('Sistema de Controle', 20, 30)
     
     // Informações do relatório
     doc.setTextColor(textColor[0], textColor[1], textColor[2])
@@ -538,7 +538,7 @@ async function exportToPDF() {
       // Texto do footer
       doc.setFontSize(8)
       doc.setTextColor(107, 114, 128)
-      doc.text('Controle Fácil - Sistema de Relatórios', 15, 208)
+      doc.text('Controle Fácil - Sistema de Controle', 15, 208)
       doc.text(`Página ${i} de ${pageCount}`, 282, 208, { align: 'right' })
     }
     
@@ -579,7 +579,7 @@ async function exportToExcel() {
     // Preparar dados completos para o Excel
     const dadosCompletos = [
       // Informações do cabeçalho
-      ['Controle Fácil - Sistema de Relatórios'],
+      ['Controle Fácil - Sistema de Controle'],
       ['Relatórios de Tickets'],
       [`Gerado em: ${dataFormatada}`],
       [`Total de registros: ${relatoriosFiltrados.value.length}`]

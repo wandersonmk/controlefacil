@@ -278,7 +278,7 @@ const exportToPDF = async () => {
     // Subtítulo
     doc.setFontSize(14)
     doc.setFont('helvetica', 'normal')
-    doc.text('Sistema de Relatórios', 20, 35)
+    doc.text('Sistema de Controle', 20, 35)
 
     // Resetar cor do texto para preto
     doc.setTextColor(0, 0, 0)
@@ -389,7 +389,7 @@ const exportToExcel = async () => {
     // Preparar dados com todas as colunas conforme a imagem
     const dadosExcel = [
       // Cabeçalho do sistema
-      ['Controle Fácil - Sistema de Relatórios'],
+      ['Controle Fácil - Sistema de Controle'],
       ['Relatórios de Clientes'],
       [`Gerado em: ${dataFormatada}, ${horaFormatada}`],
       [`Total de registros: ${clientes.value.length}`],
