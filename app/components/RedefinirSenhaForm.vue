@@ -33,20 +33,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToastSafe } from '~/composables/useToastSafe'
+import { useSupabaseClient } from '~/composables/useSupabaseClient'
 
 const password = ref('')
 const confirmPassword = ref('')
 const error = ref('')
 const isLoading = ref(false)
-const route = useRoute()
 const router = useRouter()
-const config = useRuntimeConfig()
+const supabase = useSupabaseClient()
 
 const isFormValid = computed(() => {
   return password.value.length >= 6 && confirmPassword.value === password.value
+})
+
+onMounted(() => {
+  // Verificar se há acesso válido (usuário deve estar autenticado via token de recovery)
+  if (process.client) {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        error.value = 'Sessão expirada. Solicite um novo link de redefinição.'
+      }
+    })
+  }
 })
 
 async function handleSubmit() {
@@ -55,49 +66,30 @@ async function handleSubmit() {
     error.value = 'Preencha corretamente os campos.'
     return
   }
+  
   isLoading.value = true
   try {
-    // Token de redefinição de senha (do Supabase)
-    let accessToken = route.query.access_token as string | undefined
-    // Se não veio na query, tenta pegar do hash
-    if (!accessToken && process.client && window.location.hash) {
-      const hash = window.location.hash.substring(1) // remove o #
-      const params = new URLSearchParams(hash)
-      accessToken = params.get('access_token') || undefined
-    }
-    if (!accessToken) {
-      error.value = 'Token de redefinição inválido.'
-      isLoading.value = false
-      return
-    }
-    // Chamada para redefinir senha via Supabase (PUT /auth/v1/user)
-    const res = await fetch(`${config.public.supabaseUrl}/auth/v1/user`, {
-      method: 'PUT',
-      headers: {
-        'apikey': config.public.supabaseAnonKey,
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        password: password.value
-      })
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: password.value
     })
-    if (res.ok) {
-      // Toast de sucesso
-      const toast = await useToastSafe()
-      if (toast) {
-        toast.success('Senha alterada com sucesso!')
-      } else {
-        alert('Senha alterada com sucesso!')
-      }
-      // Redireciona imediatamente para login
-      router.push('/login')
-    } else {
-      const data = await res.json()
-      error.value = data?.msg || 'Erro ao redefinir senha. Tente novamente.'
+    
+    if (updateError) {
+      throw updateError
     }
-  } catch (err) {
-    error.value = 'Erro ao conectar ao serviço. Tente novamente.'
+    
+    // Toast de sucesso
+    const toast = await useToastSafe()
+    if (toast) {
+      toast.success('Senha alterada com sucesso!')
+    } else {
+      alert('Senha alterada com sucesso!')
+    }
+    
+    // Deslogar e redirecionar para login
+    await supabase.auth.signOut()
+    router.push('/login')
+  } catch (err: any) {
+    error.value = err.message || 'Erro ao redefinir senha. Tente novamente.'
   } finally {
     isLoading.value = false
   }
