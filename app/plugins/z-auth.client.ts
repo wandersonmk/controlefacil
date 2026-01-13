@@ -39,7 +39,7 @@ export default defineNuxtPlugin(async () => {
 
         if (code) {
           console.log('[Auth Plugin] Code detectado na URL, trocando por sessão...')
-          const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(window.location.href)
+          const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
           if (exchangeError) {
             console.error('[Auth Plugin] Falha ao trocar code por sessão:', exchangeError)
