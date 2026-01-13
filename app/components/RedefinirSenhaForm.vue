@@ -43,6 +43,7 @@ const error = ref('')
 const isLoading = ref(false)
 const route = useRoute()
 const router = useRouter()
+const config = useRuntimeConfig()
 
 const isFormValid = computed(() => {
   return password.value.length >= 6 && confirmPassword.value === password.value
@@ -59,7 +60,7 @@ async function handleSubmit() {
     // Token de redefinição de senha (do Supabase)
     let accessToken = route.query.access_token as string | undefined
     // Se não veio na query, tenta pegar do hash
-    if (!accessToken && window && window.location.hash) {
+    if (!accessToken && process.client && window.location.hash) {
       const hash = window.location.hash.substring(1) // remove o #
       const params = new URLSearchParams(hash)
       accessToken = params.get('access_token') || undefined
@@ -70,10 +71,10 @@ async function handleSubmit() {
       return
     }
     // Chamada para redefinir senha via Supabase (PUT /auth/v1/user)
-    const res = await fetch('https://kxvraxkisrgyhntifxrc.supabase.co/auth/v1/user', {
+    const res = await fetch(`${config.public.supabaseUrl}/auth/v1/user`, {
       method: 'PUT',
       headers: {
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4dnJheGtpc3JneWhudGlmeHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzODc5MDUsImV4cCI6MjA3MTk2MzkwNX0.tOV1n6ogyk9wuU_M4eBPhe5LUttuIWpXZQPkk2Ctc5U',
+        'apikey': config.public.supabaseAnonKey,
         'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json'
       },

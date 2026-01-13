@@ -62,6 +62,7 @@ const email = ref('')
 const isLoading = ref(false)
 const showModal = ref(false)
 const router = useRouter()
+const config = useRuntimeConfig()
 
 // Validações em tempo real
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -81,10 +82,10 @@ const handleSubmit = async () => {
   if (!isEmailValid.value) return
   isLoading.value = true
   try {
-    const res = await fetch('https://kxvraxkisrgyhntifxrc.supabase.co/auth/v1/recover', {
+    const res = await fetch(`${config.public.supabaseUrl}/auth/v1/recover`, {
       method: 'POST',
       headers: {
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4dnJheGtpc3JneWhudGlmeHJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzODc5MDUsImV4cCI6MjA3MTk2MzkwNX0.tOV1n6ogyk9wuU_M4eBPhe5LUttuIWpXZQPkk2Ctc5U',
+        'apikey': config.public.supabaseAnonKey,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ email: email.value })
