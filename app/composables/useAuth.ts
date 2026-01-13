@@ -62,13 +62,10 @@ export function useAuth() {
         }
       })
       if (error) throw error
-      // Registrar usuário na tabela usuarios
-      await supabase.from('usuarios').insert({
-        nome: name,
-        empresa: companyName,
-        email: email,
-        perfil: 'admin'
-      })
+      
+      // Nota: A inserção na tabela usuarios será feita automaticamente
+      // pelo trigger 'on_auth_user_created' quando o email for confirmado
+      
       return data.user
     } catch (err: any) {
       errorMessage.value = String(err?.message || err)
