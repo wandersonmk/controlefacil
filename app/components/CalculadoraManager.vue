@@ -163,7 +163,7 @@
             <table class="w-full text-xs">
               <thead>
                 <tr class="border-b border-border/50">
-                  <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase">Ingrediente</th>
+                  <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase w-48 min-w-48">Ingrediente</th>
                   <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase">Custo/Produto</th>
                   <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase">Qtd. Total</th>
                   <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase">Un.</th>
