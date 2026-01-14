@@ -1,142 +1,332 @@
 <template>
-  <div class="bg-card text-card-foreground rounded-lg border border-border shadow-sm">
-    <!-- Header com título e botões de exportação -->
-    <div class="flex items-center justify-between p-6 border-b border-border">
-      <div>
-        <h2 class="text-xl font-semibold text-foreground">Lista de Clientes</h2>
-        <p class="text-sm text-muted-foreground mt-1">Gerencie todos os seus clientes</p>
-        <p v-if="clientes && clientes.length > 0" class="text-xs text-muted-foreground mt-1">
-          Total de clientes: <span class="font-semibold text-primary">{{ clientes.length }}</span>
-        </p>
-      </div>
-      
-      <!-- Botões de exportação -->
-      <div class="flex items-center space-x-2">
-        <button
-          @click="exportToPDF"
-          class="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
-          title="Exportar para PDF"
-        >
-          <Icon icon="file-pdf" class-name="w-4 h-4" fallback="" />
-          <span>PDF</span>
-        </button>
-        
-        <button
-          @click="exportToExcel"
-          class="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium"
-          title="Exportar para Excel"
-        >
-          <Icon icon="file-excel" class-name="w-4 h-4" fallback="" />
-          <span>Excel</span>
-        </button>
+  <div class="space-y-6">
+    <!-- Modal Criar/Editar Cliente -->
+    <div v-if="mostrarModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 sm:p-4" @click.self="fecharModal">
+      <div class="bg-card rounded-none sm:rounded-2xl shadow-xl w-full h-full sm:h-auto max-w-2xl border-0 overflow-y-auto">
+        <div class="p-4 sm:p-6">
+          <div class="flex items-center mb-6">
+            <div class="p-2 bg-primary/10 rounded-lg mr-3">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-foreground">{{ editandoCliente ? 'Editar Cliente' : 'Novo Cliente' }}</h3>
+              <p class="text-xs text-muted-foreground">Preencha os dados do cliente</p>
+            </div>
+          </div>
+
+          <!-- Formulário -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="md:col-span-2">
+              <label class="block text-xs font-medium text-foreground mb-2">
+                Nome Completo <span class="text-red-500">*</span>
+              </label>
+              <input
+                v-model="novoCliente.nome"
+                type="text"
+                placeholder="Ex: João da Silva"
+                class="w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-foreground mb-2">
+                Telefone <span class="text-red-500">*</span>
+              </label>
+              <input
+                v-model="novoCliente.telefone"
+                type="tel"
+                placeholder="(00) 00000-0000"
+                @input="formatarTelefone"
+                class="w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-foreground mb-2">
+                Data de Aniversário
+              </label>
+              <input
+                v-model="novoCliente.data_aniversario"
+                type="date"
+                class="w-full px-4 py-3 bg-background border border-input rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+              />
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <button
+              @click="fecharModal"
+              class="px-6 py-3 bg-muted hover:bg-muted/70 text-foreground rounded-xl transition-colors text-xs font-medium"
+            >
+              Cancelar
+            </button>
+            <button
+              @click="salvarCliente"
+              :disabled="!clienteValido"
+              class="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-xl transition-all duration-200 text-xs font-semibold shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>{{ editandoCliente ? 'Atualizar' : 'Adicionar' }}</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-      <!-- Lista de clientes -->
-    <div class="p-6">
-      <!-- Loading state -->
-      <div v-if="isLoading" class="text-center py-8">
+    <!-- Card de Lista -->
+    <div class="bg-card text-card-foreground rounded-xl sm:rounded-2xl border-0 shadow-md hover:shadow-lg transition-shadow duration-300">
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-border/50 gap-4">
+        <div>
+          <h3 class="text-base sm:text-lg font-bold text-foreground">Lista de Clientes</h3>
+          <p class="text-xs text-muted-foreground mt-1">
+            {{ clientesFiltrados.length }} de {{ clientes.length }} cliente{{ clientes.length !== 1 ? 's' : '' }}
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <button
+            @click="abrirModal"
+            class="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white rounded-lg transition-colors text-xs font-semibold shadow-md flex-1 sm:flex-initial justify-center"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span>Novo</span>
+          </button>
+          
+          <button
+            @click="exportToPDF"
+            :disabled="clientes.length === 0"
+            class="flex items-center gap-1 px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed justify-center"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+            <span class="hidden sm:inline">PDF</span>
+          </button>
+
+          <button
+            @click="exportToExcel"
+            :disabled="clientes.length === 0"
+            class="flex items-center gap-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed justify-center"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span class="hidden sm:inline">Excel</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros -->
+      <div class="p-4 sm:p-6 border-b border-border/50 bg-muted/20">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div>
+            <label class="block text-xs font-medium text-foreground mb-2">Buscar por Nome</label>
+            <input
+              v-model="filtros.nome"
+              type="text"
+              placeholder="Digite o nome..."
+              class="w-full px-3 py-2 bg-background border border-input rounded-lg text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-foreground mb-2">Buscar por Telefone</label>
+            <input
+              v-model="filtros.telefone"
+              type="text"
+              placeholder="Digite o telefone..."
+              class="w-full px-3 py-2 bg-background border border-input rounded-lg text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-foreground mb-2">Aniversariantes do Mês</label>
+            <select
+              v-model="filtros.mesAniversario"
+              class="w-full px-3 py-2 bg-background border border-input rounded-lg text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary cursor-pointer"
+            >
+              <option value="">Todos os meses</option>
+              <option value="01">Janeiro</option>
+              <option value="02">Fevereiro</option>
+              <option value="03">Março</option>
+              <option value="04">Abril</option>
+              <option value="05">Maio</option>
+              <option value="06">Junho</option>
+              <option value="07">Julho</option>
+              <option value="08">Agosto</option>
+              <option value="09">Setembro</option>
+              <option value="10">Outubro</option>
+              <option value="11">Novembro</option>
+              <option value="12">Dezembro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div v-if="isLoading" class="text-center py-12">
         <div class="flex flex-col items-center">
-          <div class="w-12 h-12 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+          <div class="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-4">
             <svg class="w-6 h-6 text-muted-foreground animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
           </div>
           <h3 class="text-lg font-medium text-foreground mb-2">Carregando clientes...</h3>
-          <p class="text-muted-foreground">Aguarde um momento</p>
+          <p class="text-xs text-muted-foreground">Aguarde um momento</p>
         </div>
       </div>
 
-      <!-- Error state -->
-      <div v-else-if="error" class="text-center py-8">
+      <!-- Erro -->
+      <div v-else-if="error" class="text-center py-12">
         <div class="flex flex-col items-center">
-          <Icon icon="exclamation-triangle" class-name="w-12 h-12 text-red-500 mb-4" fallback="" />
-          <h3 class="text-lg font-medium text-foreground mb-2">Erro ao carregar clientes</h3>
-          <p class="text-muted-foreground mb-4">{{ error }}</p>
+          <svg class="w-12 h-12 text-red-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <h3 class="text-lg font-medium text-foreground mb-2">Erro ao carregar</h3>
+          <p class="text-xs text-muted-foreground mb-4">{{ error }}</p>
           <button
-            @click="recarregarClientes"
-            class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            @click="fetchClientes"
+            class="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-xs"
           >
             Tentar novamente
           </button>
         </div>
       </div>
 
-      <!-- Mensagem quando não há clientes -->
-      <div v-else-if="clientes.length === 0" class="text-center py-8">
+      <!-- Vazio -->
+      <div v-else-if="clientesFiltrados.length === 0" class="text-center py-12">
         <div class="flex flex-col items-center">
-          <Icon icon="users" class-name="w-12 h-12 text-muted-foreground/50 mb-4" fallback="" />
-          <h3 class="text-lg font-medium text-foreground mb-2">Nenhum cliente encontrado</h3>
-          <p class="text-muted-foreground">Quando você tiver clientes, eles aparecerão aqui.</p>
+          <svg class="w-12 h-12 text-muted-foreground/50 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <h3 class="text-lg font-medium text-foreground mb-2">{{ clientes.length === 0 ? 'Nenhum cliente cadastrado' : 'Nenhum cliente encontrado' }}</h3>
+          <p class="text-xs text-muted-foreground">{{ clientes.length === 0 ? 'Clique em "Novo" para adicionar' : 'Tente ajustar os filtros' }}</p>
         </div>
       </div>
 
-      <!-- Tabela de clientes -->
-      <div v-else class="overflow-x-auto">
-  <div style="max-height: 600px; overflow-y: auto;">
+      <!-- Lista Mobile (Cards) -->
+      <div v-else class="block lg:hidden">
+        <div class="divide-y divide-border/30" style="max-height: 500px; overflow-y: auto;">
+          <div
+            v-for="cliente in clientesFiltrados"
+            :key="cliente.id"
+            class="p-4 hover:bg-muted/20 transition-colors"
+          >
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex items-center flex-1">
+                <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                  <span class="text-primary font-semibold text-sm">{{ cliente.nome.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <h4 class="text-xs font-semibold text-foreground truncate">{{ cliente.nome }}</h4>
+                  <p class="text-xs text-muted-foreground mt-0.5">{{ cliente.telefone }}</p>
+                  <p v-if="cliente.data_aniversario" class="text-xs text-muted-foreground mt-0.5">
+                    🎂 {{ formatarDataAniversario(cliente.data_aniversario) }}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="flex gap-2">
+              <button
+                @click="abrirWhatsApp(cliente.telefone)"
+                class="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-green-500/10 hover:bg-green-500/20 text-green-600 rounded-lg transition-colors text-xs font-medium"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                <span>WhatsApp</span>
+              </button>
+              
+              <button
+                @click="editarCliente(cliente)"
+                class="p-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 rounded-lg transition-colors"
+                title="Editar"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              
+              <button
+                @click="excluirCliente(cliente.id)"
+                class="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 rounded-lg transition-colors"
+                title="Excluir"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela Desktop -->
+      <div v-if="!isLoading && !error && clientesFiltrados.length > 0" class="hidden lg:block overflow-x-auto">
+        <div style="max-height: 500px; overflow-y: auto;">
           <table class="w-full">
-            <thead>
+            <thead class="bg-muted/30 sticky top-0">
               <tr class="border-b border-border">
-                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Nome</th>
-                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Telefone</th>
-                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Empresa</th>
-                <th class="text-right py-2 px-3 font-medium text-muted-foreground text-xs">Ações</th>
+                <th class="text-left py-3 px-4 font-bold text-foreground text-xs">Nome</th>
+                <th class="text-left py-3 px-4 font-bold text-foreground text-xs">Telefone</th>
+                <th class="text-left py-3 px-4 font-bold text-foreground text-xs">Aniversário</th>
+                <th class="text-center py-3 px-4 font-bold text-foreground text-xs w-32">Ações</th>
               </tr>
             </thead>
             <tbody>
               <tr 
-                v-for="cliente in (clientesOrdenados ? clientesOrdenados.slice(0, clientesVisiveis) : [])" 
+                v-for="cliente in clientesFiltrados" 
                 :key="cliente.id"
-                class="border-b border-border/50 hover:bg-muted/30 transition-colors"
+                class="border-b border-border/30 hover:bg-muted/20 transition-colors"
               >
-                <!-- Nome do cliente -->
-                <td class="py-3 px-3">
+                <td class="py-3 px-4">
                   <div class="flex items-center">
-                    <div class="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-2">
-                      <Icon icon="user" class-name="w-3 h-3 text-primary" fallback="" />
+                    <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+                      <span class="text-primary font-semibold text-xs">{{ cliente.nome.charAt(0).toUpperCase() }}</span>
                     </div>
-                    <span class="font-medium text-foreground text-sm">{{ cliente.nome }}</span>
+                    <span class="text-xs text-foreground">{{ cliente.nome }}</span>
                   </div>
                 </td>
-                
-                <!-- Telefone do cliente -->
-                <td class="py-3 px-3">
-                  <span class="text-foreground text-sm">{{ cliente.telefone }}</span>
-                </td>
-                
-                <!-- Empresa do cliente -->
-                <td class="py-3 px-3">
-                  <span class="text-foreground font-medium text-sm">{{ cliente.empresa }}</span>
-                </td>
-                
-                <!-- Botões de ação -->
-                <td class="py-3 px-3 text-right">
-                  <div class="flex items-center justify-end space-x-2">
-                    <!-- Botão WhatsApp -->
+                <td class="py-3 px-4 text-xs text-foreground">{{ cliente.telefone }}</td>
+                <td class="py-3 px-4 text-xs text-foreground">{{ formatarDataAniversario(cliente.data_aniversario) }}</td>
+                <td class="py-3 px-4">
+                  <div class="flex justify-center gap-2">
                     <button
-                      @click="abrirWhatsApp(cliente)"
-                      class="p-2 text-green-500 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-all duration-200 group"
-                      title="Conversar no WhatsApp"
+                      @click="abrirWhatsApp(cliente.telefone)"
+                      class="p-2 hover:bg-green-500/10 text-green-500 rounded-lg transition-colors"
+                      title="Abrir WhatsApp"
                     >
-                      <Icon icon="comments" class-name="w-4 h-4 group-hover:scale-110 transition-transform duration-200" fallback="" />
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                      </svg>
                     </button>
-                    
-                    <!-- Botão de excluir -->
                     <button
-                      @click="confirmarExclusao(cliente)"
-                      class="p-2 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200 group"
+                      @click="editarCliente(cliente)"
+                      class="p-2 hover:bg-blue-500/10 text-blue-500 rounded-lg transition-colors"
+                      title="Editar cliente"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    </button>
+                    <button
+                      @click="excluirCliente(cliente.id)"
+                      class="p-2 hover:bg-red-500/10 text-red-500 rounded-lg transition-colors"
                       title="Excluir cliente"
                     >
-                      <Icon icon="trash" class-name="w-4 h-4 group-hover:scale-110 transition-transform duration-200" fallback="" />
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
                     </button>
                   </div>
-                </td>
-              </tr>
-
-              <!-- Sentinel para infinite scroll -->
-              <tr v-if="clientes && clientesVisiveis < clientes.length">
-                <td :colspan="4">
-                  <div ref="sentinel" style="height: 1px;"></div>
                 </td>
               </tr>
             </tbody>
@@ -144,322 +334,204 @@
         </div>
       </div>
     </div>
-
-    <!-- Modal de confirmação de exclusão -->
-    <div 
-      v-if="clienteParaExcluir"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
-    >
-      <div class="bg-card rounded-lg shadow-xl max-w-md w-full p-6 border border-border">
-        <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-900/20 rounded-full">
-          <Icon icon="exclamation-triangle" class-name="w-6 h-6 text-red-600" fallback="" />
-        </div>
-        
-        <h3 class="text-lg font-semibold text-foreground text-center mb-2">
-          Confirmar exclusão
-        </h3>
-        
-        <p class="text-muted-foreground text-center mb-6">
-          Tem certeza que deseja excluir o cliente 
-          <strong class="text-foreground">{{ clienteParaExcluir.nome }}</strong>?
-          <br>
-          Esta ação não pode ser desfeita.
-        </p>
-        
-        <div class="flex space-x-3">
-          <button
-            @click="cancelarExclusao"
-            class="flex-1 px-4 py-2 border border-border rounded-lg text-foreground hover:bg-muted transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            @click="excluirCliente"
-            class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
-          >
-            Excluir
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-// Usar o composable de clientes
-const { 
-  clientes, 
-  isLoading, 
-  error, 
-  fetchClientes, 
-  deleteCliente,
-  clearError 
-} = useClientes()
+import { ref, computed, onMounted } from 'vue'
+import { useClientes, type Cliente, type ClienteInput } from '~/composables/useClientes'
 
-// Estado para modal de confirmação de exclusão
-const clienteParaExcluir = ref<any>(null)
+const { clientes, isLoading, error, fetchClientes, addCliente, updateCliente, deleteCliente } = useClientes()
 
-// Infinite scroll
-const clientesVisiveis = ref(10)
-const sentinel = ref<HTMLElement | null>(null)
-let observer: IntersectionObserver | null = null
+// Modal
+const mostrarModal = ref(false)
+const editandoCliente = ref<Cliente | null>(null)
 
+// Formulário
+const novoCliente = ref<ClienteInput>({
+  nome: '',
+  telefone: '',
+  data_aniversario: ''
+})
+
+// Filtros
+const filtros = ref({
+  nome: '',
+  telefone: '',
+  mesAniversario: ''
+})
+
+// Clientes filtrados
+const clientesFiltrados = computed(() => {
+  return clientes.value.filter(cliente => {
+    const nomeMatch = cliente.nome.toLowerCase().includes(filtros.value.nome.toLowerCase())
+    const telefoneMatch = cliente.telefone.includes(filtros.value.telefone.replace(/\D/g, ''))
+    
+    let mesMatch = true
+    if (filtros.value.mesAniversario && cliente.data_aniversario) {
+      const mes = cliente.data_aniversario.split('-')[1]
+      mesMatch = mes === filtros.value.mesAniversario
+    }
+    
+    return nomeMatch && telefoneMatch && mesMatch
+  })
+})
+
+// Validação
+const clienteValido = computed(() => {
+  return novoCliente.value.nome.trim() !== '' && novoCliente.value.telefone.trim() !== ''
+})
+
+// Carregar clientes
 onMounted(() => {
   fetchClientes()
 })
 
-watch(
-  () => clientes.value?.length,
-  () => {
-    if (sentinel.value && clientes.value && clientes.value.length > 10) {
-      if (!observer) {
-        observer = new IntersectionObserver((entries) => {
-          const entry = entries[0]
-          if (entry && entry.isIntersecting) {
-            if (clientesVisiveis.value < clientes.value.length) {
-              clientesVisiveis.value += 10
-            }
-          }
-        })
-        observer.observe(sentinel.value)
-      }
+// Abrir modal
+function abrirModal() {
+  editandoCliente.value = null
+  limparFormulario()
+  mostrarModal.value = true
+}
+
+// Fechar modal
+function fecharModal() {
+  mostrarModal.value = false
+  editandoCliente.value = null
+  limparFormulario()
+}
+
+// Formatar telefone
+function formatarTelefone(event: Event) {
+  const input = event.target as HTMLInputElement
+  let valor = input.value.replace(/\D/g, '')
+  
+  if (valor.length <= 11) {
+    if (valor.length <= 10) {
+      valor = valor.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3')
+    } else {
+      valor = valor.replace(/^(\d{2})(\d{5})(\d{0,4}).*/, '($1) $2-$3')
     }
   }
-)
-
-// Função para recarregar clientes
-const recarregarClientes = () => {
-  clearError()
-  fetchClientes()
+  
+  novoCliente.value.telefone = valor
 }
 
-// Função para confirmar exclusão
-const confirmarExclusao = (cliente: any) => {
-  clienteParaExcluir.value = cliente
-}
-
-// Função para cancelar exclusão
-const cancelarExclusao = () => {
-  clienteParaExcluir.value = null
-}
-
-// Função para excluir cliente
-const excluirCliente = async () => {
-  if (clienteParaExcluir.value) {
-    await deleteCliente(clienteParaExcluir.value.id)
-    clienteParaExcluir.value = null
-    await fetchClientes() // Recarregar lista
-  }
-}
-
-// Função para abrir WhatsApp
-const abrirWhatsApp = (cliente: any) => {
-  const numeroLimpo = cliente.telefone.replace(/\D/g, '')
-  const url = `https://wa.me/55${numeroLimpo}`
-  window.open(url, '_blank')
-}
-
-// Função para exportar para PDF
-const exportToPDF = async () => {
+// Formatar data de aniversário
+function formatarDataAniversario(data?: string): string {
+  if (!data) return '—'
+  
   try {
-    const { jsPDF } = await import('jspdf')
-    const doc = new jsPDF()
-
-    // Header com fundo roxo
-    doc.setFillColor(102, 90, 228) // Cor roxa (RGB: 102, 90, 228)
-    doc.rect(0, 0, 210, 45, 'F') // Retângulo roxo no topo
-
-    // Título principal
-    doc.setTextColor(255, 255, 255) // Texto branco
-    doc.setFontSize(24)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Controle Fácil', 20, 20)
-
-    // Subtítulo
-    doc.setFontSize(14)
-    doc.setFont('helvetica', 'normal')
-    doc.text('Sistema de Controle', 20, 35)
-
-    // Resetar cor do texto para preto
-    doc.setTextColor(0, 0, 0)
-
-    // Título da seção
-    doc.setFontSize(18)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Lista de Clientes', 20, 65)
-
-    // Informações de geração
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    const agora = new Date()
-    const dataFormatada = agora.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
-    const horaFormatada = agora.toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-    doc.text(`Gerado em: ${dataFormatada}, ${horaFormatada}`, 20, 75)
-    doc.text(`Total de clientes: ${clientes.value.length}`, 20, 85)
-
-    // Cabeçalho da tabela com fundo roxo
-    let yPosition = 100
-    doc.setFillColor(102, 90, 228) // Cor roxa para cabeçalho
-    doc.rect(20, yPosition - 10, 170, 15, 'F') // Retângulo roxo para cabeçalho
-
-    // Texto do cabeçalho em branco
-    doc.setTextColor(255, 255, 255)
-    doc.setFontSize(12)
-    doc.setFont('helvetica', 'bold')
-    doc.text('#', 25, yPosition - 2)
-    doc.text('Nome', 40, yPosition - 2)
-    doc.text('Telefone', 100, yPosition - 2)
-    doc.text('Empresa', 150, yPosition - 2)
-
-    // Resetar cor do texto para preto
-    doc.setTextColor(0, 0, 0)
-    yPosition += 10
-
-    // Dados dos clientes
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    clientes.value.forEach((cliente, index) => {
-      if (yPosition > 270) {
-        doc.addPage()
-        yPosition = 20
-        
-        // Repetir cabeçalho na nova página
-        doc.setFillColor(102, 90, 228)
-        doc.rect(20, yPosition - 10, 170, 15, 'F')
-        doc.setTextColor(255, 255, 255)
-        doc.setFontSize(12)
-        doc.setFont('helvetica', 'bold')
-        doc.text('#', 25, yPosition - 2)
-        doc.text('Nome', 40, yPosition - 2)
-        doc.text('Telefone', 100, yPosition - 2)
-        doc.text('Empresa', 150, yPosition - 2)
-        doc.setTextColor(0, 0, 0)
-        doc.setFontSize(10)
-        doc.setFont('helvetica', 'normal')
-        yPosition += 10
-      }
-
-      // Cor de fundo alternada para as linhas
-      if (index % 2 === 0) {
-        doc.setFillColor(249, 250, 251) // Cinza claro
-        doc.rect(20, yPosition - 8, 170, 12, 'F')
-      }
-
-      // Dados da linha
-      doc.text((index + 1).toString(), 25, yPosition)
-      doc.text(cliente.nome, 40, yPosition)
-      doc.text(cliente.telefone, 100, yPosition)
-      doc.text(cliente.empresa || 'Não informado', 150, yPosition)
-      
-      yPosition += 12
-    })
-
-    // Salvar o PDF
-    doc.save('lista-clientes.pdf')
-  } catch (error) {
-    console.error('Erro ao exportar PDF:', error)
-    alert('Erro ao exportar PDF. Tente novamente.')
+    const [ano, mes, dia] = data.split('-')
+    return `${dia}/${mes}`
+  } catch {
+    return '—'
   }
 }
 
-// Função para exportar para Excel
-const exportToExcel = async () => {
-  try {
-    const XLSX = await import('xlsx')
+// Salvar cliente (adicionar ou atualizar)
+async function salvarCliente() {
+  if (!clienteValido.value) return
 
-    // Criar dados do cabeçalho
-    const agora = new Date()
-    const dataFormatada = agora.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    })
-    const horaFormatada = agora.toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+  const toast = await useToastSafe()
+  let sucesso = false
 
-    // Preparar dados com todas as colunas conforme a imagem
-    const dadosExcel = [
-      // Cabeçalho do sistema
-      ['Controle Fácil - Sistema de Controle'],
-      ['Relatórios de Clientes'],
-      [`Gerado em: ${dataFormatada}, ${horaFormatada}`],
-      [`Total de registros: ${clientes.value.length}`],
-      [], // Linha vazia
-      // Cabeçalho da tabela
-      ['#', 'Nome', 'Telefone', 'Loja', 'CNPJ', 'Data Abertura', 'Hora Abertura', 'Motivo', 'Empresa']
-    ]
+  if (editandoCliente.value) {
+    sucesso = await updateCliente(editandoCliente.value.id, novoCliente.value)
+  } else {
+    sucesso = await addCliente(novoCliente.value)
+  }
 
-    // Adicionar dados dos clientes
-    clientes.value.forEach((cliente, index) => {
-      dadosExcel.push([
-        (index + 1).toString(), // Numeração
-        cliente.nome,
-        cliente.telefone,
-        'Loja Centro', // Valor padrão ou pode vir do cliente se existir
-        '12.345.678/0001-90', // Valor padrão ou pode vir do cliente se existir
-        new Date(cliente.created_at).toLocaleDateString('pt-BR'),
-        new Date(cliente.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        'Cliente cadastrado', // Motivo padrão
-        cliente.empresa || 'Não informado'
-      ])
-    })
-
-    // Criar workbook e worksheet
-    const workbook = XLSX.utils.book_new()
-    const worksheet = XLSX.utils.aoa_to_sheet(dadosExcel)
-
-    // Definir larguras das colunas
-    const columnWidths = [
-      { wch: 5 },  // #
-      { wch: 20 }, // Nome
-      { wch: 15 }, // Telefone
-      { wch: 15 }, // Loja
-      { wch: 20 }, // CNPJ
-      { wch: 12 }, // Data Abertura
-      { wch: 12 }, // Hora Abertura
-      { wch: 20 }, // Motivo
-      { wch: 15 }  // Empresa
-    ]
-    worksheet['!cols'] = columnWidths
-
-    // Estilizar cabeçalho (se suportado)
-    const headerRange = XLSX.utils.decode_range(worksheet['!ref'] || 'A1')
-    
-    // Mesclar células do título principal
-    worksheet['!merges'] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 8 } }, // Controle Fácil - Sistema de Relatórios
-      { s: { r: 1, c: 0 }, e: { r: 1, c: 8 } }, // Relatórios de Clientes
-      { s: { r: 2, c: 0 }, e: { r: 2, c: 8 } }, // Gerado em
-      { s: { r: 3, c: 0 }, e: { r: 3, c: 8 } }  // Total de registros
-    ]
-
-    // Adicionar worksheet ao workbook
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Relatórios de Clientes')
-
-    // Salvar arquivo
-    XLSX.writeFile(workbook, 'relatorios-clientes.xlsx')
-  } catch (error) {
-    console.error('Erro ao exportar Excel:', error)
-    alert('Erro ao exportar Excel. Tente novamente.')
+  if (sucesso) {
+    if (toast) {
+      toast.success(`Cliente ${editandoCliente.value ? 'atualizado' : 'adicionado'} com sucesso!`, {
+        position: 'top-right',
+        timeout: 2000
+      })
+    }
+    fecharModal()
+    await fetchClientes()
+  } else {
+    if (toast) {
+      toast.error(`Erro ao ${editandoCliente.value ? 'atualizar' : 'adicionar'} cliente.`, {
+        position: 'top-right',
+        timeout: 3000
+      })
+    }
   }
 }
 
-// Computed para clientes ordenados por nome (A-Z)
-import { computed } from 'vue'
-const clientesOrdenados = computed(() => {
-  return clientes.value ? [...clientes.value].sort((a, b) => {
-    if (!a.nome || !b.nome) return 0
-    return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' })
-  }) : []
-})
+// Editar cliente
+function editarCliente(cliente: Cliente) {
+  editandoCliente.value = cliente
+  novoCliente.value = {
+    nome: cliente.nome,
+    telefone: cliente.telefone,
+    data_aniversario: cliente.data_aniversario || ''
+  }
+  mostrarModal.value = true
+}
+
+// Excluir cliente
+async function excluirCliente(id: string) {
+  if (!confirm('Tem certeza que deseja excluir este cliente?')) return
+
+  const toast = await useToastSafe()
+  const sucesso = await deleteCliente(id)
+
+  if (sucesso) {
+    if (toast) {
+      toast.success('Cliente excluído com sucesso!', {
+        position: 'top-right',
+        timeout: 2000
+      })
+    }
+    await fetchClientes()
+  } else {
+    if (toast) {
+      toast.error('Erro ao excluir cliente.', {
+        position: 'top-right',
+        timeout: 3000
+      })
+    }
+  }
+}
+
+// Abrir WhatsApp
+function abrirWhatsApp(telefone: string) {
+  const numero = telefone.replace(/\D/g, '')
+  window.open(`https://wa.me/55${numero}`, '_blank')
+}
+
+// Limpar formulário
+function limparFormulario() {
+  novoCliente.value = {
+    nome: '',
+    telefone: '',
+    data_aniversario: ''
+  }
+}
+
+// Exportar PDF
+async function exportToPDF() {
+  const toast = await useToastSafe()
+  if (toast) {
+    toast.info('Funcionalidade em desenvolvimento', {
+      position: 'top-right',
+      timeout: 2000
+    })
+  }
+}
+
+// Exportar Excel
+async function exportToExcel() {
+  const toast = await useToastSafe()
+  if (toast) {
+    toast.info('Funcionalidade em desenvolvimento', {
+      position: 'top-right',
+      timeout: 2000
+    })
+  }
+}
 </script>
 

@@ -5,6 +5,7 @@ export interface Cliente {
   id: string
   nome: string
   telefone: string
+  data_aniversario?: string
   empresa?: string
   created_at: string
 }
@@ -13,6 +14,7 @@ export interface Cliente {
 export interface ClienteInput {
   nome: string
   telefone: string
+  data_aniversario?: string
   empresa?: string
 }
 
@@ -56,15 +58,37 @@ export const useClientes = () => {
     }
   }
 
-  // Adicionar novo cliente (sem usuario_id)
+  // Adicionar novo cliente (com empresa_id e usuario_id)
   const addCliente = async (clienteData: ClienteInput): Promise<boolean> => {
     console.log('➕ Adicionando novo cliente:', clienteData)
     isLoading.value = true
     error.value = null
     try {
+      // Buscar empresa_id via função helper
+      const { data: empresaData, error: empresaError } = await supabase
+        .rpc('get_my_empresa_id')
+      
+      if (empresaError || !empresaData) {
+        console.error('❌ Erro ao buscar empresa_id:', empresaError)
+        error.value = 'Erro ao identificar empresa'
+        return false
+      }
+
+      // Buscar user ID
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        error.value = 'Usuário não autenticado'
+        return false
+      }
+
       const { data, error: insertError } = await supabase
         .from('clientes')
-        .insert([clienteData])
+        .insert([{
+          ...clienteData,
+          empresa_id: empresaData,
+          usuario_id: user.id
+        }])
         .select()
 
       if (insertError) {
@@ -80,6 +104,40 @@ export const useClientes = () => {
     } catch (err) {
       console.error('💥 Erro inesperado ao adicionar cliente:', err)
       error.value = 'Erro inesperado ao adicionar cliente'
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Atualizar cliente
+  const updateCliente = async (clienteId: string, clienteData: Partial<ClienteInput>): Promise<boolean> => {
+    console.log('✏️ Atualizando cliente:', clienteId, clienteData)
+
+    try {
+      isLoading.value = true
+      error.value = null
+
+      const { error: updateError } = await supabase
+        .from('clientes')
+        .update(clienteData)
+        .eq('id', clienteId)
+
+      if (updateError) {
+        console.error('❌ Erro ao atualizar cliente:', updateError)
+        error.value = `Erro ao atualizar cliente: ${updateError.message}`
+        return false
+      }
+
+      console.log('✅ Cliente atualizado com sucesso')
+      
+      // Recarregar lista de clientes
+      await fetchClientes()
+      return true
+      
+    } catch (err) {
+      console.error('💥 Erro inesperado ao atualizar cliente:', err)
+      error.value = 'Erro inesperado ao atualizar cliente'
       return false
     } finally {
       isLoading.value = false
@@ -132,6 +190,7 @@ export const useClientes = () => {
     error,
     fetchClientes,
     addCliente,
+    updateCliente,
     deleteCliente,
     clearError
   }
