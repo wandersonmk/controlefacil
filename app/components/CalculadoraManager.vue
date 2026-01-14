@@ -1,74 +1,5 @@
 <template>
-  <div class="space-y-6">
-    <!-- Header -->
-    <div class="bg-gradient-to-br from-primary/5 via-card to-card rounded-2xl border-0 shadow-lg p-6 backdrop-blur-sm">
-      <div class="flex items-center justify-end">
-        <div class="flex items-center gap-3">
-          <button
-            @click="mostrarModalSalvar = true"
-            class="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white transition-all duration-200 text-sm font-semibold shadow-lg shadow-green-500/25 hover:shadow-xl hover:shadow-green-500/40"
-            style="border-radius: 12px;"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
-            </svg>
-            <span>Salvar</span>
-          </button>
-          <button
-            @click="mostrarCalculosSalvos = !mostrarCalculosSalvos"
-            class="flex items-center space-x-2 px-5 py-2.5 bg-card hover:bg-muted border-0 text-foreground transition-all duration-200 text-sm font-semibold"
-            style="border-radius: 12px;"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-            </svg>
-            <span>Salvos ({{ calculosSalvos.length }})</span>
-          </button>
-          <button
-            @click="limparFormulario"
-            class="flex items-center space-x-2 px-5 py-2.5 bg-card hover:bg-red-50 dark:hover:bg-red-900/10 border-0 text-foreground hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 text-sm font-semibold"
-            style="border-radius: 12px;"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-            </svg>
-            <span>Limpar</span>
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Painel de Cálculos Salvos -->
-    <div v-if="mostrarCalculosSalvos && calculosSalvos.length > 0" class="bg-card text-card-foreground rounded-lg border-0 shadow-sm p-6">
-      <h3 class="text-lg font-semibold text-foreground mb-4">Cálculos Salvos</h3>
-      <div class="space-y-2 max-h-64 overflow-y-auto">
-        <div 
-          v-for="calculo in calculosSalvos" 
-          :key="calculo.id"
-          class="flex items-center justify-between p-3 bg-background rounded-lg border-0 transition-colors"
-        >
-          <div class="flex-1">
-            <p class="font-medium text-foreground">{{ calculo.nome }}</p>
-            <p class="text-xs text-muted-foreground">{{ calculo.nomeProduto }} • {{ formatarValor(calculo.precoVendaSugerido) }}</p>
-            <p class="text-xs text-muted-foreground">Salvo em {{ new Date(calculo.dataSalvo).toLocaleDateString('pt-BR') }}</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button
-              @click="carregarCalculo(calculo)"
-              class="px-3 py-1 bg-primary hover:bg-primary/90 text-primary-foreground rounded text-sm transition-colors"
-            >
-              Carregar
-            </button>
-            <button
-              @click="excluirCalculo(calculo.id)"
-              class="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-sm transition-colors"
-            >
-              Excluir
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="space-y-4">
 
     <!-- Modal Salvar Cálculo -->
     <div v-if="mostrarModalSalvar" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="mostrarModalSalvar = false">
@@ -389,7 +320,7 @@
           </div>
 
           <!-- Custos Variáveis Adicionais -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 pt-4 border-t border-border/30">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 pt-4 border-t border-border/30">
             <div>
               <label class="block text-xs font-medium text-foreground mb-1.5">Embalagem (R$)</label>
               <input
@@ -411,7 +342,21 @@
                 @input="formatarMoeda($event, 'outrosCustosVariaveis')"
                 class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
               />
-              <p class="text-[10px] text-muted-foreground mt-0.5">Delivery, taxas, etc.</p>
+              <p class="text-[10px] text-muted-foreground mt-0.5">Materiais extras, etc.</p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-foreground mb-1.5">Taxa de Plataformas (%)</label>
+              <input
+                v-model.number="taxaPlataforma"
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                placeholder="0"
+                class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+              />
+              <p class="text-[10px] text-muted-foreground mt-0.5">iFood, Rappi, etc.</p>
             </div>
           </div>
         </div>
@@ -556,6 +501,10 @@
                 <p class="text-[10px] font-bold text-green-700 dark:text-green-300 uppercase">Preço Sugerido</p>
               </div>
               <p class="text-base font-black text-green-600 dark:text-green-400">{{ formatarValor(precoVendaSugerido) }}</p>
+              <div v-if="taxaPlataforma > 0" class="mt-1.5 pt-1.5 border-t border-green-500/20">
+                <p class="text-[9px] text-orange-700 dark:text-orange-300 font-semibold">- Taxa Plataforma {{ taxaPlataforma }}%: {{ formatarValor(valorTaxaPlataforma) }}</p>
+                <p class="text-[9px] text-green-700 dark:text-green-300 font-bold mt-0.5">= Você recebe: {{ formatarValor(precoSemTaxa) }}</p>
+              </div>
             </div>
 
             <!-- Lucro -->
@@ -666,6 +615,76 @@
                 </div>
               </div>
             </div>
+
+            <!-- Ações -->
+            <div class="border-t border-border/50 pt-2">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <button
+                  @click="mostrarModalSalvar = true"
+                  class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white transition-all duration-200 text-xs font-semibold shadow-md shadow-green-500/20 hover:shadow-lg hover:shadow-green-500/30"
+                  style="border-radius: 10px;"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/>
+                  </svg>
+                  <span>Salvar</span>
+                </button>
+
+                <button
+                  @click="mostrarCalculosSalvos = !mostrarCalculosSalvos"
+                  class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-card hover:bg-muted border-0 text-foreground transition-all duration-200 text-xs font-semibold"
+                  style="border-radius: 10px;"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                  </svg>
+                  <span>Salvos ({{ calculosSalvos.length }})</span>
+                </button>
+
+                <button
+                  @click="limparFormulario"
+                  class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-card hover:bg-red-50 dark:hover:bg-red-900/10 border-0 text-foreground hover:text-red-600 dark:hover:text-red-400 transition-all duration-200 text-xs font-semibold"
+                  style="border-radius: 10px;"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                  </svg>
+                  <span>Limpar</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Painel de Cálculos Salvos -->
+            <div v-if="mostrarCalculosSalvos && calculosSalvos.length > 0" class="bg-background/50 rounded-lg p-2 border-0">
+              <p class="text-[10px] font-bold text-foreground mb-2">Cálculos Salvos</p>
+              <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                <div
+                  v-for="calculo in calculosSalvos"
+                  :key="calculo.id"
+                  class="flex items-start justify-between gap-2 p-2 bg-background rounded-lg border-0 transition-colors"
+                >
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs font-semibold text-foreground truncate">{{ calculo.nome }}</p>
+                    <p class="text-[10px] text-muted-foreground truncate">{{ calculo.nomeProduto }} • {{ formatarValor(calculo.precoVendaSugerido) }}</p>
+                    <p class="text-[10px] text-muted-foreground">Salvo em {{ new Date(calculo.dataSalvo).toLocaleDateString('pt-BR') }}</p>
+                  </div>
+                  <div class="flex flex-col gap-1">
+                    <button
+                      @click="carregarCalculo(calculo)"
+                      class="px-2 py-1 bg-primary hover:bg-primary/90 text-primary-foreground rounded text-[10px] font-semibold transition-colors"
+                    >
+                      Carregar
+                    </button>
+                    <button
+                      @click="excluirCalculo(calculo.id)"
+                      class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-[10px] font-semibold transition-colors"
+                    >
+                      Excluir
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -697,6 +716,7 @@ interface CalculoSalvo {
   outrosCustosFixos: string
   vendasEstimadas: number
   margemLucro: number
+  taxaPlataforma: number
   precoVendaSugerido: number
 }
 
@@ -748,6 +768,7 @@ function removerIngrediente(id: string) {
 // Custos variáveis adicionais
 const custoEmbalagem = ref('R$ 0,00')
 const outrosCustosVariaveis = ref('R$ 0,00')
+const taxaPlataforma = ref(0)
 
 // Custos fixos
 const incluirCustosFixos = ref(false)
@@ -1058,6 +1079,7 @@ function limparFormulario() {
   ingredientes.value = []
   custoEmbalagem.value = 'R$ 0,00'
   outrosCustosVariaveis.value = 'R$ 0,00'
+  taxaPlataforma.value = 0
   incluirCustosFixos.value = false
   custoAluguel.value = 'R$ 0,00'
   custoAgua.value = 'R$ 0,00'
@@ -1092,6 +1114,7 @@ function salvarCalculo() {
     outrosCustosFixos: outrosCustosFixos.value,
     vendasEstimadas: vendasEstimadas.value,
     margemLucro: margemLucro.value,
+    taxaPlataforma: taxaPlataforma.value,
     precoVendaSugerido: precoVendaSugerido.value
   }
 
@@ -1133,6 +1156,7 @@ function carregarCalculo(calculo: CalculoSalvo) {
   outrosCustosFixos.value = calculo.outrosCustosFixos
   vendasEstimadas.value = calculo.vendasEstimadas
   margemLucro.value = calculo.margemLucro
+  taxaPlataforma.value = calculo.taxaPlataforma || 0
   
   mostrarCalculosSalvos.value = false
 }
@@ -1248,7 +1272,8 @@ const precoVendaSugerido = computed(() => {
 })
 
 const lucroPorUnidade = computed(() => {
-  return precoVendaSugerido.value - custoTotalPorUnidade.value
+  // Lucro = Preço que você recebe (após descontar taxa) - Custo total
+  return precoSemTaxa.value - custoTotalPorUnidade.value
 })
 
 const margemLucroCalculada = computed(() => {
@@ -1273,6 +1298,18 @@ const receitaTotal = computed(() => {
 
 const lucroTotal = computed(() => {
   return lucroPorUnidade.value * porcoesTotais.value
+})
+
+const valorTaxaPlataforma = computed(() => {
+  if (taxaPlataforma.value === 0) return 0
+  // Taxa é calculada sobre o preço de venda
+  return precoVendaSugerido.value * (taxaPlataforma.value / 100)
+})
+
+const precoSemTaxa = computed(() => {
+  // Valor que você realmente recebe após a plataforma descontar a taxa
+  if (taxaPlataforma.value === 0) return precoVendaSugerido.value
+  return precoVendaSugerido.value - valorTaxaPlataforma.value
 })
 </script>
 
