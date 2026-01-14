@@ -9,7 +9,7 @@
 
     <!-- Sidebar Desktop (sempre visível em desktop) -->
     <div 
-      class="hidden lg:flex fixed left-0 top-0 h-screen w-64 bg-background text-foreground z-50 shadow-2xl flex-col border-r border-border"
+      class="hidden lg:flex fixed left-0 top-0 h-screen w-64 sidebar-surface text-foreground z-50 shadow-2xl flex-col border-r border-border"
     >
       <!-- Header com nome da empresa -->
       <div class="flex items-center p-4 border-b border-border">
@@ -186,7 +186,7 @@
     <!-- Sidebar Mobile (só aparece quando isMobileOpen for true) -->
     <div 
       :class="isMobileOpen ? 'translate-x-0' : '-translate-x-full'"
-      class="lg:hidden fixed left-0 top-0 h-screen w-64 bg-background text-foreground z-50 shadow-2xl flex-col border-r border-border transition-transform duration-300 ease-in-out flex"
+      class="lg:hidden fixed left-0 top-0 h-screen w-64 sidebar-surface text-foreground z-50 shadow-2xl flex-col border-r border-border transition-transform duration-300 ease-in-out flex"
     >
       <!-- Header com nome da empresa e botão fechar -->
       <div class="flex items-center justify-between p-4 border-b border-border">

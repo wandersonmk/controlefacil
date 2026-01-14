@@ -104,6 +104,28 @@
 }
 
 @layer components {
+  /* Base para sidebar */
+  .sidebar-surface {
+    background-color: var(--background);
+    background-repeat: no-repeat;
+  }
+
+  /* Gradiente no sidebar (dark) */
+  html.dark .sidebar-surface {
+    background-image:
+      radial-gradient(1100px circle at 0% 0%, rgba(129, 98, 255, 0.16), transparent 46%),
+      radial-gradient(900px circle at 0% 55%, rgba(56, 189, 248, 0.10), transparent 50%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
+  }
+
+  /* Gradiente no sidebar (light) */
+  html.light .sidebar-surface {
+    background-image:
+      radial-gradient(1100px circle at 0% 0%, rgba(129, 98, 255, 0.12), transparent 52%),
+      radial-gradient(900px circle at 0% 55%, rgba(56, 189, 248, 0.12), transparent 55%),
+      linear-gradient(180deg, rgba(2, 6, 23, 0.025), rgba(2, 6, 23, 0));
+  }
+
   /* Gradiente sutil nos cards (apenas dark) */
   html.dark .bg-card {
     background-color: var(--card);
