@@ -5,55 +5,55 @@ const config: Partial<Config> = {
   theme: {
     extend: {
       colors: {
-        // Core semantic tokens
-        background: '#141518',
-        foreground: '#FFFFFF',
+        // Core semantic tokens - usando variáveis CSS
+        background: 'var(--background)',
+        foreground: 'var(--foreground)',
 
         // Brand / primary actions
         primary: {
-          DEFAULT: '#8162FF',
-          foreground: '#FFFFFF'
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)'
         },
 
         // Secondary surfaces
         secondary: {
-          DEFAULT: '#1A1B1F',
-          foreground: '#FFFFFF'
+          DEFAULT: 'var(--secondary)',
+          foreground: 'var(--secondary-foreground)'
         },
 
-        // Accent (deep purple)
+        // Accent
         accent: {
-          DEFAULT: '#221C3D',
-          foreground: '#FFFFFF'
+          DEFAULT: 'var(--accent)',
+          foreground: 'var(--accent-foreground)'
         },
 
         // Muted content and surfaces
         muted: {
-          DEFAULT: '#26272B',
-          foreground: '#4E525B'
+          DEFAULT: 'var(--muted)',
+          foreground: 'var(--muted-foreground)'
         },
 
         // Cards / popovers
         card: {
-          DEFAULT: '#1A1B1F',
-          foreground: '#FFFFFF'
+          DEFAULT: 'var(--card)',
+          foreground: 'var(--card-foreground)'
         },
         popover: {
-          DEFAULT: '#1A1B1F',
-          foreground: '#FFFFFF'
+          DEFAULT: 'var(--popover)',
+          foreground: 'var(--popover-foreground)'
         },
 
         // Status / feedback
         destructive: {
-          DEFAULT: '#EF4444',
-          foreground: '#FFFFFF'
+          DEFAULT: 'var(--destructive)',
+          foreground: 'var(--destructive-foreground)'
         },
-        destructiveSurface: '#2F1F1F',
+        destructiveSurface: 'var(--destructive-surface)',
 
         // UI primitives
-        border: '#26272B',
-        input: '#26272B',
-        ring: '#8162FF',
+        border: 'var(--border)',
+        input: 'var(--input)',
+        ring: 'var(--ring)',
 
         // Neutrals
         white: '#FFFFFF'

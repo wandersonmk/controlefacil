@@ -6,6 +6,70 @@
   html, body, #__nuxt {
     height: 100%;
   }
+  
+  /* Variáveis CSS para modo escuro (padrão) */
+  :root, .dark {
+    --background: #141518;
+    --foreground: #FFFFFF;
+    
+    --primary: #8162FF;
+    --primary-foreground: #FFFFFF;
+    
+    --secondary: #1A1B1F;
+    --secondary-foreground: #FFFFFF;
+    
+    --accent: #221C3D;
+    --accent-foreground: #FFFFFF;
+    
+    --muted: #26272B;
+    --muted-foreground: #4E525B;
+    
+    --card: #1A1B1F;
+    --card-foreground: #FFFFFF;
+    
+    --popover: #1A1B1F;
+    --popover-foreground: #FFFFFF;
+    
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+    --destructive-surface: #2F1F1F;
+    
+    --border: #26272B;
+    --input: #26272B;
+    --ring: #8162FF;
+  }
+  
+  /* Variáveis CSS para modo claro */
+  .light {
+    --background: #FFFFFF;
+    --foreground: #0F172A;
+    
+    --primary: #8162FF;
+    --primary-foreground: #FFFFFF;
+    
+    --secondary: #F1F5F9;
+    --secondary-foreground: #0F172A;
+    
+    --accent: #EDE9FE;
+    --accent-foreground: #5B21B6;
+    
+    --muted: #F1F5F9;
+    --muted-foreground: #64748B;
+    
+    --card: #FFFFFF;
+    --card-foreground: #0F172A;
+    
+    --popover: #FFFFFF;
+    --popover-foreground: #0F172A;
+    
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+    --destructive-surface: #FEE2E2;
+    
+    --border: #E2E8F0;
+    --input: #E2E8F0;
+    --ring: #8162FF;
+  }
 }
 
 

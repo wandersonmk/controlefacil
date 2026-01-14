@@ -28,6 +28,9 @@
           
           <!-- Área de sair -->
           <div class="flex items-center space-x-3 relative">
+            <!-- Toggle de Tema -->
+            <ThemeToggle />
+            
             <!-- Botão Sair -->
             <button 
               @click="handleLogout"
@@ -73,6 +76,10 @@ const pageTitle = computed(() => {
       return 'Cardápio'
     case '/clientes':
       return 'Clientes'
+    case '/fornecedores':
+      return 'Fornecedores'
+    case '/estoque':
+      return 'Estoque'
     case '/relatorios':
       return 'Relatórios de Tickets'
     case '/configuracoes':
@@ -98,6 +105,10 @@ const pageDescription = computed(() => {
       return 'Gerencie itens e categorias do cardápio'
     case '/clientes':
       return 'Gerencie todos os seus clientes'
+    case '/fornecedores':
+      return 'Gerencie todos os seus fornecedores'
+    case '/estoque':
+      return 'Controle seus produtos e níveis de estoque'
     case '/relatorios':
       return 'Gerencie todos os relatórios de chamados'
     case '/configuracoes':

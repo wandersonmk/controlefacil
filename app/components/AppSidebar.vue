@@ -28,8 +28,8 @@
           <li>
             <NuxtLink 
               to="/"
-              class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted group relative"
-              :class="$route.path === '/' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-foreground'"
+              class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
             >
               <Icon icon="home" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Dashboard</span>
@@ -40,11 +40,35 @@
           <li>
             <NuxtLink 
               to="/clientes"
-              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted group relative"
-              :class="$route.path === '/clientes' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-foreground'"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/clientes' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
             >
               <Icon icon="users" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Clientes</span>
+            </NuxtLink>
+          </li>
+
+          <!-- Fornecedores -->
+          <li>
+            <NuxtLink 
+              to="/fornecedores"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/fornecedores' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="building" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Fornecedores</span>
+            </NuxtLink>
+          </li>
+
+          <!-- Estoque -->
+          <li>
+            <NuxtLink 
+              to="/estoque"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/estoque' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="box" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Estoque</span>
             </NuxtLink>
           </li>
 
@@ -52,10 +76,10 @@
           <li>
             <NuxtLink 
               to="/relatorios"
-              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted group relative"
-              :class="$route.path === '/relatorios' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-foreground'"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/relatorios' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
             >
-              <Icon icon="life-ring" class-name="w-5 h-5 mr-3" fallback="🆘" />
+              <Icon icon="chart-bar" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Relatórios</span>
             </NuxtLink>
           </li>
@@ -64,8 +88,8 @@
           <li>
             <NuxtLink 
               to="/configuracoes"
-              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted group relative"
-              :class="$route.path === '/configuracoes' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-foreground'"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/configuracoes' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
             >
               <Icon icon="cog" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Configurações</span>
@@ -76,8 +100,8 @@
           <li>
             <NuxtLink 
               to="/ajuda"
-              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted group relative"
-              :class="$route.path === '/ajuda' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-foreground'"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/ajuda' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
             >
               <Icon icon="question-circle" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Ajuda</span>
@@ -156,8 +180,8 @@
             <NuxtLink 
               to="/"
               @click="$emit('close-mobile')"
-              class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted group relative"
-              :class="$route.path === '/' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-foreground'"
+              class="flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
             >
               <Icon icon="home" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Dashboard</span>
@@ -169,11 +193,37 @@
             <NuxtLink 
               to="/clientes"
               @click="$emit('close-mobile')"
-              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted group relative"
-              :class="$route.path === '/clientes' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-foreground'"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/clientes' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
             >
               <Icon icon="users" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Clientes</span>
+            </NuxtLink>
+          </li>
+
+          <!-- Fornecedores -->
+          <li>
+            <NuxtLink 
+              to="/fornecedores"
+              @click="$emit('close-mobile')"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/fornecedores' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="building" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Fornecedores</span>
+            </NuxtLink>
+          </li>
+
+          <!-- Estoque -->
+          <li>
+            <NuxtLink 
+              to="/estoque"
+              @click="$emit('close-mobile')"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/estoque' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="box" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Estoque</span>
             </NuxtLink>
           </li>
 
@@ -182,10 +232,10 @@
             <NuxtLink 
               to="/relatorios"
               @click="$emit('close-mobile')"
-              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted group relative"
-              :class="$route.path === '/relatorios' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-foreground'"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/relatorios' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
             >
-              <Icon icon="file-alt" class-name="w-5 h-5 mr-3" fallback="" />
+              <Icon icon="chart-bar" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Relatórios</span>
             </NuxtLink>
           </li>
@@ -195,8 +245,8 @@
             <NuxtLink 
               to="/configuracoes"
               @click="$emit('close-mobile')"
-              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted group relative"
-              :class="$route.path === '/configuracoes' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-foreground'"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/10 dark:hover:bg-muted group relative"
+              :class="$route.path === '/configuracoes' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
             >
               <Icon icon="cog" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Configurações</span>
@@ -208,8 +258,8 @@
             <NuxtLink 
               to="/ajuda"
               @click="$emit('close-mobile')"
-              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-muted group relative"
-              :class="$route.path === '/ajuda' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-foreground'"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/ajuda' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
             >
               <Icon icon="question-circle" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Ajuda</span>
