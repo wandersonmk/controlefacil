@@ -164,9 +164,9 @@
               <thead>
                 <tr class="border-b border-border/50">
                   <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase w-48 min-w-48">Ingrediente</th>
-                  <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase">Custo/Produto</th>
-                  <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase">Qtd. Total</th>
-                  <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase">Un.</th>
+                  <th class="text-left py-2 px-1 font-semibold text-muted-foreground uppercase">Custo/Produto</th>
+                  <th class="text-left py-2 px-1 font-semibold text-muted-foreground uppercase">Qtd. Total</th>
+                  <th class="text-left py-2 px-1 font-semibold text-muted-foreground uppercase">Un.</th>
                   <th
                     class="text-right py-2 px-2 font-semibold text-muted-foreground uppercase"
                     title="Mostra o custo unitário (g/ml/un/cm) após você informar a Qtd./Porção."
@@ -174,7 +174,6 @@
                     Custo/Unid.
                   </th>
                   <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase">Qtd./Porção</th>
-                  <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase">Un.</th>
                   <th class="text-right py-2 px-2 font-semibold text-muted-foreground uppercase">Custo/Porção</th>
                   <th class="w-8"></th>
                 </tr>
@@ -196,32 +195,32 @@
                   </td>
                   
                   <!-- Custo Total -->
-                  <td class="py-2 px-2">
+                  <td class="py-2 px-1">
                     <input
                       :value="ingrediente.custoTotal"
                       type="text"
                       placeholder="R$ 0,00"
                       @input="formatarMoedaIngrediente($event, ingrediente.id)"
-                      class="w-24 px-2 py-1.5 bg-background border border-input rounded text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      class="w-16 px-1 py-1.5 bg-background border border-input rounded text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                     />
                   </td>
                   
                   <!-- Quantidade Total -->
-                  <td class="py-2 px-2">
+                  <td class="py-2 px-1">
                     <input
                       :value="ingrediente.quantidadeTotal"
                       type="text"
                       placeholder="0"
                       @input="formatarQuantidadeIngrediente($event, ingrediente.id, 'total')"
-                      class="w-20 px-2 py-1.5 bg-background border border-input rounded text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      class="w-14 px-1 py-1.5 bg-background border border-input rounded text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                     />
                   </td>
                   
                   <!-- Unidade Total -->
-                  <td class="py-2 px-2">
+                  <td class="py-2 px-1">
                     <select
                       v-model="ingrediente.unidadeTotal"
-                      class="select-unit w-16 px-1 py-1.5 bg-[var(--select-bg)] border border-input rounded text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer"
+                      class="select-unit w-12 px-0.5 py-1.5 bg-[var(--select-bg)] border border-input rounded text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer"
                     >
                       <option value="un">Un</option>
                       <option value="kg">Kg</option>
@@ -249,30 +248,14 @@
                   </td>
                   
                   <!-- Quantidade por Porção -->
-                  <td class="py-2 px-2">
+                  <td class="py-2 px-1">
                     <input
                       :value="ingrediente.quantidadePorPorcao"
                       type="text"
                       placeholder="0"
                       @input="formatarQuantidadeIngrediente($event, ingrediente.id, 'porcao')"
-                      class="w-20 px-2 py-1.5 bg-background border border-input rounded text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
+                      class="w-14 px-1 py-1.5 bg-background border border-input rounded text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
                     />
-                  </td>
-                  
-                  <!-- Unidade Porção -->
-                  <td class="py-2 px-2">
-                    <select
-                      v-model="ingrediente.unidadePorPorcao"
-                      class="select-unit w-16 px-1 py-1.5 bg-[var(--select-bg)] border border-input rounded text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer"
-                    >
-                      <option value="un">Un</option>
-                      <option value="kg">Kg</option>
-                      <option value="g">g</option>
-                      <option value="l">L</option>
-                      <option value="ml">mL</option>
-                      <option value="m">m</option>
-                      <option value="cm">cm</option>
-                    </select>
                   </td>
                   
                   <!-- Custo por Porção (calculado) -->
@@ -283,10 +266,10 @@
                   </td>
                   
                   <!-- Botão Remover -->
-                  <td class="py-2 px-2">
+                  <td class="py-2 px-1">
                     <button
                       @click="removerIngrediente(ingrediente.id)"
-                      class="p-1 hover:bg-red-500/10 text-red-500 rounded transition-colors"
+                      class="p-1.5 hover:bg-red-500/10 text-muted-foreground hover:text-red-500 rounded transition-colors"
                       title="Remover ingrediente"
                     >
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -620,7 +603,7 @@
             <div class="border-t border-border/50 pt-2">
               <div class="grid grid-cols-2 gap-2">
                 <button
-                  @click="mostrarModalSalvar = true"
+                  @click="abrirModalSalvar"
                   :disabled="!camposObrigatoriosPreenchidos"
                   :title="!camposObrigatoriosPreenchidos ? 'Preencha os campos obrigatórios: ' + camposFaltantes.join(', ') : 'Salvar cálculo'"
                   class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white transition-all duration-200 text-xs font-semibold shadow-md shadow-green-500/20 hover:shadow-lg hover:shadow-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-green-600 disabled:hover:to-green-500"
@@ -823,6 +806,12 @@ const mostrarModalSalvar = ref(false)
 const nomeCalculo = ref('')
 const calculosSalvos = ref<CalculoSalvo[]>([])
 const mostrarCalculosSalvos = ref(false)
+
+// Função para abrir modal de salvar com nome do produto preenchido
+function abrirModalSalvar() {
+  nomeCalculo.value = nomeProduto.value
+  mostrarModalSalvar.value = true
+}
 
 // Carregar cálculos salvos do Supabase ao montar
 onMounted(async () => {
@@ -1585,7 +1574,8 @@ async function salvarCalculo() {
 }
 
 // Função para carregar cálculo
-function carregarCalculo(calculo: CalculoSalvo) {
+// Função para carregar um cálculo salvo
+async function carregarCalculo(calculo: CalculoSalvo) {
   // Carrega dados do banco (formato snake_case)
   nomeProduto.value = calculo.nome_produto
   custoItemBase.value = 'R$ ' + calculo.custo_item_base.toFixed(2).replace('.', ',')
@@ -1630,6 +1620,15 @@ function carregarCalculo(calculo: CalculoSalvo) {
   }
   
   mostrarCalculosSalvos.value = false
+  
+  // Mostrar toast de sucesso
+  const toast = await useToastSafe()
+  if (toast) {
+    toast.success(`Cálculo "${calculo.nome}" carregado com sucesso!`, {
+      position: 'top-right',
+      timeout: 2000
+    })
+  }
 }
 
 // Função para excluir cálculo
