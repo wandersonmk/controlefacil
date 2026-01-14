@@ -55,7 +55,7 @@
           
           <div class="space-y-3">
             <div>
-              <label class="block text-xs font-medium text-foreground mb-1.5">Nome do Produto</label>
+              <label class="block text-xs font-medium text-foreground mb-1.5">Nome do Produto <span class="text-red-500">*</span></label>
               <input
                 v-model="nomeProduto"
                 type="text"
@@ -66,7 +66,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label class="block text-xs font-medium text-foreground mb-1.5">Custo Total da Compra (R$)</label>
+                <label class="block text-xs font-medium text-foreground mb-1.5">Custo Total da Compra (R$) <span class="text-red-500">*</span></label>
                 <input
                   v-model="custoItemBase"
                   type="text"
@@ -78,7 +78,7 @@
               </div>
 
               <div>
-                <label class="block text-xs font-medium text-foreground mb-1.5">QTD da embalagem</label>
+                <label class="block text-xs font-medium text-foreground mb-1.5">QTD da embalagem <span class="text-red-500">*</span></label>
                 <div class="relative">
                   <input
                     v-model="quantidadeTotalDisplay"
@@ -106,7 +106,7 @@
               </div>
 
               <div>
-                <label class="block text-xs font-medium text-foreground mb-1.5">Quantidade por Porção</label>
+                <label class="block text-xs font-medium text-foreground mb-1.5">Quantidade por Porção <span class="text-red-500">*</span></label>
                 <div class="relative">
                   <input
                     v-model="quantidadePorPorcaoDisplay"
@@ -621,7 +621,9 @@
               <div class="grid grid-cols-2 gap-2">
                 <button
                   @click="mostrarModalSalvar = true"
-                  class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white transition-all duration-200 text-xs font-semibold shadow-md shadow-green-500/20 hover:shadow-lg hover:shadow-green-500/30"
+                  :disabled="!camposObrigatoriosPreenchidos"
+                  :title="!camposObrigatoriosPreenchidos ? 'Preencha os campos obrigatórios: ' + camposFaltantes.join(', ') : 'Salvar cálculo'"
+                  class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white transition-all duration-200 text-xs font-semibold shadow-md shadow-green-500/20 hover:shadow-lg hover:shadow-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-green-600 disabled:hover:to-green-500"
                   style="border-radius: 10px;"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -643,7 +645,9 @@
 
                 <button
                   @click="exportarPDF"
-                  class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-violet-500 hover:from-purple-700 hover:to-violet-600 text-white transition-all duration-200 text-xs font-semibold shadow-md shadow-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30"
+                  :disabled="!camposObrigatoriosPreenchidos"
+                  :title="!camposObrigatoriosPreenchidos ? 'Preencha os campos obrigatórios: ' + camposFaltantes.join(', ') : 'Exportar PDF'"
+                  class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-violet-500 hover:from-purple-700 hover:to-violet-600 text-white transition-all duration-200 text-xs font-semibold shadow-md shadow-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-purple-600 disabled:hover:to-violet-500"
                   style="border-radius: 10px;"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -676,8 +680,8 @@
                 >
                   <div class="min-w-0 flex-1">
                     <p class="text-xs font-semibold text-foreground truncate">{{ calculo.nome }}</p>
-                    <p class="text-[10px] text-muted-foreground truncate">{{ calculo.nomeProduto }} • {{ formatarValor(calculo.precoVendaSugerido) }}</p>
-                    <p class="text-[10px] text-muted-foreground">Salvo em {{ new Date(calculo.dataSalvo).toLocaleDateString('pt-BR') }}</p>
+                    <p class="text-[10px] text-muted-foreground truncate">{{ calculo.nome_produto }} • {{ formatarValor(calculo.preco_venda_sugerido) }}</p>
+                    <p class="text-[10px] text-muted-foreground">Salvo em {{ new Date(calculo.created_at || '').toLocaleDateString('pt-BR') }}</p>
                   </div>
                   <div class="flex flex-col gap-1">
                     <button
@@ -705,31 +709,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-
-// Interface para cálculo salvo
-interface CalculoSalvo {
-  id: string
-  nome: string
-  dataSalvo: string
-  nomeProduto: string
-  custoItemBase: string
-  quantidadeTotal: number
-  quantidadePorPorcao: number
-  unidadeMedidaTotal: string
-  unidadeMedidaPorcao: string
-  custoEmbalagem: string
-  outrosCustosVariaveis: string
-  incluirCustosFixos: boolean
-  custoAluguel: string
-  custoAgua: string
-  custoEnergia: string
-  custoMaoDeObra: string
-  outrosCustosFixos: string
-  vendasEstimadas: number
-  margemLucro: number
-  taxaPlataforma: number
-  precoVendaSugerido: number
-}
+import type { CalculoSalvo } from '~/composables/useCalculos'
 
 // Estado do formulário
 const nomeProduto = ref('')
@@ -834,25 +814,29 @@ const precoAbaixoCusto = computed(() => {
   return precoManualNumero < custoTotalPorUnidade.value
 })
 
+// Composables
+const { user } = useAuth()
+const { listarCalculos, salvarCalculo: salvarCalculoDb, deletarCalculo, isLoading: isLoadingCalculos } = useCalculos()
+
 // Estado para salvar cálculos
 const mostrarModalSalvar = ref(false)
 const nomeCalculo = ref('')
 const calculosSalvos = ref<CalculoSalvo[]>([])
 const mostrarCalculosSalvos = ref(false)
 
-// Carregar cálculos salvos do localStorage ao montar
-onMounted(() => {
-  if (process.client) {
-    const salvos = localStorage.getItem('calculadora-calculos')
-    if (salvos) {
-      try {
-        calculosSalvos.value = JSON.parse(salvos)
-      } catch (error) {
-        console.error('Erro ao carregar cálculos salvos:', error)
-      }
-    }
+// Carregar cálculos salvos do Supabase ao montar
+onMounted(async () => {
+  if (process.client && user.value) {
+    await carregarCalculosSalvos()
   }
 })
+
+// Função para carregar cálculos do Supabase
+async function carregarCalculosSalvos() {
+  const calculos = await listarCalculos()
+  calculosSalvos.value = calculos
+}
+
 
 // Funções auxiliares
 function moedaParaNumero(valor: string): number {
@@ -1129,6 +1113,19 @@ function unidadePorExtenso(unidade: string): string {
 
 // Função para exportar PDF
 async function exportarPDF() {
+  // Valida campos obrigatórios
+  if (!camposObrigatoriosPreenchidos.value) {
+    const toast = await useToastSafe()
+    if (toast) {
+      const campos = camposFaltantes.value.join(', ')
+      toast.error(`Preencha os campos obrigatórios: ${campos}`, { 
+        position: 'top-right', 
+        timeout: 4000 
+      })
+    }
+    return
+  }
+  
   try {
     // Importação dinâmica para client-only
     const { default: jsPDF } = await import('jspdf')
@@ -1520,85 +1517,133 @@ async function exportarPDF() {
 }
 
 // Função para salvar cálculo
-function salvarCalculo() {
+async function salvarCalculo() {
+  // Valida campos obrigatórios
+  if (!camposObrigatoriosPreenchidos.value) {
+    const toast = await useToastSafe()
+    if (toast) {
+      const campos = camposFaltantes.value.join(', ')
+      toast.error(`Preencha os campos obrigatórios: ${campos}`, { 
+        position: 'top-right', 
+        timeout: 4000 
+      })
+    }
+    return
+  }
+  
   if (!nomeCalculo.value.trim()) return
 
-  const novoCalculo: CalculoSalvo = {
-    id: Date.now().toString(),
-    nome: nomeCalculo.value,
-    dataSalvo: new Date().toISOString(),
-    nomeProduto: nomeProduto.value,
-    custoItemBase: custoItemBase.value,
-    quantidadeTotal: quantidadeTotal.value,
-    quantidadePorPorcao: quantidadePorPorcao.value,
-    unidadeMedidaTotal: unidadeMedidaTotal.value,
-    unidadeMedidaPorcao: unidadeMedidaPorcao.value,
-    custoEmbalagem: custoEmbalagem.value,
-    outrosCustosVariaveis: outrosCustosVariaveis.value,
-    incluirCustosFixos: incluirCustosFixos.value,
-    custoAluguel: custoAluguel.value,
-    custoAgua: custoAgua.value,
-    custoEnergia: custoEnergia.value,
-    custoMaoDeObra: custoMaoDeObra.value,
-    outrosCustosFixos: outrosCustosFixos.value,
-    vendasEstimadas: vendasEstimadas.value,
-    margemLucro: margemLucro.value,
-    taxaPlataforma: taxaPlataforma.value,
-    precoVendaSugerido: precoVendaSugerido.value
-  }
-
-  calculosSalvos.value.push(novoCalculo)
+  const toast = await useToastSafe()
   
-  // Salvar no localStorage
-  if (process.client) {
-    localStorage.setItem('calculadora-calculos', JSON.stringify(calculosSalvos.value))
+  // Converte valores de moeda para número
+  const novoCalculo = {
+    nome: nomeCalculo.value,
+    nome_produto: nomeProduto.value,
+    custo_item_base: moedaParaNumero(custoItemBase.value),
+    quantidade_total: quantidadeTotal.value,
+    quantidade_por_porcao: quantidadePorPorcao.value,
+    unidade_medida_total: unidadeMedidaTotal.value,
+    unidade_medida_porcao: unidadeMedidaPorcao.value,
+    custo_embalagem: moedaParaNumero(custoEmbalagem.value),
+    outros_custos_variaveis: moedaParaNumero(outrosCustosVariaveis.value),
+    incluir_custos_fixos: incluirCustosFixos.value,
+    custo_aluguel: moedaParaNumero(custoAluguel.value),
+    custo_agua: moedaParaNumero(custoAgua.value),
+    custo_energia: moedaParaNumero(custoEnergia.value),
+    custo_mao_de_obra: moedaParaNumero(custoMaoDeObra.value),
+    outros_custos_fixos: moedaParaNumero(outrosCustosFixos.value),
+    vendas_estimadas: vendasEstimadas.value,
+    margem_lucro: margemLucro.value,
+    taxa_plataforma: taxaPlataforma.value,
+    preco_venda_sugerido: precoVendaSugerido.value,
+    ingredientes: ingredientes.value.map(ing => ({
+      id: ing.id,
+      nome: ing.nome,
+      custoTotal: moedaParaNumero(ing.custoTotal),
+      quantidadeTotal: parseFloat(ing.quantidadeTotal.replace(',', '.')),
+      unidadeTotal: ing.unidadeTotal,
+      quantidadePorPorcao: parseFloat(ing.quantidadePorPorcao.replace(',', '.')),
+      unidadePorPorcao: ing.unidadePorPorcao
+    }))
   }
 
-  // Resetar modal
-  mostrarModalSalvar.value = false
-  nomeCalculo.value = ''
-  mostrarCalculosSalvos.value = true
+  const resultado = await salvarCalculoDb(novoCalculo)
+  
+  if (resultado) {
+    if (toast) toast.success('Cálculo salvo com sucesso!', { position: 'top-right', timeout: 2000 })
+    
+    // Recarrega lista
+    await carregarCalculosSalvos()
+    
+    // Resetar modal
+    mostrarModalSalvar.value = false
+    nomeCalculo.value = ''
+    mostrarCalculosSalvos.value = true
+  } else {
+    if (toast) toast.error('Erro ao salvar cálculo. Tente novamente.', { position: 'top-right', timeout: 3000 })
+  }
 }
 
 // Função para carregar cálculo
 function carregarCalculo(calculo: CalculoSalvo) {
-  nomeProduto.value = calculo.nomeProduto
-  custoItemBase.value = calculo.custoItemBase
-  quantidadeTotal.value = calculo.quantidadeTotal
-  quantidadePorPorcao.value = calculo.quantidadePorPorcao
+  // Carrega dados do banco (formato snake_case)
+  nomeProduto.value = calculo.nome_produto
+  custoItemBase.value = 'R$ ' + calculo.custo_item_base.toFixed(2).replace('.', ',')
+  quantidadeTotal.value = calculo.quantidade_total
+  quantidadePorPorcao.value = calculo.quantidade_por_porcao
   
   // Atualizar displays
-  quantidadeTotalDisplay.value = calculo.quantidadeTotal.toString().replace('.', ',')
-  quantidadePorPorcaoDisplay.value = calculo.quantidadePorPorcao.toString().replace('.', ',')
+  quantidadeTotalDisplay.value = calculo.quantidade_total.toString().replace('.', ',')
+  quantidadePorPorcaoDisplay.value = calculo.quantidade_por_porcao.toString().replace('.', ',')
   
-  // Suporte para formato antigo e novo
-  unidadeMedidaTotal.value = calculo.unidadeMedidaTotal || (calculo as any).unidadeMedida || 'l'
-  unidadeMedidaPorcao.value = calculo.unidadeMedidaPorcao || (calculo as any).unidadeMedida || 'l'
+  // Unidades de medida
+  unidadeMedidaTotal.value = calculo.unidade_medida_total
+  unidadeMedidaPorcao.value = calculo.unidade_medida_porcao
   
-  custoEmbalagem.value = calculo.custoEmbalagem
-  outrosCustosVariaveis.value = calculo.outrosCustosVariaveis
-  incluirCustosFixos.value = calculo.incluirCustosFixos
-  custoAluguel.value = calculo.custoAluguel
-  custoAgua.value = calculo.custoAgua
-  custoEnergia.value = calculo.custoEnergia
-  custoMaoDeObra.value = calculo.custoMaoDeObra
-  outrosCustosFixos.value = calculo.outrosCustosFixos
-  vendasEstimadas.value = calculo.vendasEstimadas
-  margemLucro.value = calculo.margemLucro
-  taxaPlataforma.value = calculo.taxaPlataforma || 0
+  // Custos variáveis
+  custoEmbalagem.value = 'R$ ' + calculo.custo_embalagem.toFixed(2).replace('.', ',')
+  outrosCustosVariaveis.value = 'R$ ' + calculo.outros_custos_variaveis.toFixed(2).replace('.', ',')
+  
+  // Custos fixos
+  incluirCustosFixos.value = calculo.incluir_custos_fixos
+  custoAluguel.value = 'R$ ' + calculo.custo_aluguel.toFixed(2).replace('.', ',')
+  custoAgua.value = 'R$ ' + calculo.custo_agua.toFixed(2).replace('.', ',')
+  custoEnergia.value = 'R$ ' + calculo.custo_energia.toFixed(2).replace('.', ',')
+  custoMaoDeObra.value = 'R$ ' + calculo.custo_mao_de_obra.toFixed(2).replace('.', ',')
+  outrosCustosFixos.value = 'R$ ' + calculo.outros_custos_fixos.toFixed(2).replace('.', ',')
+  
+  vendasEstimadas.value = calculo.vendas_estimadas
+  margemLucro.value = calculo.margem_lucro
+  taxaPlataforma.value = calculo.taxa_plataforma
+  
+  // Carregar ingredientes se existirem
+  if (calculo.ingredientes && Array.isArray(calculo.ingredientes)) {
+    ingredientes.value = calculo.ingredientes.map((ing: any) => ({
+      id: ing.id || Date.now().toString(),
+      nome: ing.nome || '',
+      custoTotal: 'R$ ' + (ing.custoTotal || 0).toFixed(2).replace('.', ','),
+      quantidadeTotal: (ing.quantidadeTotal || 0).toString().replace('.', ','),
+      unidadeTotal: ing.unidadeTotal || 'g',
+      quantidadePorPorcao: (ing.quantidadePorPorcao || 0).toString().replace('.', ','),
+      unidadePorPorcao: ing.unidadePorPorcao || 'g'
+    }))
+  }
   
   mostrarCalculosSalvos.value = false
 }
 
 // Função para excluir cálculo
-function excluirCalculo(id: string) {
+async function excluirCalculo(id: string) {
   if (!confirm('Tem certeza que deseja excluir este cálculo?')) return
   
-  calculosSalvos.value = calculosSalvos.value.filter(c => c.id !== id)
+  const toast = await useToastSafe()
+  const sucesso = await deletarCalculo(id)
   
-  // Atualizar localStorage
-  if (process.client) {
-    localStorage.setItem('calculadora-calculos', JSON.stringify(calculosSalvos.value))
+  if (sucesso) {
+    if (toast) toast.success('Cálculo excluído com sucesso!', { position: 'top-right', timeout: 2000 })
+    await carregarCalculosSalvos()
+  } else {
+    if (toast) toast.error('Erro ao excluir cálculo.', { position: 'top-right', timeout: 3000 })
   }
 }
 
@@ -1710,6 +1755,23 @@ const lucroPorUnidade = computed(() => {
 const margemLucroCalculada = computed(() => {
   if (custoTotalPorUnidade.value === 0) return 0
   return (lucroPorUnidade.value / custoTotalPorUnidade.value) * 100
+})
+
+// Validação de campos obrigatórios
+const camposObrigatoriosPreenchidos = computed(() => {
+  return nomeProduto.value.trim() !== '' &&
+    moedaParaNumero(custoItemBase.value) > 0 &&
+    quantidadeTotal.value > 0 &&
+    quantidadePorPorcao.value > 0
+})
+
+const camposFaltantes = computed(() => {
+  const faltantes: string[] = []
+  if (nomeProduto.value.trim() === '') faltantes.push('Nome do Produto')
+  if (moedaParaNumero(custoItemBase.value) <= 0) faltantes.push('Custo Total da Compra')
+  if (quantidadeTotal.value <= 0) faltantes.push('QTD da embalagem')
+  if (quantidadePorPorcao.value <= 0) faltantes.push('Quantidade por Porção')
+  return faltantes
 })
 
 const porcoesTotais = computed(() => {
