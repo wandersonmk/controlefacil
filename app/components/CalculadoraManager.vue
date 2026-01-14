@@ -1080,7 +1080,7 @@ const exemploQuantidadePorcao = computed(() => {
   return exemplos[unidadeMedidaPorcao.value] || `Ex: 1 ${unidadeMedidaPorcao.value}`
 })
 
-function limparFormulario() {
+async function limparFormulario() {
   nomeProduto.value = ''
   custoItemBase.value = 'R$ 0,00'
   quantidadeTotal.value = 0
@@ -1101,6 +1101,14 @@ function limparFormulario() {
   outrosCustosFixos.value = 'R$ 0,00'
   vendasEstimadas.value = 0
   margemLucro.value = 50
+  
+  const toast = await useToastSafe()
+  if (toast) {
+    toast.success('Formulário limpo com sucesso!', {
+      position: 'top-right',
+      timeout: 2000
+    })
+  }
 }
 
 // Função auxiliar para converter unidades em texto completo
@@ -1118,8 +1126,9 @@ function unidadePorExtenso(unidade: string): string {
 }
 
 // Função para exportar PDF
-function exportarPDF() {
-  const doc = new jsPDF()
+async function exportarPDF() {
+  try {
+    const doc = new jsPDF()
   const dataAtual = new Date().toLocaleDateString('pt-BR', { 
     day: '2-digit', 
     month: '2-digit', 
@@ -1293,93 +1302,185 @@ function exportarPDF() {
   doc.setFillColor(240, 253, 244)
   doc.setDrawColor(34, 197, 94)
   doc.setLineWidth(1)
-  const alturaResultados = taxaPlataforma.value > 0 ? (porcoesTotais.value > 0 ? 85 : 70) : (porcoesTotais.value > 0 ? 70 : 55)
+  const alturaResultados = taxaPlataforma.value > 0 ? (porcoesTotais.value > 0 ? 140 : 110) : (porcoesTotais.value > 0 ? 115 : 90)
   doc.roundedRect(20, yPos, 170, alturaResultados, 3, 3, 'FD')
   
-  yPos += 10
+  yPos += 8
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(16)
+  doc.setFontSize(14)
   doc.setTextColor(34, 197, 94)
-  doc.text('RESULTADOS', 105, yPos, { align: 'center' })
-  yPos += 12
+  doc.text('RESULTADOS FINANCEIROS', 105, yPos, { align: 'center' })
+  yPos += 8
   
   // Linha separadora
   doc.setDrawColor(34, 197, 94)
-  doc.setLineWidth(0.3)
+  doc.setLineWidth(0.5)
   doc.line(30, yPos - 2, 180, yPos - 2)
-  yPos += 2
+  yPos += 4
+  
+  // ===== COMPOSICAO DE CUSTOS =====
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(11)
+  doc.setTextColor(40, 40, 40)
+  doc.text('Composicao de Custos:', 32, yPos)
+  yPos += 6
   
   doc.setFont('helvetica', 'normal')
-  doc.setFontSize(11)
-  doc.setTextColor(60, 60, 60)
+  doc.setFontSize(10)
+  doc.setTextColor(70, 70, 70)
   
   // Custo do Produto Base (se houver)
   if (custoProdutoBase.value > 0) {
-    doc.text(`Custo do Produto Base: ${formatarValor(custoProdutoBase.value)}`, 30, yPos)
-    yPos += 6
+    doc.text(`Produto Base: ${formatarValor(custoProdutoBase.value)}`, 35, yPos)
+    yPos += 5
   }
   
+  // Ingredientes
+  if (custoTotalIngredientes.value > 0) {
+    doc.text(`Ingredientes: ${formatarValor(custoTotalIngredientes.value)}`, 35, yPos)
+    yPos += 5
+  }
+  
+  // Embalagem
+  if (moedaParaNumero(custoEmbalagem.value) > 0) {
+    doc.text(`Embalagem: ${custoEmbalagem.value}`, 35, yPos)
+    yPos += 5
+  }
+  
+  // Outros Custos Variáveis
+  if (moedaParaNumero(outrosCustosVariaveis.value) > 0) {
+    doc.text(`Outros Custos: ${outrosCustosVariaveis.value}`, 35, yPos)
+    yPos += 5
+  }
+  
+  // Custo Fixo
+  if (incluirCustosFixos.value && custoFixoPorUnidade.value > 0) {
+    doc.text(`Custo Fixo Rateado: ${formatarValor(custoFixoPorUnidade.value)}`, 35, yPos)
+    yPos += 5
+  }
+  
+  yPos += 1
+  
   // Custo Variável Total
-  doc.text(`Custo Variavel por Porcao: ${formatarValor(custoVariavelTotal.value)}`, 30, yPos)
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(10)
+  doc.setTextColor(50, 50, 50)
+  doc.text(`Custo Variavel Total: ${formatarValor(custoVariavelTotal.value)}`, 32, yPos)
+  yPos += 5
+  
+  // CUSTO TOTAL
+  doc.setFontSize(11)
+  doc.setTextColor(0, 0, 0)
+  doc.text(`CUSTO TOTAL POR UNIDADE: ${formatarValor(custoTotalPorUnidade.value)}`, 32, yPos)
   yPos += 7
   
-  // Custo Total (destaque)
+  // Separador
+  doc.setDrawColor(200, 200, 200)
+  doc.setLineWidth(0.3)
+  doc.line(30, yPos - 2, 180, yPos - 2)
+  yPos += 4
+  
+  // ===== PRECIFICACAO =====
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(11)
+  doc.setTextColor(40, 40, 40)
+  doc.text('Precificacao:', 32, yPos)
+  yPos += 6
+  
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.setTextColor(70, 70, 70)
+  
+  // Margem e Cálculo
+  doc.text(`Margem de Lucro Desejada: ${margemLucro.value}%`, 35, yPos)
+  yPos += 4
+  
+  if (!usandoPrecoManual.value) {
+    doc.text(`Calculo: ${formatarValor(custoTotalPorUnidade.value)} x ${(1 + margemLucro.value/100).toFixed(2)} = ${formatarValor(precoVendaSugerido.value)}`, 35, yPos)
+    yPos += 5
+  } else {
+    yPos += 1
+  }
+  
+  // PREÇO SUGERIDO
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(12)
-  doc.text(`Custo Total por Unidade: ${formatarValor(custoTotalPorUnidade.value)}`, 30, yPos)
-  yPos += 9
-  
-  yPos += 2
-  
-  // Preço Sugerido
-  doc.setFont('helvetica', 'bold')
-  doc.setFontSize(13)
   doc.setTextColor(34, 197, 94)
-  doc.text(`Preco Sugerido: ${formatarValor(precoVendaSugerido.value)}`, 30, yPos)
-  yPos += 8
+  doc.text(`PRECO SUGERIDO: ${formatarValor(precoVendaSugerido.value)}`, 32, yPos)
+  yPos += 7
   
   // Taxa de Plataforma (se houver)
   if (taxaPlataforma.value > 0) {
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
     doc.setTextColor(255, 138, 0)
-    doc.text(`  - Taxa Plataforma ${taxaPlataforma.value}%: ${formatarValor(valorTaxaPlataforma.value)}`, 30, yPos)
-    yPos += 6
+    doc.text(`- Taxa Plataforma ${taxaPlataforma.value}%: ${formatarValor(valorTaxaPlataforma.value)}`, 35, yPos)
+    yPos += 4
+    
+    doc.setFontSize(9)
+    doc.setTextColor(150, 150, 150)
+    doc.text(`(Calculo: ${formatarValor(precoVendaSugerido.value)} x ${taxaPlataforma.value}% = ${formatarValor(valorTaxaPlataforma.value)})`, 38, yPos)
+    yPos += 5
+    
     doc.setFont('helvetica', 'bold')
+    doc.setFontSize(10)
     doc.setTextColor(34, 197, 94)
-    doc.text(`  = Voce recebe: ${formatarValor(precoSemTaxa.value)}`, 30, yPos)
-    yPos += 8
+    doc.text(`= Voce recebe: ${formatarValor(precoSemTaxa.value)}`, 35, yPos)
+    yPos += 7
   }
   
-  // Lucro
+  // Separador
+  doc.setDrawColor(200, 200, 200)
+  doc.setLineWidth(0.3)
+  doc.line(30, yPos - 2, 180, yPos - 2)
+  yPos += 4
+  
+  // LUCRO
   const corLucro: [number, number, number] = lucroPorUnidade.value >= 0 ? [34, 197, 94] : [239, 68, 68]
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(12)
   doc.setTextColor(...corLucro)
-  doc.text(`Lucro por Unidade: ${formatarValor(lucroPorUnidade.value)}`, 30, yPos)
+  
+  const valorRecebido = taxaPlataforma.value > 0 ? precoSemTaxa.value : precoVendaSugerido.value
+  doc.text(`LUCRO POR UNIDADE: ${formatarValor(lucroPorUnidade.value)}`, 32, yPos)
+  yPos += 5
+  
   doc.setFont('helvetica', 'normal')
+  doc.setFontSize(9)
+  doc.setTextColor(100, 100, 100)
+  doc.text(`(${formatarValor(valorRecebido)} - ${formatarValor(custoTotalPorUnidade.value)} = ${formatarValor(lucroPorUnidade.value)})`, 35, yPos)
+  yPos += 5
+  
+  doc.setFont('helvetica', 'bold')
   doc.setFontSize(10)
-  doc.text(`(Margem: ${margemLucroCalculada.value.toFixed(1)}%)`, 120, yPos)
-  yPos += 10
+  doc.setTextColor(...corLucro)
+  doc.text(`Margem Real: ${margemLucroCalculada.value.toFixed(1)}%`, 32, yPos)
+  yPos += 7
   
   // Projeção de vendas (se houver)
   if (porcoesTotais.value > 0) {
+    // Separador
+    doc.setDrawColor(200, 200, 200)
+    doc.setLineWidth(0.3)
+    doc.line(30, yPos - 2, 180, yPos - 2)
     yPos += 4
     
-    doc.setFont('helvetica', 'italic')
-    doc.setFontSize(10)
-    doc.setTextColor(100, 100, 100)
-    doc.text(`Projecao: Vendendo todas as ${porcoesTotais.value.toFixed(0)} porcoes`, 30, yPos)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.setTextColor(40, 40, 40)
+    doc.text(`Projecao Total (${porcoesTotais.value.toFixed(0)} porcoes):`, 32, yPos)
     yPos += 6
     
     doc.setFont('helvetica', 'normal')
-    doc.text(`  Receita Total: ${formatarValor(receitaTotal.value)}`, 30, yPos)
-    yPos += 6
+    doc.setFontSize(10)
+    doc.setTextColor(70, 70, 70)
+    doc.text(`Receita: ${porcoesTotais.value.toFixed(0)} x ${formatarValor(precoVendaSugerido.value)} = ${formatarValor(receitaTotal.value)}`, 35, yPos)
+    yPos += 5
     
     const corLucroTotal: [number, number, number] = lucroTotal.value >= 0 ? [34, 197, 94] : [239, 68, 68]
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(...corLucroTotal)
-    doc.text(`  Lucro Total: ${formatarValor(lucroTotal.value)}`, 30, yPos)
+    doc.text(`Lucro: ${porcoesTotais.value.toFixed(0)} x ${formatarValor(lucroPorUnidade.value)} = ${formatarValor(lucroTotal.value)}`, 35, yPos)
   }
   
   // Rodapé
@@ -1391,6 +1492,25 @@ function exportarPDF() {
   // Salvar PDF
   const nomeArquivo = `calculo-${nomeProduto.value.replace(/\s+/g, '-').toLowerCase() || 'produto'}-${Date.now()}.pdf`
   doc.save(nomeArquivo)
+  
+  // Toast de sucesso
+  const toast = await useToastSafe()
+  if (toast) {
+    toast.success('PDF gerado com sucesso!', {
+      position: 'top-right',
+      timeout: 3000
+    })
+  }
+  } catch (error) {
+    console.error('Erro ao gerar PDF:', error)
+    const toast = await useToastSafe()
+    if (toast) {
+      toast.error('Erro ao gerar PDF. Tente novamente.', {
+        position: 'top-right',
+        timeout: 3000
+      })
+    }
+  }
 }
 
 // Função para salvar cálculo
