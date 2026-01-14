@@ -7,68 +7,138 @@
     height: 100%;
   }
   
-  /* Variáveis CSS para modo escuro (padrão) */
-  :root, .dark {
-    --background: #141518;
-    --foreground: #FFFFFF;
+  /* ==================== PALETA MODO ESCURO (Dark - Padrão) ==================== */
+  :root {
+    /* Backgrounds e textos base */
+    --background: #0B1020;
+    --foreground: #FAFAFA;
     
+    /* Primary - Ações principais */
     --primary: #8162FF;
     --primary-foreground: #FFFFFF;
     
-    --secondary: #1A1B1F;
-    --secondary-foreground: #FFFFFF;
+    /* Secondary - Superfícies secundárias */
+    --secondary: #0F172A;
+    --secondary-foreground: #FAFAFA;
     
-    --accent: #221C3D;
-    --accent-foreground: #FFFFFF;
+    /* Accent - Destaques */
+    --accent: #1F2A44;
+    --accent-foreground: #A78BFA;
     
-    --muted: #26272B;
-    --muted-foreground: #4E525B;
+    /* Muted - Conteúdo desativado/sutil */
+    --muted: #111B30;
+    --muted-foreground: #94A3B8;
     
-    --card: #1A1B1F;
-    --card-foreground: #FFFFFF;
+    /* Cards e Popovers */
+    --card: #111827;
+    --card-foreground: #FAFAFA;
+    --popover: #111827;
+    --popover-foreground: #FAFAFA;
     
-    --popover: #1A1B1F;
-    --popover-foreground: #FFFFFF;
-    
+    /* Destructive - Ações destrutivas */
     --destructive: #EF4444;
     --destructive-foreground: #FFFFFF;
-    --destructive-surface: #2F1F1F;
+    --destructive-surface: #3F1F1F;
     
-    --border: #26272B;
-    --input: #26272B;
+    /* Elementos de UI */
+    --border: #162033;
+    --input: #162033;
     --ring: #8162FF;
+    
+    /* Dropdown específico */
+    --select-bg: #0B1020;
+    --select-border: #162033;
+    --select-hover: #111827;
   }
   
-  /* Variáveis CSS para modo claro */
-  .light {
+  /* ==================== PALETA MODO CLARO (Light) ==================== */
+  html.light, .light {
+    /* Backgrounds e textos base */
     --background: #FFFFFF;
     --foreground: #0F172A;
     
+    /* Primary - Ações principais */
     --primary: #8162FF;
     --primary-foreground: #FFFFFF;
     
-    --secondary: #F1F5F9;
+    /* Secondary - Superfícies secundárias */
+    --secondary: #F8FAFC;
     --secondary-foreground: #0F172A;
     
+    /* Accent - Destaques */
     --accent: #EDE9FE;
     --accent-foreground: #5B21B6;
     
+    /* Muted - Conteúdo desativado/sutil */
     --muted: #F1F5F9;
     --muted-foreground: #64748B;
     
+    /* Cards e Popovers */
     --card: #FFFFFF;
     --card-foreground: #0F172A;
-    
     --popover: #FFFFFF;
     --popover-foreground: #0F172A;
     
+    /* Destructive - Ações destrutivas */
     --destructive: #EF4444;
     --destructive-foreground: #FFFFFF;
     --destructive-surface: #FEE2E2;
     
+    /* Elementos de UI */
     --border: #E2E8F0;
     --input: #E2E8F0;
     --ring: #8162FF;
+    
+    /* Dropdown específico */
+    --select-bg: #FFFFFF;
+    --select-border: #E2E8F0;
+    --select-hover: #F8FAFC;
+  }
+  
+  /* ==================== ESTILOS GLOBAIS ==================== */
+  
+  /* Remove scroll horizontal */
+  body {
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  /* Gradiente sutil nos cards (apenas dark) */
+  html.dark .bg-card {
+    background-color: var(--card);
+    background-image:
+      radial-gradient(900px circle at 12% 0%, rgba(129, 98, 255, 0.14), transparent 45%),
+      radial-gradient(700px circle at 88% 0%, rgba(56, 189, 248, 0.08), transparent 40%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0));
+    background-repeat: no-repeat;
+  }
+
+  /* Popovers/menus com o mesmo “ar” */
+  html.dark .bg-popover {
+    background-color: var(--popover);
+    background-image:
+      radial-gradient(900px circle at 12% 0%, rgba(129, 98, 255, 0.10), transparent 45%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0));
+    background-repeat: no-repeat;
+  }
+
+  /* Gradiente sutil nos cards (apenas light) */
+  html.light .bg-card {
+    background-color: var(--card);
+    background-image:
+      radial-gradient(900px circle at 12% 0%, rgba(129, 98, 255, 0.10), transparent 52%),
+      radial-gradient(800px circle at 88% 0%, rgba(56, 189, 248, 0.10), transparent 48%),
+      linear-gradient(180deg, rgba(2, 6, 23, 0.03), rgba(2, 6, 23, 0));
+    background-repeat: no-repeat;
+  }
+
+  html.light .bg-popover {
+    background-color: var(--popover);
+    background-image:
+      radial-gradient(900px circle at 12% 0%, rgba(129, 98, 255, 0.08), transparent 52%),
+      linear-gradient(180deg, rgba(2, 6, 23, 0.025), rgba(2, 6, 23, 0));
+    background-repeat: no-repeat;
   }
 }
 

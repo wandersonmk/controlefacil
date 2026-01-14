@@ -80,6 +80,8 @@ const pageTitle = computed(() => {
       return 'Fornecedores'
     case '/estoque':
       return 'Estoque'
+    case '/calculadora':
+      return 'Calculadora de Preços'
     case '/relatorios':
       return 'Relatórios de Tickets'
     case '/configuracoes':
@@ -109,6 +111,8 @@ const pageDescription = computed(() => {
       return 'Gerencie todos os seus fornecedores'
     case '/estoque':
       return 'Controle seus produtos e níveis de estoque'
+    case '/calculadora':
+      return 'Calcule o preço ideal para seus produtos'
     case '/relatorios':
       return 'Gerencie todos os relatórios de chamados'
     case '/configuracoes':
