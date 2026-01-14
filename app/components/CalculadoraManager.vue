@@ -705,8 +705,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import jsPDF from 'jspdf'
-import 'jspdf-autotable'
 
 // Interface para cálculo salvo
 interface CalculoSalvo {
@@ -888,11 +886,15 @@ function formatarMoeda(event: Event, campo: 'custoItemBase' | 'custoEmbalagem' |
 }
 
 function formatarValor(valor: number): string {
-  return 'R$ ' + valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  // Trunca em vez de arredondar para evitar centavos "extras"
+  const truncado = Math.floor(valor * 100) / 100
+  return 'R$ ' + truncado.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
 }
 
 function formatarValorUnitario(valor: number): string {
-  return 'R$ ' + valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  // Trunca em vez de arredondar
+  const truncado = Math.floor(valor * 100) / 100
+  return 'R$ ' + truncado.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
 }
 
 // Funções para ingredientes
@@ -1128,6 +1130,10 @@ function unidadePorExtenso(unidade: string): string {
 // Função para exportar PDF
 async function exportarPDF() {
   try {
+    // Importação dinâmica para client-only
+    const { default: jsPDF } = await import('jspdf')
+    await import('jspdf-autotable')
+    
     const doc = new jsPDF()
   const dataAtual = new Date().toLocaleDateString('pt-BR', { 
     day: '2-digit', 
@@ -1681,7 +1687,8 @@ const custoFixoPorUnidade = computed(() => {
 })
 
 const custoTotalPorUnidade = computed(() => {
-  return custoVariavelTotal.value + custoFixoPorUnidade.value
+  const total = custoVariavelTotal.value + custoFixoPorUnidade.value
+  return Math.floor(total * 100) / 100
 })
 
 const precoVendaSugerido = computed(() => {
@@ -1691,7 +1698,8 @@ const precoVendaSugerido = computed(() => {
   }
   // Caso contrário, calcular baseado na margem
   if (custoTotalPorUnidade.value === 0) return 0
-  return custoTotalPorUnidade.value * (1 + margemLucro.value / 100)
+  const preco = custoTotalPorUnidade.value * (1 + margemLucro.value / 100)
+  return Math.floor(preco * 100) / 100
 })
 
 const lucroPorUnidade = computed(() => {
@@ -1726,7 +1734,8 @@ const lucroTotal = computed(() => {
 const valorTaxaPlataforma = computed(() => {
   if (taxaPlataforma.value === 0) return 0
   // Taxa é calculada sobre o preço de venda
-  return precoVendaSugerido.value * (taxaPlataforma.value / 100)
+  const taxa = precoVendaSugerido.value * (taxaPlataforma.value / 100)
+  return Math.floor(taxa * 100) / 100
 })
 
 const precoSemTaxa = computed(() => {
