@@ -1103,6 +1103,20 @@ function limparFormulario() {
   margemLucro.value = 50
 }
 
+// Função auxiliar para converter unidades em texto completo
+function unidadePorExtenso(unidade: string): string {
+  const unidades: Record<string, string> = {
+    'l': 'Litros',
+    'ml': 'Mililitros',
+    'kg': 'Quilogramas',
+    'g': 'Gramas',
+    'm': 'Metros',
+    'cm': 'Centímetros',
+    'un': 'Unidades'
+  }
+  return unidades[unidade.toLowerCase()] || unidade
+}
+
 // Função para exportar PDF
 function exportarPDF() {
   const doc = new jsPDF()
@@ -1114,183 +1128,265 @@ function exportarPDF() {
     minute: '2-digit'
   })
 
-  // Configurar fontes e cores
+  // Cabeçalho
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(18)
-  doc.setTextColor(34, 197, 94) // Verde
-  doc.text('Calculadora de Precos', 105, 20, { align: 'center' })
+  doc.setFontSize(20)
+  doc.setTextColor(34, 197, 94)
+  doc.text('Calculadora de Precos', 105, 22, { align: 'center' })
   
-  doc.setFontSize(10)
-  doc.setTextColor(100, 100, 100)
-  doc.text(`Gerado em: ${dataAtual}`, 105, 28, { align: 'center' })
+  doc.setFontSize(9)
+  doc.setTextColor(120, 120, 120)
+  doc.text(`Gerado em: ${dataAtual}`, 105, 30, { align: 'center' })
   
-  // Linha separadora
-  doc.setDrawColor(200, 200, 200)
-  doc.line(20, 32, 190, 32)
+  // Linha decorativa
+  doc.setDrawColor(34, 197, 94)
+  doc.setLineWidth(0.5)
+  doc.line(20, 34, 190, 34)
   
-  let yPos = 40
+  let yPos = 44
   
-  // Produto Principal
+  // ========== PRODUTO PRINCIPAL ==========
+  doc.setFillColor(245, 245, 245)
+  doc.roundedRect(20, yPos - 4, 170, 8, 2, 2, 'F')
+  
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(12)
+  doc.setFontSize(13)
   doc.setTextColor(0, 0, 0)
-  doc.text('Produto Principal', 20, yPos)
-  yPos += 8
+  doc.text('Produto Principal', 25, yPos + 1)
+  yPos += 10
   
   doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
+  doc.setFontSize(11)
   doc.text(`Nome: ${nomeProduto.value || 'Nao informado'}`, 25, yPos)
-  yPos += 6
+  yPos += 7
   
   if (quantidadeTotal.value > 0 && quantidadePorPorcao.value > 0) {
-    doc.text(`Embalagem: ${quantidadeTotal.value} ${unidadeMedidaTotal.value} | Porcao: ${quantidadePorPorcao.value} ${unidadeMedidaPorcao.value}`, 25, yPos)
+    doc.setFontSize(10)
+    doc.setTextColor(80, 80, 80)
+    doc.text(`Embalagem: ${quantidadeTotal.value} ${unidadePorExtenso(unidadeMedidaTotal.value)}`, 25, yPos)
     yPos += 6
-    doc.text(`Total de Porcoes: ${porcoesTotais.value.toFixed(0)}`, 25, yPos)
-    yPos += 10
+    doc.text(`Porcao: ${quantidadePorPorcao.value} ${unidadePorExtenso(unidadeMedidaPorcao.value)}`, 25, yPos)
+    yPos += 6
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(34, 197, 94)
+    doc.text(`Total de Porcoes: ${porcoesTotais.value.toFixed(0)} unidades`, 25, yPos)
+    doc.setFont('helvetica', 'normal')
+    doc.setTextColor(80, 80, 80)
+    yPos += 12
+  } else {
+    yPos += 8
   }
   
-  // Ingredientes
+  // ========== INGREDIENTES ==========
   if (ingredientes.value.length > 0) {
+    doc.setFillColor(245, 245, 245)
+    doc.roundedRect(20, yPos - 4, 170, 8, 2, 2, 'F')
+    
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(12)
-    doc.text('Ingredientes', 20, yPos)
-    yPos += 6
+    doc.setFontSize(13)
+    doc.setTextColor(0, 0, 0)
+    doc.text('Ingredientes (Custos Variaveis)', 25, yPos + 1)
+    yPos += 10
     
     const ingredientesData = ingredientes.value.map(ing => [
       ing.nome,
       formatarValor(moedaParaNumero(ing.custoTotal)),
-      `${ing.quantidadeTotal} ${ing.unidadeTotal}`,
-      `${ing.quantidadePorPorcao} ${ing.unidadePorPorcao}`,
+      `${ing.quantidadeTotal} ${unidadePorExtenso(ing.unidadeTotal)}`,
+      `${ing.quantidadePorPorcao} ${unidadePorExtenso(ing.unidadePorPorcao)}`,
       formatarValor(calcularCustoPorPorcaoIngrediente(ing))
     ])
     
     ;(doc as any).autoTable({
       startY: yPos,
-      head: [['Ingrediente', 'Custo Total', 'Qtd Total', 'Qtd/Porcao', 'Custo/Porcao']],
+      head: [['Ingrediente', 'Custo Total', 'Qtd. Total', 'Qtd./Porcao', 'Custo/Porcao']],
       body: ingredientesData,
-      foot: [['', '', '', 'TOTAL:', formatarValor(custoTotalIngredientes.value)]],
-      theme: 'striped',
-      headStyles: { fillColor: [34, 197, 94], textColor: 255, fontSize: 9 },
-      footStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
-      styles: { fontSize: 8, cellPadding: 3 },
+      foot: [['', '', '', 'SUBTOTAL:', formatarValor(custoTotalIngredientes.value)]],
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [34, 197, 94], 
+        textColor: [255, 255, 255], 
+        fontSize: 9,
+        fontStyle: 'bold',
+        halign: 'center'
+      },
+      footStyles: { 
+        fillColor: [34, 197, 94], 
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 9
+      },
+      bodyStyles: {
+        fontSize: 9,
+        textColor: [40, 40, 40]
+      },
+      alternateRowStyles: {
+        fillColor: [250, 250, 250]
+      },
+      styles: { 
+        cellPadding: 3,
+        lineColor: [220, 220, 220],
+        lineWidth: 0.1
+      },
       margin: { left: 20, right: 20 }
     })
     
-    yPos = (doc as any).lastAutoTable.finalY + 10
+    yPos = (doc as any).lastAutoTable.finalY + 12
   }
   
-  // Custos Adicionais
-  if (moedaParaNumero(custoEmbalagem.value) > 0 || moedaParaNumero(outrosCustosVariaveis.value) > 0 || taxaPlataforma.value > 0) {
+  // ========== CUSTOS ADICIONAIS ==========
+  const temCustosAdicionais = moedaParaNumero(custoEmbalagem.value) > 0 || 
+                               moedaParaNumero(outrosCustosVariaveis.value) > 0 || 
+                               taxaPlataforma.value > 0
+  
+  if (temCustosAdicionais) {
+    doc.setFillColor(245, 245, 245)
+    doc.roundedRect(20, yPos - 4, 170, 8, 2, 2, 'F')
+    
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(12)
-    doc.text('Custos Adicionais', 20, yPos)
-    yPos += 8
+    doc.setFontSize(13)
+    doc.setTextColor(0, 0, 0)
+    doc.text('Custos Adicionais', 25, yPos + 1)
+    yPos += 10
     
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
+    doc.setTextColor(80, 80, 80)
     
     if (moedaParaNumero(custoEmbalagem.value) > 0) {
       doc.text(`Embalagem: ${custoEmbalagem.value}`, 25, yPos)
       yPos += 6
     }
     if (moedaParaNumero(outrosCustosVariaveis.value) > 0) {
-      doc.text(`Outros Custos: ${outrosCustosVariaveis.value}`, 25, yPos)
+      doc.text(`Outros Custos Variaveis: ${outrosCustosVariaveis.value}`, 25, yPos)
       yPos += 6
     }
     if (taxaPlataforma.value > 0) {
-      doc.text(`Taxa de Plataforma: ${taxaPlataforma.value}% (${formatarValor(valorTaxaPlataforma.value)})`, 25, yPos)
+      doc.setTextColor(255, 138, 0)
+      doc.text(`Taxa de Plataforma (iFood, Rappi, etc): ${taxaPlataforma.value}%`, 25, yPos)
+      doc.setTextColor(80, 80, 80)
       yPos += 6
     }
-    yPos += 4
+    yPos += 8
   }
   
-  // Custos Fixos
+  // ========== CUSTOS FIXOS ==========
   if (incluirCustosFixos.value) {
+    doc.setFillColor(245, 245, 245)
+    doc.roundedRect(20, yPos - 4, 170, 8, 2, 2, 'F')
+    
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(12)
-    doc.text('Custos Fixos Mensais', 20, yPos)
-    yPos += 8
+    doc.setFontSize(13)
+    doc.setTextColor(0, 0, 0)
+    doc.text('Custos Fixos Mensais', 25, yPos + 1)
+    yPos += 10
     
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(10)
-    doc.text(`Vendas Estimadas: ${vendasEstimadas.value}/mes`, 25, yPos)
+    doc.setTextColor(80, 80, 80)
+    doc.text(`Vendas Estimadas por Mes: ${vendasEstimadas.value} unidades`, 25, yPos)
     yPos += 6
-    doc.text(`Custo Fixo por Unidade: ${formatarValor(custoFixoPorUnidade.value)}`, 25, yPos)
+    doc.text(`Custo Fixo Rateado por Unidade: ${formatarValor(custoFixoPorUnidade.value)}`, 25, yPos)
     yPos += 10
   }
   
-  // Resultados - Box com destaque
-  doc.setFillColor(240, 253, 244) // Verde claro
-  const alturaBox = taxaPlataforma.value > 0 ? 65 : 50
-  doc.roundedRect(20, yPos, 170, alturaBox, 3, 3, 'F')
+  // ========== RESULTADOS ==========
+  doc.setFillColor(240, 253, 244)
+  doc.setDrawColor(34, 197, 94)
+  doc.setLineWidth(1)
+  const alturaResultados = taxaPlataforma.value > 0 ? (porcoesTotais.value > 0 ? 85 : 70) : (porcoesTotais.value > 0 ? 70 : 55)
+  doc.roundedRect(20, yPos, 170, alturaResultados, 3, 3, 'FD')
   
-  yPos += 8
+  yPos += 10
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(14)
+  doc.setFontSize(16)
   doc.setTextColor(34, 197, 94)
   doc.text('RESULTADOS', 105, yPos, { align: 'center' })
-  yPos += 10
+  yPos += 12
+  
+  // Linha separadora
+  doc.setDrawColor(34, 197, 94)
+  doc.setLineWidth(0.3)
+  doc.line(30, yPos - 2, 180, yPos - 2)
+  yPos += 2
   
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(11)
-  doc.setTextColor(0, 0, 0)
+  doc.setTextColor(60, 60, 60)
   
-  // Custo Variável
-  doc.text(`Custo Variavel por Porcao: ${formatarValor(custoVariavelTotal.value)}`, 25, yPos)
+  // Custo do Produto Base (se houver)
+  if (custoProdutoBase.value > 0) {
+    doc.text(`Custo do Produto Base: ${formatarValor(custoProdutoBase.value)}`, 30, yPos)
+    yPos += 6
+  }
+  
+  // Custo Variável Total
+  doc.text(`Custo Variavel por Porcao: ${formatarValor(custoVariavelTotal.value)}`, 30, yPos)
   yPos += 7
   
-  // Custo Total
+  // Custo Total (destaque)
   doc.setFont('helvetica', 'bold')
-  doc.text(`Custo Total por Unidade: ${formatarValor(custoTotalPorUnidade.value)}`, 25, yPos)
-  yPos += 7
+  doc.setFontSize(12)
+  doc.text(`Custo Total por Unidade: ${formatarValor(custoTotalPorUnidade.value)}`, 30, yPos)
+  yPos += 9
+  
+  yPos += 2
   
   // Preço Sugerido
-  doc.setFont('helvetica', 'normal')
-  doc.text(`Preco Sugerido: ${formatarValor(precoVendaSugerido.value)}`, 25, yPos)
-  yPos += 7
+  doc.setFont('helvetica', 'bold')
+  doc.setFontSize(13)
+  doc.setTextColor(34, 197, 94)
+  doc.text(`Preco Sugerido: ${formatarValor(precoVendaSugerido.value)}`, 30, yPos)
+  yPos += 8
   
+  // Taxa de Plataforma (se houver)
   if (taxaPlataforma.value > 0) {
-    doc.setTextColor(255, 138, 0) // Laranja
-    doc.setFontSize(10)
-    doc.text(`  - Taxa Plataforma ${taxaPlataforma.value}%: ${formatarValor(valorTaxaPlataforma.value)}`, 25, yPos)
-    yPos += 6
-    doc.setTextColor(34, 197, 94) // Verde
-    doc.setFont('helvetica', 'bold')
-    doc.text(`  = Voce recebe: ${formatarValor(precoSemTaxa.value)}`, 25, yPos)
-    yPos += 8
-    doc.setTextColor(0, 0, 0)
     doc.setFont('helvetica', 'normal')
-    doc.setFontSize(11)
+    doc.setFontSize(10)
+    doc.setTextColor(255, 138, 0)
+    doc.text(`  - Taxa Plataforma ${taxaPlataforma.value}%: ${formatarValor(valorTaxaPlataforma.value)}`, 30, yPos)
+    yPos += 6
+    doc.setFont('helvetica', 'bold')
+    doc.setTextColor(34, 197, 94)
+    doc.text(`  = Voce recebe: ${formatarValor(precoSemTaxa.value)}`, 30, yPos)
+    yPos += 8
   }
   
   // Lucro
   const corLucro: [number, number, number] = lucroPorUnidade.value >= 0 ? [34, 197, 94] : [239, 68, 68]
-  doc.setTextColor(...corLucro)
   doc.setFont('helvetica', 'bold')
-  doc.text(`Lucro por Unidade: ${formatarValor(lucroPorUnidade.value)} (${margemLucroCalculada.value.toFixed(1)}%)`, 25, yPos)
+  doc.setFontSize(12)
+  doc.setTextColor(...corLucro)
+  doc.text(`Lucro por Unidade: ${formatarValor(lucroPorUnidade.value)}`, 30, yPos)
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.text(`(Margem: ${margemLucroCalculada.value.toFixed(1)}%)`, 120, yPos)
   yPos += 10
   
-  // Informações de produção total (se houver)
+  // Projeção de vendas (se houver)
   if (porcoesTotais.value > 0) {
-    doc.setFont('helvetica', 'normal')
+    yPos += 4
+    
+    doc.setFont('helvetica', 'italic')
     doc.setFontSize(10)
     doc.setTextColor(100, 100, 100)
-    yPos += 2
-    doc.text(`Vendendo todas as ${porcoesTotais.value.toFixed(0)} porcoes:`, 25, yPos)
+    doc.text(`Projecao: Vendendo todas as ${porcoesTotais.value.toFixed(0)} porcoes`, 30, yPos)
     yPos += 6
-    doc.text(`  Receita Total: ${formatarValor(receitaTotal.value)}`, 25, yPos)
+    
+    doc.setFont('helvetica', 'normal')
+    doc.text(`  Receita Total: ${formatarValor(receitaTotal.value)}`, 30, yPos)
     yPos += 6
+    
     const corLucroTotal: [number, number, number] = lucroTotal.value >= 0 ? [34, 197, 94] : [239, 68, 68]
-    doc.setTextColor(...corLucroTotal)
     doc.setFont('helvetica', 'bold')
-    doc.text(`  Lucro Total: ${formatarValor(lucroTotal.value)}`, 25, yPos)
+    doc.setTextColor(...corLucroTotal)
+    doc.text(`  Lucro Total: ${formatarValor(lucroTotal.value)}`, 30, yPos)
   }
   
   // Rodapé
   doc.setFont('helvetica', 'italic')
   doc.setFontSize(8)
   doc.setTextColor(150, 150, 150)
-  doc.text('Agzap - Controle Facil', 105, 285, { align: 'center' })
+  doc.text('Agzap - Controle Facil | Sistema de Gestao Empresarial', 105, 285, { align: 'center' })
   
   // Salvar PDF
   const nomeArquivo = `calculo-${nomeProduto.value.replace(/\s+/g, '-').toLowerCase() || 'produto'}-${Date.now()}.pdf`
