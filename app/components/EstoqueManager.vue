@@ -1,16 +1,16 @@
 <template>
-  <div class="bg-card text-card-foreground rounded-lg border border-border shadow-sm">
+  <div class="bg-card text-card-foreground rounded-xl sm:rounded-lg border border-border shadow-sm">
     <!-- Header com título e botões de ação -->
-    <div class="flex items-center justify-between p-6 border-b border-border">
-      <div>
-        <h2 class="text-xl font-semibold text-foreground">Gerenciamento de Estoque</h2>
-        <p class="text-sm text-muted-foreground mt-1">Controle seus produtos e níveis de estoque</p>
-        <p v-if="produtos && produtos.length > 0" class="text-xs text-muted-foreground mt-1">
-          Total de produtos: <span class="font-semibold text-primary">{{ produtos.length }}</span>
-          <span class="mx-2">|</span>
-          Estoque baixo: <span class="font-semibold text-orange-500">{{ produtosEstoqueBaixo }}</span>
-          <span class="mx-2">|</span>
-          Esgotados: <span class="font-semibold text-red-500">{{ produtosEsgotados }}</span>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-border gap-4">
+      <div class="flex-1">
+        <h2 class="text-lg sm:text-xl font-semibold text-foreground">Gerenciamento de Estoque</h2>
+        <p class="text-xs sm:text-sm text-muted-foreground mt-1">Controle seus produtos e níveis de estoque</p>
+        <p v-if="produtos && produtos.length > 0" class="text-xs text-muted-foreground mt-2 flex flex-wrap gap-x-2 gap-y-1">
+          <span>Total: <span class="font-semibold text-primary">{{ produtos.length }}</span></span>
+          <span class="hidden sm:inline">|</span>
+          <span>Baixo: <span class="font-semibold text-orange-500">{{ produtosEstoqueBaixo }}</span></span>
+          <span class="hidden sm:inline">|</span>
+          <span>Esgotados: <span class="font-semibold text-red-500">{{ produtosEsgotados }}</span></span>
         </p>
       </div>
       
@@ -18,7 +18,7 @@
       <div class="flex items-center space-x-2">
         <button
           @click="abrirModalNovoProduto"
-          class="flex items-center space-x-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-sm font-medium"
+          class="flex items-center justify-center space-x-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -29,15 +29,15 @@
     </div>
 
     <!-- Filtros -->
-    <div class="p-6 border-b border-border bg-muted/30">
-      <div class="flex flex-col sm:flex-row gap-4">
+    <div class="p-4 sm:p-6 border-b border-border bg-muted/30">
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <!-- Busca -->
         <div class="flex-1">
           <input
             v-model="filtroNome"
             type="text"
             placeholder="Buscar produto..."
-            class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            class="w-full px-3 sm:px-4 py-2 bg-background border border-input rounded-lg text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
         
@@ -45,7 +45,7 @@
         <div class="sm:w-48">
           <select
             v-model="filtroStatus"
-            class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            class="w-full px-3 sm:px-4 py-2 bg-background border border-input rounded-lg text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="todos">Todos os status</option>
             <option value="normal">Normal</option>
@@ -57,7 +57,7 @@
     </div>
 
     <!-- Lista de produtos -->
-    <div class="p-6">
+    <div class="p-4 sm:p-6">
       <!-- Mensagem quando não há produtos -->
       <div v-if="produtosFiltrados.length === 0 && produtos.length === 0" class="text-center py-8">
         <div class="flex flex-col items-center">
@@ -89,36 +89,36 @@
       </div>
 
       <!-- Grid de produtos -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
         <div
           v-for="produto in produtosFiltrados"
           :key="produto.id"
-          class="bg-background border border-border rounded-lg p-4 hover:shadow-md transition-shadow"
+          class="bg-background border border-border rounded-lg p-3 sm:p-4 hover:shadow-md transition-shadow"
         >
           <!-- Cabeçalho do card -->
           <div class="flex items-start justify-between mb-3">
-            <div class="flex-1">
-              <h3 class="font-semibold text-foreground mb-1 line-clamp-1">{{ produto.nome }}</h3>
+            <div class="flex-1 min-w-0 pr-2">
+              <h3 class="text-sm sm:text-base font-semibold text-foreground mb-1 line-clamp-2">{{ produto.nome }}</h3>
               <p class="text-xs text-muted-foreground line-clamp-1">{{ produto.categoria }}</p>
             </div>
-            <div class="flex items-center space-x-1 ml-2">
+            <div class="flex items-center space-x-1 flex-shrink-0">
               <!-- Botão editar -->
               <button
                 @click="abrirModalEditarProduto(produto)"
-                class="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                class="p-1.5 sm:p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 title="Editar"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>
               </button>
               <!-- Botão excluir -->
               <button
                 @click="confirmarExclusao(produto)"
-                class="p-1.5 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                class="p-1.5 sm:p-2 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
                 title="Excluir"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-3.5 h-3.5 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
               </button>
@@ -158,23 +158,23 @@
           </div>
 
           <!-- Botões de ajuste rápido -->
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center gap-2">
             <button
               @click="ajustarEstoque(produto, -1)"
               :disabled="produto.quantidade <= 0"
-              class="flex-1 px-3 py-2 bg-muted hover:bg-muted/70 text-foreground rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+              class="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-muted hover:bg-muted/70 text-foreground rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm font-medium"
             >
               - 1
             </button>
             <button
               @click="abrirModalAjustarEstoque(produto)"
-              class="flex-1 px-3 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors text-sm font-medium"
+              class="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg transition-colors text-xs sm:text-sm font-medium"
             >
               Ajustar
             </button>
             <button
               @click="ajustarEstoque(produto, 1)"
-              class="flex-1 px-3 py-2 bg-muted hover:bg-muted/70 text-foreground rounded-lg transition-colors text-sm font-medium"
+              class="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-muted hover:bg-muted/70 text-foreground rounded-lg transition-colors text-xs sm:text-sm font-medium"
             >
               + 1
             </button>
@@ -186,10 +186,10 @@
     <!-- Modal de Novo/Editar Produto -->
     <div
       v-if="modalProduto"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 sm:p-4"
       @click.self="fecharModalProduto"
     >
-      <div class="bg-card rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div class="bg-card rounded-none sm:rounded-lg shadow-xl max-w-md w-full h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto">
         <!-- Header do modal -->
         <div class="flex items-center justify-between p-6 border-b border-border">
           <h3 class="text-lg font-semibold text-foreground">
@@ -334,10 +334,10 @@
     <!-- Modal de Ajustar Estoque -->
     <div
       v-if="modalAjustarEstoque"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 sm:p-4"
       @click.self="fecharModalAjustarEstoque"
     >
-      <div class="bg-card rounded-lg shadow-xl max-w-sm w-full">
+      <div class="bg-card rounded-none sm:rounded-lg shadow-xl max-w-sm w-full h-full sm:h-auto overflow-y-auto">
         <!-- Header do modal -->
         <div class="flex items-center justify-between p-6 border-b border-border">
           <h3 class="text-lg font-semibold text-foreground">Ajustar Estoque</h3>
@@ -429,10 +429,10 @@
     <!-- Modal de Confirmação de Exclusão -->
     <div
       v-if="modalConfirmarExclusao"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 sm:p-4"
       @click.self="fecharModalConfirmarExclusao"
     >
-      <div class="bg-card rounded-lg shadow-xl max-w-sm w-full">
+      <div class="bg-card rounded-none sm:rounded-lg shadow-xl max-w-sm w-full h-full sm:h-auto flex flex-col">
         <!-- Header do modal -->
         <div class="p-6 border-b border-border">
           <h3 class="text-lg font-semibold text-foreground">Confirmar Exclusão</h3>

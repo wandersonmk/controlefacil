@@ -450,26 +450,26 @@
           <div class="space-y-2">
             <!-- Custo do Produto Base -->
             <div class="bg-background/50 rounded-lg p-2 border-0">
-              <p class="text-[10px] text-muted-foreground mb-0.5">Custo do Produto Base</p>
-              <p class="text-xs font-bold text-foreground">{{ formatarValor(custoProdutoBase) }}</p>
+              <p class="text-xs text-muted-foreground mb-0.5">Custo do Produto Base</p>
+              <p class="text-sm font-bold text-foreground">{{ formatarValor(custoProdutoBase) }}</p>
             </div>
 
             <!-- Custo Variável Total -->
             <div class="bg-background/50 rounded-lg p-2 border-0">
-              <p class="text-[10px] text-muted-foreground mb-0.5">Custo Variável por Porção</p>
-              <p class="text-xs font-bold text-foreground">{{ formatarValor(custoVariavelTotal) }}</p>
+              <p class="text-xs text-muted-foreground mb-0.5">Custo Variável por Porção</p>
+              <p class="text-sm font-bold text-foreground">{{ formatarValor(custoVariavelTotal) }}</p>
             </div>
 
             <!-- Custo Fixo por Unidade -->
             <div v-if="incluirCustosFixos" class="bg-background/50 rounded-lg p-2 border-0">
-              <p class="text-[10px] text-muted-foreground mb-0.5">Custo Fixo por Unidade</p>
+              <p class="text-xs text-muted-foreground mb-0.5">Custo Fixo por Unidade</p>
               <p class="text-xs font-bold text-foreground">{{ formatarValor(custoFixoPorUnidade) }}</p>
             </div>
 
             <!-- Custo Total por Unidade -->
             <div class="bg-primary/5 rounded-lg p-2 border-0">
-              <p class="text-[10px] font-semibold text-muted-foreground mb-0.5 uppercase">Custo Total</p>
-              <p class="text-sm font-black text-primary">{{ formatarValor(custoTotalPorUnidade) }}</p>
+              <p class="text-xs font-semibold text-muted-foreground mb-0.5 uppercase">Custo Total</p>
+              <p class="text-lg font-black text-primary">{{ formatarValor(custoTotalPorUnidade) }}</p>
             </div>
 
             <!-- Divisor -->
@@ -481,22 +481,22 @@
                 <svg class="w-3 h-3 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
                 </svg>
-                <p class="text-[10px] font-bold text-green-700 dark:text-green-300 uppercase">Preço Sugerido</p>
+                <p class="text-xs font-bold text-green-700 dark:text-green-300 uppercase">Preço Sugerido</p>
               </div>
-              <p class="text-base font-black text-green-600 dark:text-green-400">{{ formatarValor(precoVendaSugerido) }}</p>
+              <p class="text-xl font-black text-green-600 dark:text-green-400">{{ formatarValor(precoVendaSugerido) }}</p>
               <div v-if="taxaPlataforma > 0" class="mt-1.5 pt-1.5 border-t border-green-500/20">
-                <p class="text-[9px] text-orange-700 dark:text-orange-300 font-semibold">- Taxa Plataforma {{ taxaPlataforma }}%: {{ formatarValor(valorTaxaPlataforma) }}</p>
-                <p class="text-[9px] text-green-700 dark:text-green-300 font-bold mt-0.5">= Você recebe: {{ formatarValor(precoSemTaxa) }}</p>
+                <p class="text-xs text-orange-700 dark:text-orange-300 font-semibold">- Taxa Plataforma {{ taxaPlataforma }}%: {{ formatarValor(valorTaxaPlataforma) }}</p>
+                <p class="text-sm text-green-700 dark:text-green-300 font-bold mt-0.5">= Você recebe: {{ formatarValor(precoSemTaxa) }}</p>
               </div>
             </div>
 
             <!-- Lucro -->
             <div class="bg-green-500/5 rounded-lg p-2 border-0">
               <div class="flex items-center justify-between mb-0.5">
-                <p class="text-[10px] text-green-700 dark:text-green-300">Lucro por Unidade</p>
-                <span class="text-[10px] font-bold text-green-600 dark:text-green-400">{{ margemLucroCalculada.toFixed(1) }}%</span>
+                <p class="text-xs text-green-700 dark:text-green-300">Lucro por Unidade</p>
+                <span class="text-xs font-bold text-green-600 dark:text-green-400">{{ margemLucroCalculada.toFixed(1) }}%</span>
               </div>
-              <p :class="lucroPorUnidade >= 0 ? 'text-xs font-bold text-green-600 dark:text-green-400' : 'text-xs font-bold text-red-600 dark:text-red-400'">{{ formatarValor(lucroPorUnidade) }}</p>
+              <p :class="lucroPorUnidade >= 0 ? 'text-base font-bold text-green-600 dark:text-green-400' : 'text-base font-bold text-red-600 dark:text-red-400'">{{ formatarValor(lucroPorUnidade) }}</p>
             </div>
 
             <!-- Informações Adicionais -->
@@ -504,29 +504,29 @@
               <!-- Destaque para Porções -->
               <div class="bg-primary/5 rounded-lg p-2 mb-2">
                 <div class="flex items-center justify-between mb-0.5">
-                  <span class="text-[10px] font-semibold text-primary">Total de Porções:</span>
-                  <span class="text-base font-black text-primary">{{ porcoesTotais.toFixed(0) }}</span>
+                  <span class="text-xs font-semibold text-primary">Total de Porções:</span>
+                  <span class="text-xl font-black text-primary">{{ porcoesTotais.toFixed(0) }}</span>
                 </div>
-                <p class="text-[10px] text-muted-foreground">{{ quantidadeTotal }} {{ unidadeMedidaTotal }} ÷ {{ quantidadePorPorcao }} {{ unidadeMedidaPorcao }} = <span class="font-bold text-primary">{{ porcoesTotais.toFixed(0) }} porções</span></p>
-                <p class="text-[9px] text-muted-foreground/60 mt-0.5 italic">* Valor aproximado</p>
+                <p class="text-xs text-muted-foreground">{{ quantidadeTotal }} {{ unidadeMedidaTotal }} ÷ {{ quantidadePorPorcao }} {{ unidadeMedidaPorcao }} = <span class="font-bold text-primary">{{ porcoesTotais.toFixed(0) }} porções</span></p>
+                <p class="text-xs text-muted-foreground/60 mt-0.5 italic">* Valor aproximado</p>
               </div>
               
               <!-- Resumo Financeiro -->
               <div class="bg-muted/30 rounded-lg p-2">
-                <p class="text-[10px] font-bold text-foreground mb-1.5">💰 Se vender todas as {{ porcoesTotais.toFixed(0) }} porções:</p>
-                <div class="space-y-1 text-[10px]">
+                <p class="text-xs font-bold text-foreground mb-1.5">💰 Se vender todas as {{ porcoesTotais.toFixed(0) }} porções:</p>
+                <div class="space-y-1 text-xs">
                   <div class="flex justify-between items-center">
                     <span class="text-muted-foreground">Receita Total:</span>
                     <div class="text-right">
-                      <span class="font-bold text-foreground block text-xs">{{ formatarValor(receitaTotal) }}</span>
-                      <span class="text-[9px] text-muted-foreground/60">{{ porcoesTotais.toFixed(2) }} × {{ formatarValor(precoVendaSugerido) }}</span>
+                      <span class="font-bold text-foreground block text-sm">{{ formatarValor(receitaTotal) }}</span>
+                      <span class="text-[10px] text-muted-foreground/60">{{ porcoesTotais.toFixed(2) }} × {{ formatarValor(precoVendaSugerido) }}</span>
                     </div>
                   </div>
                   <div class="flex justify-between items-center pt-0.5 border-t border-border/50">
                     <span class="text-muted-foreground">Lucro Total:</span>
                     <div class="text-right">
-                      <span :class="lucroTotal >= 0 ? 'font-bold text-green-600 dark:text-green-400 block text-xs' : 'font-bold text-red-600 dark:text-red-400 block text-xs'">{{ formatarValor(lucroTotal) }}</span>
-                      <span class="text-[9px] text-muted-foreground/60">{{ porcoesTotais.toFixed(2) }} × {{ formatarValor(lucroPorUnidade) }}</span>
+                      <span :class="lucroTotal >= 0 ? 'font-bold text-green-600 dark:text-green-400 block text-sm' : 'font-bold text-red-600 dark:text-red-400 block text-sm'">{{ formatarValor(lucroTotal) }}</span>
+                      <span class="text-[10px] text-muted-foreground/60">{{ porcoesTotais.toFixed(2) }} × {{ formatarValor(lucroPorUnidade) }}</span>
                     </div>
                   </div>
                 </div>
@@ -561,12 +561,12 @@
                   ⚠️ Preço abaixo do custo! Você terá <span class="font-bold">prejuízo</span> de {{ formatarValor(Math.abs(lucroPorUnidade)) }} por unidade.
                 </p>
               </div>
-              <p class="text-[9px] text-muted-foreground mt-1">Digite o preço que deseja vender (ajusta a margem automaticamente)</p>
+              <p class="text-xs text-muted-foreground mt-1">Digite o preço que deseja vender (ajusta a margem automaticamente)</p>
             </div>
 
             <!-- Margem de Lucro -->
             <div class="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-lg p-3 border-0">
-              <h3 class="text-[10px] font-bold text-green-700 dark:text-green-300 mb-2 flex items-center gap-1.5 uppercase">
+              <h3 class="text-xs font-bold text-green-700 dark:text-green-300 mb-2 flex items-center gap-1.5 uppercase">
                 <svg class="w-3.5 h-3.5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>

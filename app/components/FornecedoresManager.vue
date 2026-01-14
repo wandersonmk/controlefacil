@@ -1,10 +1,10 @@
 <template>
-  <div class="bg-card text-card-foreground rounded-lg border border-border shadow-sm">
+  <div class="bg-card text-card-foreground rounded-xl sm:rounded-lg border border-border shadow-sm">
     <!-- Header com título e botões de ação -->
-    <div class="flex items-center justify-between p-6 border-b border-border">
-      <div>
-        <h2 class="text-xl font-semibold text-foreground">Lista de Fornecedores</h2>
-        <p class="text-sm text-muted-foreground mt-1">Gerencie todos os seus fornecedores</p>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-border gap-4">
+      <div class="flex-1">
+        <h2 class="text-lg sm:text-xl font-semibold text-foreground">Lista de Fornecedores</h2>
+        <p class="text-xs sm:text-sm text-muted-foreground mt-1">Gerencie todos os seus fornecedores</p>
         <p v-if="fornecedores && fornecedores.length > 0" class="text-xs text-muted-foreground mt-1">
           Total de fornecedores: <span class="font-semibold text-primary">{{ fornecedores.length }}</span>
         </p>
@@ -14,7 +14,7 @@
       <div class="flex items-center space-x-2">
         <button
           @click="abrirModalNovoFornecedor"
-          class="flex items-center space-x-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-sm font-medium"
+          class="flex items-center justify-center space-x-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -25,15 +25,15 @@
     </div>
 
     <!-- Filtros -->
-    <div class="p-6 border-b border-border bg-muted/30">
-      <div class="flex flex-col sm:flex-row gap-4">
+    <div class="p-4 sm:p-6 border-b border-border bg-muted/30">
+      <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <!-- Busca -->
         <div class="flex-1">
           <input
             v-model="filtroBusca"
             type="text"
             placeholder="Buscar por nome, empresa ou CNPJ..."
-            class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            class="w-full px-3 sm:px-4 py-2 bg-background border border-input rounded-lg text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
         
@@ -41,7 +41,7 @@
         <div class="sm:w-48">
           <select
             v-model="filtroCategoria"
-            class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            class="w-full px-3 sm:px-4 py-2 bg-background border border-input rounded-lg text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="todos">Todas categorias</option>
             <option value="Materiais">Materiais</option>
@@ -56,7 +56,7 @@
     </div>
 
     <!-- Lista de fornecedores -->
-    <div class="p-6">
+    <div class="p-4 sm:p-6">
       <!-- Mensagem quando não há fornecedores -->
       <div v-if="fornecedoresFiltrados.length === 0 && fornecedores.length === 0" class="text-center py-8">
         <div class="flex flex-col items-center">
@@ -87,8 +87,78 @@
         </div>
       </div>
 
-      <!-- Tabela de fornecedores -->
-      <div v-else class="overflow-x-auto">
+      <!-- Cards Mobile -->
+      <div v-else class="block lg:hidden space-y-3">
+        <div
+          v-for="fornecedor in fornecedoresFiltrados"
+          :key="fornecedor.id"
+          class="bg-background border border-border rounded-lg p-4 hover:shadow-md transition-shadow"
+        >
+          <!-- Cabeçalho -->
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-start flex-1 min-w-0">
+              <div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3 flex-shrink-0">
+                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-sm font-semibold text-foreground truncate">{{ fornecedor.nome }}</h3>
+                <p class="text-xs text-muted-foreground truncate">{{ fornecedor.empresa }}</p>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary mt-1">
+                  {{ fornecedor.categoria }}
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center space-x-1 ml-2 flex-shrink-0">
+              <button
+                @click="abrirModalEditarFornecedor(fornecedor)"
+                class="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                title="Editar"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              <button
+                @click="confirmarExclusao(fornecedor)"
+                class="p-2 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                title="Excluir"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Informações -->
+          <div class="space-y-2 pt-3 border-t border-border">
+            <div class="flex items-center text-xs text-muted-foreground">
+              <span class="font-medium mr-2">CNPJ:</span>
+              <span class="text-foreground">{{ formatarCNPJ(fornecedor.cnpj) }}</span>
+            </div>
+            <div class="flex items-start text-xs">
+              <svg class="w-3.5 h-3.5 mr-2 text-muted-foreground flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+              </svg>
+              <div class="flex-1">
+                <p class="text-foreground">{{ formatarTelefone(fornecedor.telefone) }}</p>
+                <p v-if="fornecedor.celular" class="text-foreground mt-1">{{ formatarTelefone(fornecedor.celular) }}</p>
+              </div>
+            </div>
+            <div class="flex items-start text-xs">
+              <svg class="w-3.5 h-3.5 mr-2 text-muted-foreground flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              <p class="text-foreground break-all">{{ fornecedor.email }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabela Desktop -->
+      <div v-if="fornecedoresFiltrados.length > 0" class="hidden lg:block overflow-x-auto">
         <div style="max-height: 600px; overflow-y: auto;">
           <table class="w-full">
             <thead class="sticky top-0 bg-card z-10">
@@ -187,10 +257,10 @@
     <!-- Modal de Novo/Editar Fornecedor -->
     <div
       v-if="modalFornecedor"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 sm:p-4"
       @click.self="fecharModalFornecedor"
     >
-      <div class="bg-card rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="bg-card rounded-none sm:rounded-lg shadow-xl max-w-2xl w-full h-full sm:h-auto sm:max-h-[90vh] overflow-y-auto">
         <!-- Header do modal -->
         <div class="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-card z-10">
           <h3 class="text-lg font-semibold text-foreground">
@@ -366,10 +436,10 @@
     <!-- Modal de Confirmação de Exclusão -->
     <div
       v-if="modalConfirmarExclusao"
-      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 sm:p-4"
       @click.self="fecharModalConfirmarExclusao"
     >
-      <div class="bg-card rounded-lg shadow-xl max-w-sm w-full">
+      <div class="bg-card rounded-none sm:rounded-lg shadow-xl max-w-sm w-full h-full sm:h-auto flex flex-col">
         <!-- Header do modal -->
         <div class="p-6 border-b border-border">
           <h3 class="text-lg font-semibold text-foreground">Confirmar Exclusão</h3>
