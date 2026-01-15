@@ -13,6 +13,16 @@
       <!-- Botões de ação -->
       <div class="flex items-center space-x-2">
         <button
+          @click="abrirModalGerenciarCategorias"
+          class="flex items-center justify-center space-x-2 px-4 py-2 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-lg transition-colors text-xs sm:text-sm font-medium"
+          title="Gerenciar Categorias"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+          </svg>
+          <span class="hidden sm:inline">Categorias</span>
+        </button>
+        <button
           @click="abrirModalNovoFornecedor"
           class="flex items-center justify-center space-x-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
         >
@@ -44,12 +54,9 @@
             class="w-full px-3 sm:px-4 py-2 bg-background border border-input rounded-lg text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="todos">Todas categorias</option>
-            <option value="Materiais">Materiais</option>
-            <option value="Serviços">Serviços</option>
-            <option value="Tecnologia">Tecnologia</option>
-            <option value="Alimentação">Alimentação</option>
-            <option value="Limpeza">Limpeza</option>
-            <option value="Outros">Outros</option>
+            <option v-for="cat in categorias" :key="cat.id" :value="cat.nome">
+              {{ cat.nome }}
+            </option>
           </select>
         </div>
       </div>
@@ -329,17 +336,43 @@
               <label class="block text-sm font-medium text-foreground mb-2">Categoria *</label>
               <select
                 v-model="formFornecedor.categoria"
-                required
+                :required="!criandoNovaCategoria"
+                @change="verificarNovaCategoria"
                 class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="">Selecione...</option>
-                <option value="Materiais">Materiais</option>
-                <option value="Serviços">Serviços</option>
-                <option value="Tecnologia">Tecnologia</option>
-                <option value="Alimentação">Alimentação</option>
-                <option value="Limpeza">Limpeza</option>
-                <option value="Outros">Outros</option>
+                <option v-for="cat in categorias" :key="cat.id" :value="cat.nome">
+                  {{ cat.nome }}
+                </option>
+                <option value="__nova__">+ Nova categoria...</option>
               </select>
+              
+              <!-- Input para nova categoria -->
+              <input
+                v-if="criandoNovaCategoria"
+                v-model="novaCategoria"
+                type="text"
+                required
+                placeholder="Digite a nova categoria"
+                class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring mt-2"
+                @keyup.enter="salvarNovaCategoria"
+              />
+              <div v-if="criandoNovaCategoria" class="flex items-center gap-2 mt-2">
+                <button
+                  type="button"
+                  @click="salvarNovaCategoria"
+                  class="flex-1 px-3 py-1.5 bg-primary hover:bg-primary/90 text-primary-foreground text-sm rounded-lg transition-colors"
+                >
+                  Salvar
+                </button>
+                <button
+                  type="button"
+                  @click="cancelarNovaCategoria"
+                  class="flex-1 px-3 py-1.5 bg-muted hover:bg-muted/70 text-foreground text-sm rounded-lg transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
 
@@ -498,6 +531,134 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de Gerenciamento de Categorias -->
+    <div
+      v-if="modalGerenciarCategorias"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-0 sm:p-4"
+      @click.self="fecharModalGerenciarCategorias"
+    >
+      <div class="bg-card rounded-none sm:rounded-lg shadow-xl max-w-lg w-full h-full sm:h-auto flex flex-col max-h-screen sm:max-h-[90vh]">
+        <!-- Header do modal -->
+        <div class="p-4 sm:p-6 border-b border-border flex items-center justify-between">
+          <div>
+            <h3 class="text-lg font-semibold text-foreground">Gerenciar Categorias</h3>
+            <p class="text-xs sm:text-sm text-muted-foreground mt-1">Adicione ou remova categorias de fornecedores</p>
+          </div>
+          <button
+            @click="fecharModalGerenciarCategorias"
+            class="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Conteúdo - Lista de categorias -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6">
+          <!-- Adicionar nova categoria -->
+          <div class="mb-6 p-4 bg-muted/30 rounded-lg border border-border">
+            <label class="block text-sm font-medium text-foreground mb-2">Nova Categoria</label>
+            <div class="flex gap-2">
+              <input
+                v-model="novaCategoriaModal"
+                type="text"
+                placeholder="Digite o nome da categoria"
+                class="flex-1 px-3 py-2 bg-background border border-input rounded-lg text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                @keyup.enter="adicionarCategoriaModal"
+              />
+              <button
+                @click="adicionarCategoriaModal"
+                class="px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-sm font-medium"
+              >
+                Adicionar
+              </button>
+            </div>
+          </div>
+
+          <!-- Lista de categorias existentes -->
+          <div class="space-y-2">
+            <h4 class="text-sm font-medium text-foreground mb-3">Categorias Existentes ({{ categorias.length }})</h4>
+            
+            <div v-if="categorias.length === 0" class="text-center py-8 text-muted-foreground text-sm">
+              Nenhuma categoria cadastrada
+            </div>
+
+            <div
+              v-for="categoria in categorias"
+              :key="categoria.id"
+              class="flex items-center justify-between p-3 bg-background border border-border rounded-lg hover:border-primary/50 transition-colors group"
+            >
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-foreground truncate">{{ categoria.nome }}</p>
+                <p v-if="categoria.descricao" class="text-xs text-muted-foreground mt-1 truncate">{{ categoria.descricao }}</p>
+              </div>
+              
+              <button
+                @click="confirmarExcluirCategoria(categoria)"
+                class="ml-3 p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                title="Excluir categoria"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 sm:p-6 border-t border-border">
+          <button
+            @click="fecharModalGerenciarCategorias"
+            class="w-full px-4 py-2 bg-muted hover:bg-muted/70 text-foreground rounded-lg transition-colors font-medium"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmação de exclusão de categoria -->
+    <div
+      v-if="modalConfirmarExcluirCategoria"
+      class="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4"
+      @click.self="fecharModalConfirmarExcluirCategoria"
+    >
+      <div class="bg-card rounded-lg shadow-xl max-w-sm w-full">
+        <!-- Header -->
+        <div class="p-6 border-b border-border">
+          <h3 class="text-lg font-semibold text-foreground">Confirmar Exclusão</h3>
+        </div>
+
+        <!-- Conteúdo -->
+        <div class="p-6">
+          <p class="text-sm text-muted-foreground mb-2">
+            Tem certeza que deseja excluir a categoria?
+          </p>
+          <p class="text-sm font-semibold text-foreground">
+            {{ categoriaParaExcluir?.nome }}
+          </p>
+        </div>
+
+        <!-- Botões -->
+        <div class="flex items-center space-x-3 px-6 pb-6">
+          <button
+            @click="fecharModalConfirmarExcluirCategoria"
+            class="flex-1 px-4 py-2 bg-muted hover:bg-muted/70 text-foreground rounded-lg transition-colors font-medium"
+          >
+            Cancelar
+          </button>
+          <button
+            @click="excluirCategoriaConfirmado"
+            class="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+          >
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -515,15 +676,29 @@ const {
   deleteFornecedor
 } = useFornecedores()
 
+// Usar composable de categorias
+const { 
+  categorias, 
+  fetchCategorias, 
+  addCategoria, 
+  categoriaExiste,
+  categoriaEmUso,
+  deleteCategoria
+} = useCategorias()
+
 // Toast
 const toast = ref<any>(null)
 
-// Carregar fornecedores ao montar
+// Carregar fornecedores e categorias ao montar
 onMounted(async () => {
   if (process.client) {
     toast.value = await useToastSafe()
   }
-  await fetchFornecedores()
+  await Promise.all([
+    fetchFornecedores(),
+    fetchCategorias('fornecedor')
+  ])
+  console.log('📦 Categorias carregadas:', categorias.value)
 })
 
 // Interface do Fornecedor (para compatibilidade com o componente)
@@ -546,13 +721,21 @@ interface Fornecedor {
 const filtroBusca = ref('')
 const filtroCategoria = ref('todos')
 
+// Estado para nova categoria
+const criandoNovaCategoria = ref(false)
+const novaCategoria = ref('')
+const novaCategoriaModal = ref('')
+
 // Modais
 const modalFornecedor = ref(false)
 const modalConfirmarExclusao = ref(false)
+const modalGerenciarCategorias = ref(false)
+const modalConfirmarExcluirCategoria = ref(false)
 
 // Estados dos formulários
 const fornecedorEditando = ref<Fornecedor | null>(null)
 const fornecedorParaExcluir = ref<Fornecedor | null>(null)
+const categoriaParaExcluir = ref<any>(null)
 
 const formFornecedor = ref({
   nome: '',
@@ -611,8 +794,83 @@ function abrirWhatsApp(whatsapp: string) {
   window.open(url, '_blank')
 }
 
+function verificarNovaCategoria(event: Event) {
+  const select = event.target as HTMLSelectElement
+  if (select.value === '__nova__') {
+    criandoNovaCategoria.value = true
+    novaCategoria.value = ''
+    formFornecedor.value.categoria = ''
+  } else {
+    criandoNovaCategoria.value = false
+  }
+}
+
+async function salvarNovaCategoria() {
+  if (!novaCategoria.value.trim()) {
+    if (toast.value) {
+      toast.value.warning('Digite o nome da categoria', {
+        position: 'top-right',
+        timeout: 2000
+      })
+    }
+    return
+  }
+
+  const nomeCategoria = novaCategoria.value.trim()
+
+  // Verificar se categoria já existe
+  const existe = await categoriaExiste(nomeCategoria, 'fornecedor')
+  if (existe) {
+    if (toast.value) {
+      toast.value.warning(`A categoria "${nomeCategoria}" já existe!`, {
+        position: 'top-right',
+        timeout: 2500
+      })
+    }
+    // Usar categoria existente
+    formFornecedor.value.categoria = nomeCategoria
+    criandoNovaCategoria.value = false
+    novaCategoria.value = ''
+    return
+  }
+
+  // Salvar nova categoria no banco
+  const categoriaData = await addCategoria({
+    nome: nomeCategoria,
+    tipo: 'fornecedor'
+  })
+
+  if (categoriaData) {
+    formFornecedor.value.categoria = nomeCategoria
+    criandoNovaCategoria.value = false
+    
+    if (toast.value) {
+      toast.value.success(`Categoria "${nomeCategoria}" criada com sucesso!`, {
+        position: 'top-right',
+        timeout: 2500
+      })
+    }
+    
+    console.log('✅ Nova categoria salva no banco:', categoriaData)
+    novaCategoria.value = ''
+  } else if (toast.value) {
+    toast.value.error('Erro ao criar categoria. Tente novamente.', {
+      position: 'top-right',
+      timeout: 3000
+    })
+  }
+}
+
+function cancelarNovaCategoria() {
+  criandoNovaCategoria.value = false
+  novaCategoria.value = ''
+  formFornecedor.value.categoria = ''
+}
+
 function abrirModalNovoFornecedor() {
   fornecedorEditando.value = null
+  criandoNovaCategoria.value = false
+  novaCategoria.value = ''
   formFornecedor.value = {
     nome: '',
     empresa: '',
@@ -631,6 +889,8 @@ function abrirModalNovoFornecedor() {
 
 function abrirModalEditarFornecedor(fornecedor: Fornecedor) {
   fornecedorEditando.value = fornecedor
+  criandoNovaCategoria.value = false
+  novaCategoria.value = ''
   formFornecedor.value = {
     nome: fornecedor.nome,
     empresa: fornecedor.empresa,
@@ -650,9 +910,28 @@ function abrirModalEditarFornecedor(fornecedor: Fornecedor) {
 function fecharModalFornecedor() {
   modalFornecedor.value = false
   fornecedorEditando.value = null
+  criandoNovaCategoria.value = false
+  novaCategoria.value = ''
 }
 
 async function salvarFornecedor() {
+  // Validar se está criando categoria mas não preencheu
+  if (criandoNovaCategoria.value && !formFornecedor.value.categoria) {
+    if (toast.value) {
+      toast.value.error('Por favor, digite a nova categoria ou selecione uma existente.', {
+        position: 'top-right',
+        timeout: 3000
+      })
+    }
+    return
+  }
+
+  console.log('📝 Dados do fornecedor a serem salvos:', {
+    categoria: formFornecedor.value.categoria,
+    nome: formFornecedor.value.nome,
+    empresa: formFornecedor.value.empresa
+  })
+
   const fornecedorData: FornecedorInput = {
     nome: formFornecedor.value.nome,
     empresa: formFornecedor.value.empresa,
@@ -666,6 +945,8 @@ async function salvarFornecedor() {
     estado: formFornecedor.value.estado || undefined,
     observacoes: formFornecedor.value.observacoes || undefined
   }
+
+  console.log('📤 Enviando ao banco:', fornecedorData)
 
   let sucesso = false
 
@@ -725,6 +1006,97 @@ async function excluirFornecedor() {
         timeout: 3000
       })
     }
+  }
+}
+
+// Funções de gerenciamento de categorias
+function abrirModalGerenciarCategorias() {
+  modalGerenciarCategorias.value = true
+  novaCategoriaModal.value = ''
+}
+
+function fecharModalGerenciarCategorias() {
+  modalGerenciarCategorias.value = false
+  novaCategoriaModal.value = ''
+}
+
+async function adicionarCategoriaModal() {
+  if (!novaCategoriaModal.value.trim()) {
+    if (toast.value) {
+      toast.value.warning('Digite o nome da categoria', {
+        position: 'top-right',
+        timeout: 2000
+      })
+    }
+    return
+  }
+
+  const nomeCategoria = novaCategoriaModal.value.trim()
+
+  // Verificar se já existe
+  const existe = await categoriaExiste(nomeCategoria, 'fornecedor')
+  if (existe) {
+    if (toast.value) {
+      toast.value.warning(`A categoria "${nomeCategoria}" já existe!`, {
+        position: 'top-right',
+        timeout: 2500
+      })
+    }
+    novaCategoriaModal.value = ''
+    return
+  }
+
+  // Salvar no banco
+  const categoriaData = await addCategoria({
+    nome: nomeCategoria,
+    tipo: 'fornecedor'
+  })
+
+  if (categoriaData && toast.value) {
+    toast.value.success(`Categoria "${nomeCategoria}" criada com sucesso!`, {
+      position: 'top-right',
+      timeout: 2500
+    })
+    novaCategoriaModal.value = ''
+    console.log('✅ Nova categoria criada no modal:', categoriaData)
+  } else if (toast.value) {
+    toast.value.error('Erro ao criar categoria. Tente novamente.', {
+      position: 'top-right',
+      timeout: 3000
+    })
+  }
+}
+
+function confirmarExcluirCategoria(categoria: any) {
+  categoriaParaExcluir.value = categoria
+  modalConfirmarExcluirCategoria.value = true
+}
+
+function fecharModalConfirmarExcluirCategoria() {
+  modalConfirmarExcluirCategoria.value = false
+  categoriaParaExcluir.value = null
+}
+
+async function excluirCategoriaConfirmado() {
+  if (!categoriaParaExcluir.value) return
+
+  const resultado = await deleteCategoria(
+    categoriaParaExcluir.value.id,
+    categoriaParaExcluir.value.nome
+  )
+
+  if (resultado.success && toast.value) {
+    toast.value.success('Categoria excluída com sucesso!', {
+      position: 'top-right',
+      timeout: 3000
+    })
+    fecharModalConfirmarExcluirCategoria()
+  } else if (toast.value) {
+    toast.value.error(resultado.message || 'Erro ao excluir categoria.', {
+      position: 'top-right',
+      timeout: 4000
+    })
+    fecharModalConfirmarExcluirCategoria()
   }
 }
 
