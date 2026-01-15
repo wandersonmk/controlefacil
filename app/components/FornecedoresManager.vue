@@ -112,6 +112,16 @@
             </div>
             <div class="flex items-center space-x-1 ml-2 flex-shrink-0">
               <button
+                v-if="fornecedor.whatsapp"
+                @click="abrirWhatsApp(fornecedor.whatsapp)"
+                class="p-2 rounded-lg text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors"
+                title="Chamar no WhatsApp"
+              >
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+              </button>
+              <button
                 @click="abrirModalEditarFornecedor(fornecedor)"
                 class="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 title="Editar"
@@ -142,10 +152,7 @@
               <svg class="w-3.5 h-3.5 mr-2 text-muted-foreground flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
               </svg>
-              <div class="flex-1">
-                <p class="text-foreground">{{ formatarTelefone(fornecedor.telefone) }}</p>
-                <p v-if="fornecedor.celular" class="text-foreground mt-1">{{ formatarTelefone(fornecedor.celular) }}</p>
-              </div>
+              <p class="text-foreground">{{ formatarTelefone(fornecedor.telefone) }}</p>
             </div>
             <div class="flex items-start text-xs">
               <svg class="w-3.5 h-3.5 mr-2 text-muted-foreground flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,19 +210,11 @@
 
                 <!-- Contato -->
                 <td class="py-3 px-4">
-                  <div class="flex flex-col space-y-1">
-                    <div class="flex items-center text-sm text-foreground">
-                      <svg class="w-3.5 h-3.5 mr-1.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                      </svg>
-                      {{ formatarTelefone(fornecedor.telefone) }}
-                    </div>
-                    <div v-if="fornecedor.celular" class="flex items-center text-sm text-foreground">
-                      <svg class="w-3.5 h-3.5 mr-1.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                      </svg>
-                      {{ formatarTelefone(fornecedor.celular) }}
-                    </div>
+                  <div class="flex items-center text-sm text-foreground">
+                    <svg class="w-3.5 h-3.5 mr-1.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                    {{ formatarTelefone(fornecedor.telefone) }}
                   </div>
                 </td>
 
@@ -227,6 +226,16 @@
                 <!-- Ações -->
                 <td class="py-3 px-4">
                   <div class="flex items-center justify-end space-x-2">
+                    <button
+                      v-if="fornecedor.whatsapp"
+                      @click="abrirWhatsApp(fornecedor.whatsapp)"
+                      class="p-2 rounded-lg text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors"
+                      title="Chamar no WhatsApp"
+                    >
+                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                      </svg>
+                    </button>
                     <button
                       @click="abrirModalEditarFornecedor(fornecedor)"
                       class="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
@@ -312,6 +321,7 @@
                 required
                 placeholder="00.000.000/0000-00"
                 maxlength="18"
+                @input="formatarCNPJInput"
                 class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -335,17 +345,16 @@
 
           <!-- Email -->
           <div>
-            <label class="block text-sm font-medium text-foreground mb-2">Email *</label>
+            <label class="block text-sm font-medium text-foreground mb-2">Email (Opcional)</label>
             <input
               v-model="formFornecedor.email"
               type="email"
-              required
               placeholder="contato@empresa.com"
               class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
-          <!-- Telefone e Celular -->
+          <!-- Telefone e WhatsApp -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-foreground mb-2">Telefone *</label>
@@ -354,15 +363,26 @@
                 type="tel"
                 required
                 placeholder="(00) 0000-0000"
+                maxlength="15"
+                @input="formatarTelefoneInput"
                 class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-foreground mb-2">Celular (Opcional)</label>
+              <label class="block text-sm font-medium text-foreground mb-2">
+                <div class="flex items-center">
+                  WhatsApp (Opcional)
+                  <svg class="w-4 h-4 ml-1 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.890-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                </div>
+              </label>
               <input
-                v-model="formFornecedor.celular"
+                v-model="formFornecedor.whatsapp"
                 type="tel"
                 placeholder="(00) 00000-0000"
+                maxlength="15"
+                @input="formatarWhatsAppInput"
                 class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -397,6 +417,7 @@
                 type="text"
                 placeholder="Ex: SP"
                 maxlength="2"
+                @input="formatarEstadoInput"
                 class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -481,67 +502,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import type { FornecedorInput } from '~/composables/useFornecedores'
 
-// Interface do Fornecedor
+// Usar composable de fornecedores
+const { 
+  fornecedores, 
+  isLoading: loadingFornecedores, 
+  fetchFornecedores,
+  addFornecedor,
+  updateFornecedor,
+  deleteFornecedor
+} = useFornecedores()
+
+// Toast
+const toast = ref<any>(null)
+
+// Carregar fornecedores ao montar
+onMounted(async () => {
+  if (process.client) {
+    toast.value = await useToastSafe()
+  }
+  await fetchFornecedores()
+})
+
+// Interface do Fornecedor (para compatibilidade com o componente)
 interface Fornecedor {
-  id: number
+  id: string
   nome: string
   empresa: string
   cnpj: string
   categoria: string
-  email: string
+  email?: string
   telefone: string
-  celular?: string
+  whatsapp?: string
   endereco?: string
   cidade?: string
   estado?: string
   observacoes?: string
 }
-
-// Estado
-const fornecedores = ref<Fornecedor[]>([
-  // Dados de exemplo
-  {
-    id: 1,
-    nome: 'Carlos Mendes',
-    empresa: 'Tech Solutions Ltda',
-    cnpj: '12345678000190',
-    categoria: 'Tecnologia',
-    email: 'contato@techsolutions.com',
-    telefone: '1133334444',
-    celular: '11999998888',
-    endereco: 'Av. Paulista, 1000',
-    cidade: 'São Paulo',
-    estado: 'SP',
-    observacoes: 'Fornecedor de equipamentos de TI'
-  },
-  {
-    id: 2,
-    nome: 'Ana Paula',
-    empresa: 'Materiais Diversos S.A.',
-    cnpj: '98765432000111',
-    categoria: 'Materiais',
-    email: 'vendas@materiaisdiversos.com.br',
-    telefone: '1144445555',
-    celular: '11988887777',
-    endereco: 'Rua Comércio, 500',
-    cidade: 'São Paulo',
-    estado: 'SP'
-  },
-  {
-    id: 3,
-    nome: 'Roberto Lima',
-    empresa: 'Clean Pro Serviços',
-    cnpj: '11223344000155',
-    categoria: 'Limpeza',
-    email: 'contato@cleanpro.com',
-    telefone: '1155556666',
-    cidade: 'Rio de Janeiro',
-    estado: 'RJ',
-    observacoes: 'Fornecedor de produtos de limpeza profissional'
-  }
-])
 
 // Filtros
 const filtroBusca = ref('')
@@ -562,7 +561,7 @@ const formFornecedor = ref({
   categoria: '',
   email: '',
   telefone: '',
-  celular: '',
+  whatsapp: '',
   endereco: '',
   cidade: '',
   estado: '',
@@ -580,7 +579,7 @@ const fornecedoresFiltrados = computed(() => {
       f.nome.toLowerCase().includes(busca) ||
       f.empresa.toLowerCase().includes(busca) ||
       f.cnpj.includes(busca) ||
-      f.email.toLowerCase().includes(busca)
+      (f.email?.toLowerCase().includes(busca) || false)
     )
   }
 
@@ -606,6 +605,12 @@ function formatarTelefone(telefone: string): string {
   return numeros.replace(/(\d{2})(\d{4})(\d{4})/, '($1) $2-$3')
 }
 
+function abrirWhatsApp(whatsapp: string) {
+  const numero = whatsapp.replace(/\D/g, '')
+  const url = `https://wa.me/55${numero}`
+  window.open(url, '_blank')
+}
+
 function abrirModalNovoFornecedor() {
   fornecedorEditando.value = null
   formFornecedor.value = {
@@ -615,7 +620,7 @@ function abrirModalNovoFornecedor() {
     categoria: '',
     email: '',
     telefone: '',
-    celular: '',
+    whatsapp: '',
     endereco: '',
     cidade: '',
     estado: '',
@@ -631,9 +636,9 @@ function abrirModalEditarFornecedor(fornecedor: Fornecedor) {
     empresa: fornecedor.empresa,
     cnpj: fornecedor.cnpj,
     categoria: fornecedor.categoria,
-    email: fornecedor.email,
+    email: fornecedor.email || '',
     telefone: fornecedor.telefone,
-    celular: fornecedor.celular || '',
+    whatsapp: fornecedor.whatsapp || '',
     endereco: fornecedor.endereco || '',
     cidade: fornecedor.cidade || '',
     estado: fornecedor.estado || '',
@@ -647,25 +652,51 @@ function fecharModalFornecedor() {
   fornecedorEditando.value = null
 }
 
-function salvarFornecedor() {
+async function salvarFornecedor() {
+  const fornecedorData: FornecedorInput = {
+    nome: formFornecedor.value.nome,
+    empresa: formFornecedor.value.empresa,
+    cnpj: formFornecedor.value.cnpj,
+    categoria: formFornecedor.value.categoria,
+    email: formFornecedor.value.email,
+    telefone: formFornecedor.value.telefone,
+    whatsapp: formFornecedor.value.whatsapp || undefined,
+    endereco: formFornecedor.value.endereco || undefined,
+    cidade: formFornecedor.value.cidade || undefined,
+    estado: formFornecedor.value.estado || undefined,
+    observacoes: formFornecedor.value.observacoes || undefined
+  }
+
+  let sucesso = false
+
   if (fornecedorEditando.value) {
     // Editar fornecedor existente
-    const index = fornecedores.value.findIndex(f => f.id === fornecedorEditando.value!.id)
-    if (index !== -1) {
-      fornecedores.value[index] = {
-        ...fornecedorEditando.value,
-        ...formFornecedor.value
-      }
+    sucesso = await updateFornecedor(fornecedorEditando.value.id, fornecedorData)
+    if (sucesso && toast.value) {
+      toast.value.success('Fornecedor atualizado com sucesso!', { 
+        position: 'top-right', 
+        timeout: 3000 
+      })
     }
   } else {
     // Criar novo fornecedor
-    const novoId = Math.max(...fornecedores.value.map(f => f.id), 0) + 1
-    fornecedores.value.push({
-      id: novoId,
-      ...formFornecedor.value
+    sucesso = await addFornecedor(fornecedorData)
+    if (sucesso && toast.value) {
+      toast.value.success('Fornecedor cadastrado com sucesso!', { 
+        position: 'top-right', 
+        timeout: 3000 
+      })
+    }
+  }
+
+  if (sucesso) {
+    fecharModalFornecedor()
+  } else if (toast.value) {
+    toast.value.error('Erro ao salvar fornecedor. Tente novamente.', {
+      position: 'top-right',
+      timeout: 3000
     })
   }
-  fecharModalFornecedor()
 }
 
 function confirmarExclusao(fornecedor: Fornecedor) {
@@ -678,10 +709,86 @@ function fecharModalConfirmarExclusao() {
   fornecedorParaExcluir.value = null
 }
 
-function excluirFornecedor() {
+async function excluirFornecedor() {
   if (fornecedorParaExcluir.value) {
-    fornecedores.value = fornecedores.value.filter(f => f.id !== fornecedorParaExcluir.value!.id)
+    const sucesso = await deleteFornecedor(fornecedorParaExcluir.value.id)
+    
+    if (sucesso && toast.value) {
+      toast.value.success('Fornecedor excluído com sucesso!', {
+        position: 'top-right',
+        timeout: 3000
+      })
+      fecharModalConfirmarExclusao()
+    } else if (toast.value) {
+      toast.value.error('Erro ao excluir fornecedor. Tente novamente.', {
+        position: 'top-right',
+        timeout: 3000
+      })
+    }
   }
-  fecharModalConfirmarExclusao()
+}
+
+// Funções de máscara
+function formatarCNPJInput(event: Event) {
+  const input = event.target as HTMLInputElement
+  let valor = input.value.replace(/\D/g, '')
+  
+  if (valor.length <= 14) {
+    valor = valor.replace(/^(\d{2})(\d)/, '$1.$2')
+    valor = valor.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    valor = valor.replace(/\.(\d{3})(\d)/, '.$1/$2')
+    valor = valor.replace(/(\d{4})(\d)/, '$1-$2')
+  }
+  
+  formFornecedor.value.cnpj = valor
+}
+
+function formatarTelefoneInput(event: Event) {
+  const input = event.target as HTMLInputElement
+  let valor = input.value.replace(/\D/g, '')
+  
+  if (valor.length <= 11) {
+    if (valor.length <= 10) {
+      // Telefone fixo: (00) 0000-0000
+      valor = valor.replace(/^(\d{2})(\d)/, '($1) $2')
+      valor = valor.replace(/(\d{4})(\d)/, '$1-$2')
+    } else {
+      // Celular: (00) 00000-0000
+      valor = valor.replace(/^(\d{2})(\d)/, '($1) $2')
+      valor = valor.replace(/(\d{5})(\d)/, '$1-$2')
+    }
+  }
+  
+  formFornecedor.value.telefone = valor
+}
+
+function formatarWhatsAppInput(event: Event) {
+  const input = event.target as HTMLInputElement
+  let valor = input.value.replace(/\D/g, '')
+  
+  if (valor.length <= 11) {
+    if (valor.length <= 10) {
+      // Telefone fixo: (00) 0000-0000
+      valor = valor.replace(/^(\d{2})(\d)/, '($1) $2')
+      valor = valor.replace(/(\d{4})(\d)/, '$1-$2')
+    } else {
+      // Celular: (00) 00000-0000
+      valor = valor.replace(/^(\d{2})(\d)/, '($1) $2')
+      valor = valor.replace(/(\d{5})(\d)/, '$1-$2')
+    }
+  }
+  
+  formFornecedor.value.whatsapp = valor
+}
+
+function formatarEstadoInput(event: Event) {
+  const input = event.target as HTMLInputElement
+  let valor = input.value.replace(/[^a-zA-Z]/g, '').toUpperCase()
+  
+  if (valor.length > 2) {
+    valor = valor.substring(0, 2)
+  }
+  
+  formFornecedor.value.estado = valor
 }
 </script>

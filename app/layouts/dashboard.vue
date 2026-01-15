@@ -80,6 +80,10 @@ const pageTitle = computed(() => {
       return 'Fornecedores'
     case '/estoque':
       return 'Estoque'
+    case '/entradas':
+      return 'Entradas'
+    case '/saidas':
+      return 'Saídas'
     case '/calculadora':
       return 'Calculadora de Preços'
     case '/relatorios':
@@ -111,6 +115,10 @@ const pageDescription = computed(() => {
       return 'Gerencie todos os seus fornecedores'
     case '/estoque':
       return 'Controle seus produtos e níveis de estoque'
+    case '/entradas':
+      return 'Registre e gerencie as entradas financeiras'
+    case '/saidas':
+      return 'Registre e gerencie as saídas e despesas'
     case '/calculadora':
       return 'Calcule o preço ideal para seus produtos'
     case '/relatorios':
