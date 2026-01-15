@@ -214,7 +214,7 @@
               v-model="formProduto.nome"
               type="text"
               required
-              placeholder="Ex: Cadeira de escritório"
+              placeholder="Ex: Caixa de Açaí"
               class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
@@ -226,7 +226,7 @@
               v-model="formProduto.categoria"
               type="text"
               required
-              placeholder="Ex: Móveis"
+              placeholder="Ex: Açaí e Derivados"
               class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>

@@ -1,6 +1,108 @@
 <template>
   <div class="space-y-4">
 
+    <!-- Modal Ingrediente Mobile -->
+    <div v-if="mostrarModalIngredienteMobile" class="fixed inset-0 bg-black/50 flex items-end lg:items-center justify-center z-50" @click.self="fecharModalIngredienteMobile">
+      <div class="bg-card rounded-t-3xl lg:rounded-2xl shadow-xl w-full lg:max-w-md max-h-[85vh] overflow-y-auto border-0 animate-slide-up">
+        <div class="sticky top-0 bg-card border-b border-border p-4 flex items-center justify-between">
+          <h3 class="text-lg font-semibold text-foreground">
+            {{ ingredienteEditandoMobile ? 'Editar Ingrediente' : 'Adicionar Ingrediente' }}
+          </h3>
+          <button
+            @click="fecharModalIngredienteMobile"
+            class="p-2 hover:bg-muted rounded-lg transition-colors"
+          >
+            <svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="p-4 space-y-4">
+          <!-- Nome do Ingrediente -->
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Nome do Ingrediente <span class="text-red-500">*</span></label>
+            <input
+              v-model="formIngredienteMobile.nome"
+              type="text"
+              placeholder="Ex: Leite Condensado"
+              class="w-full px-3 py-3 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <!-- Custo Total do Produto -->
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Custo Total do Produto <span class="text-red-500">*</span></label>
+            <input
+              :value="formIngredienteMobile.custoTotal"
+              type="text"
+              placeholder="R$ 0,00"
+              @input="formatarMoedaModalMobile"
+              class="w-full px-3 py-3 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <p class="text-xs text-muted-foreground mt-1">Ex: R$ 5,50</p>
+          </div>
+
+          <!-- Quantidade Total e Unidade -->
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Quantidade Total <span class="text-red-500">*</span></label>
+            <div class="flex gap-2">
+              <input
+                :value="formIngredienteMobile.quantidadeTotal"
+                type="text"
+                placeholder="0"
+                @input="formatarQuantidadeModalMobile($event, 'total')"
+                class="flex-1 px-3 py-3 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+              <select
+                v-model="formIngredienteMobile.unidadeTotal"
+                class="w-24 px-3 py-3 bg-background border border-input rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                <option value="un">Un</option>
+                <option value="kg">Kg</option>
+                <option value="g">g</option>
+                <option value="l">L</option>
+                <option value="ml">mL</option>
+                <option value="m">m</option>
+                <option value="cm">cm</option>
+              </select>
+            </div>
+            <p class="text-xs text-muted-foreground mt-1">Ex: 395 g</p>
+          </div>
+
+          <!-- Quantidade por Porção -->
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-2">Quantidade por Porção <span class="text-red-500">*</span></label>
+            <input
+              :value="formIngredienteMobile.quantidadePorPorcao"
+              type="text"
+              placeholder="0"
+              @input="formatarQuantidadeModalMobile($event, 'porcao')"
+              class="w-full px-3 py-3 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <p class="text-xs text-muted-foreground mt-1">Ex: 50 (quantidade usada em cada porção)</p>
+          </div>
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="sticky bottom-0 bg-card border-t border-border p-4 flex gap-3">
+          <button
+            @click="fecharModalIngredienteMobile"
+            class="flex-1 px-4 py-3 bg-muted hover:bg-muted/70 text-foreground rounded-lg transition-colors font-medium"
+          >
+            Cancelar
+          </button>
+          <button
+            @click="salvarIngredienteMobile"
+            :disabled="!formIngredienteMobile.nome.trim()"
+            class="flex-1 px-4 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ ingredienteEditandoMobile ? 'Salvar' : 'Adicionar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Modal Salvar Cálculo -->
     <div v-if="mostrarModalSalvar" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" @click.self="mostrarModalSalvar = false">
       <div class="bg-card rounded-lg shadow-xl w-full max-w-md border-0">
@@ -147,9 +249,20 @@
               </div>
               Ingredientes (custos variáveis)
             </h3>
+            <!-- Botão Desktop -->
             <button
               @click="adicionarIngrediente"
-              class="flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-xs font-medium"
+              class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-xs font-medium"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              Adicionar
+            </button>
+            <!-- Botão Mobile -->
+            <button
+              @click="abrirModalIngredienteMobile"
+              class="lg:hidden flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-xs font-medium"
             >
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
@@ -158,8 +271,8 @@
             </button>
           </div>
 
-          <!-- Tabela de Ingredientes -->
-          <div v-if="ingredientes.length > 0" class="overflow-x-hidden">
+          <!-- Tabela de Ingredientes - Desktop -->
+          <div v-if="ingredientes.length > 0" class="hidden lg:block overflow-x-hidden">
             <table class="w-full text-xs">
               <thead>
                 <tr class="border-b border-border/50">
@@ -291,6 +404,65 @@
                 </tr>
               </tfoot>
             </table>
+          </div>
+
+          <!-- Cards de Ingredientes - Mobile -->
+          <div v-if="ingredientes.length > 0" class="lg:hidden space-y-3">
+            <div
+              v-for="ingrediente in ingredientes"
+              :key="ingrediente.id"
+              class="bg-background/50 border border-border rounded-lg p-3"
+            >
+              <!-- Header com Nome e Ações -->
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex-1">
+                  <h4 class="font-semibold text-foreground text-sm">{{ ingrediente.nome || 'Sem nome' }}</h4>
+                  <p class="text-xs text-muted-foreground mt-0.5">
+                    {{ ingrediente.quantidadeTotal }} {{ ingrediente.unidadeTotal }} • {{ ingrediente.custoTotal }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button
+                    @click="editarIngredienteMobile(ingrediente)"
+                    class="p-2 hover:bg-blue-500/10 text-muted-foreground hover:text-blue-500 rounded transition-colors"
+                    title="Editar ingrediente"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button
+                    @click="removerIngrediente(ingrediente.id)"
+                    class="p-2 hover:bg-red-500/10 text-muted-foreground hover:text-red-500 rounded transition-colors"
+                    title="Remover ingrediente"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Informações Compactas -->
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-2 bg-muted/30 rounded">
+                  <span class="text-[10px] text-muted-foreground block">Qtd./Porção</span>
+                  <span class="text-sm font-semibold text-foreground">{{ ingrediente.quantidadePorPorcao || '—' }}</span>
+                </div>
+                <div class="p-2 bg-primary/10 rounded">
+                  <span class="text-[10px] text-muted-foreground block">Custo/Porção</span>
+                  <span class="text-sm font-bold text-primary">{{ formatarValor(calcularCustoPorPorcaoIngrediente(ingrediente)) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Total Mobile -->
+            <div class="border-t-2 border-primary/20 pt-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-bold text-foreground uppercase">Custo/Produto:</span>
+                <span class="text-lg font-black text-primary">{{ formatarValor(custoTotalIngredientes) }}</span>
+              </div>
+            </div>
           </div>
 
           <!-- Mensagem quando não há ingredientes -->
@@ -739,6 +911,108 @@ function removerIngrediente(id: string) {
   ingredientes.value = ingredientes.value.filter(ing => ing.id !== id)
 }
 
+// Funções do modal mobile de ingredientes
+function abrirModalIngredienteMobile() {
+  ingredienteEditandoMobile.value = null
+  formIngredienteMobile.value = {
+    nome: '',
+    custoTotal: 'R$ 0,00',
+    quantidadeTotal: '',
+    unidadeTotal: 'g',
+    quantidadePorPorcao: ''
+  }
+  mostrarModalIngredienteMobile.value = true
+}
+
+function editarIngredienteMobile(ingrediente: Ingrediente) {
+  ingredienteEditandoMobile.value = ingrediente
+  formIngredienteMobile.value = {
+    nome: ingrediente.nome,
+    custoTotal: ingrediente.custoTotal,
+    quantidadeTotal: ingrediente.quantidadeTotal,
+    unidadeTotal: ingrediente.unidadeTotal,
+    quantidadePorPorcao: ingrediente.quantidadePorPorcao
+  }
+  mostrarModalIngredienteMobile.value = true
+}
+
+function salvarIngredienteMobile() {
+  if (!formIngredienteMobile.value.nome.trim()) {
+    return
+  }
+
+  if (ingredienteEditandoMobile.value) {
+    // Editando ingrediente existente
+    const index = ingredientes.value.findIndex(ing => ing.id === ingredienteEditandoMobile.value!.id)
+    if (index !== -1) {
+      ingredientes.value[index] = {
+        ...ingredienteEditandoMobile.value,
+        nome: formIngredienteMobile.value.nome,
+        custoTotal: formIngredienteMobile.value.custoTotal,
+        quantidadeTotal: formIngredienteMobile.value.quantidadeTotal,
+        unidadeTotal: formIngredienteMobile.value.unidadeTotal,
+        quantidadePorPorcao: formIngredienteMobile.value.quantidadePorPorcao,
+        unidadePorPorcao: formIngredienteMobile.value.unidadeTotal
+      }
+    }
+  } else {
+    // Adicionando novo ingrediente
+    ingredientes.value.push({
+      id: Date.now().toString(),
+      nome: formIngredienteMobile.value.nome,
+      custoTotal: formIngredienteMobile.value.custoTotal,
+      quantidadeTotal: formIngredienteMobile.value.quantidadeTotal,
+      unidadeTotal: formIngredienteMobile.value.unidadeTotal,
+      quantidadePorPorcao: formIngredienteMobile.value.quantidadePorPorcao,
+      unidadePorPorcao: formIngredienteMobile.value.unidadeTotal
+    })
+  }
+
+  fecharModalIngredienteMobile()
+}
+
+function fecharModalIngredienteMobile() {
+  mostrarModalIngredienteMobile.value = false
+  ingredienteEditandoMobile.value = null
+  formIngredienteMobile.value = {
+    nome: '',
+    custoTotal: 'R$ 0,00',
+    quantidadeTotal: '',
+    unidadeTotal: 'g',
+    quantidadePorPorcao: ''
+  }
+}
+
+function formatarMoedaModalMobile(event: Event) {
+  const input = event.target as HTMLInputElement
+  let valor = input.value.replace(/\D/g, '')
+  
+  if (valor === '') {
+    formIngredienteMobile.value.custoTotal = ''
+    return
+  }
+  
+  const numero = parseInt(valor) / 100
+  const formatado = 'R$ ' + numero.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  formIngredienteMobile.value.custoTotal = formatado
+}
+
+function formatarQuantidadeModalMobile(event: Event, campo: 'total' | 'porcao') {
+  const input = event.target as HTMLInputElement
+  let valor = input.value.replace(/[^\d,]/g, '')
+  
+  const partes = valor.split(',')
+  if (partes.length > 2) {
+    valor = partes[0] + ',' + partes.slice(1).join('')
+  }
+  
+  if (campo === 'total') {
+    formIngredienteMobile.value.quantidadeTotal = valor
+  } else {
+    formIngredienteMobile.value.quantidadePorPorcao = valor
+  }
+}
+
 // Custos variáveis adicionais
 const custoEmbalagem = ref('R$ 0,00')
 const outrosCustosVariaveis = ref('R$ 0,00')
@@ -795,6 +1069,23 @@ const precoAbaixoCusto = computed(() => {
   if (!usandoPrecoManual.value || !precoVendaManual.value) return false
   const precoManualNumero = moedaParaNumero(precoVendaManual.value)
   return precoManualNumero < custoTotalPorUnidade.value
+})
+
+// Estados do modal mobile de ingredientes
+const mostrarModalIngredienteMobile = ref(false)
+const ingredienteEditandoMobile = ref<Ingrediente | null>(null)
+const formIngredienteMobile = ref<{
+  nome: string
+  custoTotal: string
+  quantidadeTotal: string
+  unidadeTotal: 'un' | 'kg' | 'g' | 'l' | 'ml' | 'm' | 'cm'
+  quantidadePorPorcao: string
+}>({
+  nome: '',
+  custoTotal: 'R$ 0,00',
+  quantidadeTotal: '',
+  unidadeTotal: 'g',
+  quantidadePorPorcao: ''
 })
 
 // Composables
@@ -1805,6 +2096,29 @@ const precoSemTaxa = computed(() => {
   return precoVendaSugerido.value - valorTaxaPlataforma.value
 })
 </script>
+
+<style scoped>
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+@media (min-width: 1024px) {
+  .animate-slide-up {
+    animation: none;
+  }
+}
+</style>
 
 
 
