@@ -99,7 +99,7 @@
           <div class="flex items-start justify-between mb-3">
             <div class="flex-1 min-w-0 pr-2">
               <h3 class="text-sm sm:text-base font-semibold text-foreground mb-1 line-clamp-2">{{ produto.nome }}</h3>
-              <p class="text-xs text-muted-foreground line-clamp-1">{{ produto.categoria }}</p>
+              <p class="text-xs text-muted-foreground line-clamp-1">{{ produto.categoria || 'Sem categoria' }}</p>
             </div>
             <div class="flex items-center space-x-1 flex-shrink-0">
               <!-- Botão editar -->
@@ -130,7 +130,7 @@
             <div class="flex items-center justify-between text-xs mb-1">
               <span class="text-muted-foreground">Estoque</span>
               <span :class="getEstoqueColorClass(produto).text" class="font-semibold">
-                {{ produto.quantidade }} / {{ produto.estoqueMaximo }}
+                {{ produto.quantidade }} / {{ produto.quantidade_minima * 10 }}
               </span>
             </div>
             <div class="w-full bg-muted rounded-full h-2 overflow-hidden">
@@ -149,18 +149,18 @@
           <div class="flex items-center justify-between mb-3 pt-3 border-t border-border">
             <div>
               <p class="text-xs text-muted-foreground">Preço</p>
-              <p class="text-sm font-semibold text-foreground">R$ {{ formatarPreco(produto.preco) }}</p>
+              <p class="text-base font-bold text-foreground">R$ {{ formatarPreco(produto.preco_venda) }}</p>
             </div>
             <div class="text-right">
               <p class="text-xs text-muted-foreground">Unidade</p>
-              <p class="text-sm font-semibold text-foreground">{{ produto.unidade }}</p>
+              <p class="text-sm font-medium text-foreground">{{ produto.unidade_medida }}</p>
             </div>
           </div>
 
           <!-- Botões de ajuste rápido -->
           <div class="flex items-center gap-2">
             <button
-              @click="ajustarEstoque(produto, -1)"
+              @click="() => ajustarQuantidade(produto.id, Math.max(0, produto.quantidade - 1))"
               :disabled="produto.quantidade <= 0"
               class="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-muted hover:bg-muted/70 text-foreground rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm font-medium"
             >
@@ -173,7 +173,7 @@
               Ajustar
             </button>
             <button
-              @click="ajustarEstoque(produto, 1)"
+              @click="() => ajustarQuantidade(produto.id, produto.quantidade + 1)"
               class="flex-1 px-2 sm:px-3 py-1.5 sm:py-2 bg-muted hover:bg-muted/70 text-foreground rounded-lg transition-colors text-xs sm:text-sm font-medium"
             >
               + 1
@@ -247,7 +247,7 @@
             <div>
               <label class="block text-sm font-medium text-foreground mb-2">Unidade *</label>
               <select
-                v-model="formProduto.unidade"
+                v-model="formProduto.unidade_medida"
                 required
                 class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
@@ -275,9 +275,9 @@
               />
             </div>
             <div>
-              <label class="block text-sm font-medium text-foreground mb-2">Estoque Mínimo *</label>
+              <label class="block text-sm font-medium text-foreground mb-2">Quantidade Mínima *</label>
               <input
-                v-model.number="formProduto.estoqueMinimo"
+                v-model.number="formProduto.quantidade_minima"
                 type="number"
                 min="0"
                 required
@@ -285,19 +285,6 @@
                 class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
-          </div>
-
-          <!-- Estoque Máximo -->
-          <div>
-            <label class="block text-sm font-medium text-foreground mb-2">Estoque Máximo *</label>
-            <input
-              v-model.number="formProduto.estoqueMaximo"
-              type="number"
-              min="0"
-              required
-              placeholder="0"
-              class="w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
           </div>
 
           <!-- Descrição -->
@@ -471,69 +458,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
-// Interface do Produto
+// Interface do Produto atualizada para o banco
 interface Produto {
-  id: number
+  id: string
+  empresa_id: string
+  usuario_id: string
   nome: string
-  categoria: string
-  preco: number
-  unidade: string
+  descricao: string | null
+  categoria: string | null
   quantidade: number
-  estoqueMinimo: number
-  estoqueMaximo: number
-  descricao?: string
+  quantidade_minima: number
+  preco_custo: number
+  preco_venda: number
+  unidade_medida: string
+  codigo_barras: string | null
+  localizacao: string | null
+  ativo: boolean
+  created_at: string
+  updated_at: string
 }
 
-// Estado
-const produtos = ref<Produto[]>([
-  // Dados de exemplo
-  {
-    id: 1,
-    nome: 'Cadeira de Escritório',
-    categoria: 'Móveis',
-    preco: 450.00,
-    unidade: 'UN',
-    quantidade: 15,
-    estoqueMinimo: 5,
-    estoqueMaximo: 50,
-    descricao: 'Cadeira ergonômica com apoio lombar'
-  },
-  {
-    id: 2,
-    nome: 'Mesa de Reunião',
-    categoria: 'Móveis',
-    preco: 1200.00,
-    unidade: 'UN',
-    quantidade: 3,
-    estoqueMinimo: 2,
-    estoqueMaximo: 10,
-    descricao: 'Mesa para 8 pessoas'
-  },
-  {
-    id: 3,
-    nome: 'Notebook Dell',
-    categoria: 'Eletrônicos',
-    preco: 3500.00,
-    unidade: 'UN',
-    quantidade: 0,
-    estoqueMinimo: 3,
-    estoqueMaximo: 20,
-    descricao: 'Intel i7, 16GB RAM'
-  },
-  {
-    id: 4,
-    nome: 'Monitor 24"',
-    categoria: 'Eletrônicos',
-    preco: 800.00,
-    unidade: 'UN',
-    quantidade: 25,
-    estoqueMinimo: 10,
-    estoqueMaximo: 30,
-    descricao: 'Full HD, IPS'
-  }
-])
+// Usar composable de produtos
+const {
+  produtos,
+  isLoading,
+  error,
+  fetchProdutos,
+  addProduto,
+  updateProduto,
+  deleteProduto,
+  ajustarQuantidade,
+  clearError
+} = useProdutos()
+
+// Carregar produtos ao montar componente
+onMounted(() => {
+  fetchProdutos()
+})
 
 // Filtros
 const filtroNome = ref('')
@@ -555,12 +518,14 @@ const precoFormatado = ref('R$ 0,00')
 const formProduto = ref({
   nome: '',
   categoria: '',
-  preco: 0,
-  unidade: 'UN',
+  preco_venda: 0,
+  preco_custo: 0,
+  unidade_medida: 'UN',
   quantidade: 0,
-  estoqueMinimo: 5,
-  estoqueMaximo: 100,
-  descricao: ''
+  quantidade_minima: 5,
+  descricao: '',
+  codigo_barras: '',
+  localizacao: ''
 })
 
 // Computed
@@ -571,7 +536,7 @@ const produtosFiltrados = computed(() => {
   if (filtroNome.value) {
     resultado = resultado.filter(p =>
       p.nome.toLowerCase().includes(filtroNome.value.toLowerCase()) ||
-      p.categoria.toLowerCase().includes(filtroNome.value.toLowerCase())
+      (p.categoria && p.categoria.toLowerCase().includes(filtroNome.value.toLowerCase()))
     )
   }
 
@@ -579,8 +544,8 @@ const produtosFiltrados = computed(() => {
   if (filtroStatus.value !== 'todos') {
     resultado = resultado.filter(p => {
       if (filtroStatus.value === 'esgotado') return p.quantidade === 0
-      if (filtroStatus.value === 'baixo') return p.quantidade > 0 && p.quantidade <= p.estoqueMinimo
-      if (filtroStatus.value === 'normal') return p.quantidade > p.estoqueMinimo
+      if (filtroStatus.value === 'baixo') return p.quantidade > 0 && p.quantidade <= p.quantidade_minima
+      if (filtroStatus.value === 'normal') return p.quantidade > p.quantidade_minima
       return true
     })
   }
@@ -589,7 +554,7 @@ const produtosFiltrados = computed(() => {
 })
 
 const produtosEstoqueBaixo = computed(() => {
-  return produtos.value.filter(p => p.quantidade > 0 && p.quantidade <= p.estoqueMinimo).length
+  return produtos.value.filter(p => p.quantidade > 0 && p.quantidade <= p.quantidade_minima).length
 })
 
 const produtosEsgotados = computed(() => {
@@ -598,14 +563,15 @@ const produtosEsgotados = computed(() => {
 
 // Métodos
 function getEstoquePercentual(produto: Produto): number {
-  if (produto.estoqueMaximo === 0) return 0
-  return Math.min((produto.quantidade / produto.estoqueMaximo) * 100, 100)
+  const estoqueMaximo = produto.quantidade_minima * 10 // Assumir máximo como 10x o mínimo
+  if (estoqueMaximo === 0) return 0
+  return Math.min((produto.quantidade / estoqueMaximo) * 100, 100)
 }
 
 function getEstoqueStatus(produto: Produto): string {
   if (produto.quantidade === 0) return 'Esgotado'
-  if (produto.quantidade <= produto.estoqueMinimo) return 'Estoque baixo'
-  if (produto.quantidade >= produto.estoqueMaximo * 0.8) return 'Estoque cheio'
+  if (produto.quantidade <= produto.quantidade_minima) return 'Estoque baixo'
+  if (produto.quantidade >= produto.quantidade_minima * 5) return 'Estoque cheio'
   return 'Estoque normal'
 }
 
@@ -616,13 +582,13 @@ function getEstoqueColorClass(produto: Produto) {
       text: 'text-red-600 dark:text-red-400'
     }
   }
-  if (produto.quantidade <= produto.estoqueMinimo) {
+  if (produto.quantidade <= produto.quantidade_minima) {
     return {
       bg: 'bg-orange-500',
       text: 'text-orange-600 dark:text-orange-400'
     }
   }
-  if (produto.quantidade >= produto.estoqueMaximo * 0.8) {
+  if (produto.quantidade >= produto.quantidade_minima * 5) {
     return {
       bg: 'bg-green-500',
       text: 'text-green-600 dark:text-green-400'
@@ -644,13 +610,13 @@ function formatarPrecoInput(event: Event) {
   
   if (valor === '') {
     precoFormatado.value = 'R$ 0,00'
-    formProduto.value.preco = 0
+    formProduto.value.preco_venda = 0
     return
   }
   
   // Converter para número
   const numero = parseInt(valor) / 100
-  formProduto.value.preco = numero
+  formProduto.value.preco_venda = numero
   
   // Formatar como moeda
   precoFormatado.value = 'R$ ' + numero.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
@@ -662,28 +628,32 @@ function abrirModalNovoProduto() {
   formProduto.value = {
     nome: '',
     categoria: '',
-    preco: 0,
-    unidade: 'UN',
+    preco_venda: 0,
+    preco_custo: 0,
+    unidade_medida: 'UN',
     quantidade: 0,
-    estoqueMinimo: 5,
-    estoqueMaximo: 100,
-    descricao: ''
+    quantidade_minima: 5,
+    descricao: '',
+    codigo_barras: '',
+    localizacao: ''
   }
   modalProduto.value = true
 }
 
 function abrirModalEditarProduto(produto: Produto) {
   produtoEditando.value = produto
-  precoFormatado.value = 'R$ ' + produto.preco.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  precoFormatado.value = 'R$ ' + produto.preco_venda.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
   formProduto.value = {
     nome: produto.nome,
-    categoria: produto.categoria,
-    preco: produto.preco,
-    unidade: produto.unidade,
+    categoria: produto.categoria || '',
+    preco_venda: produto.preco_venda,
+    preco_custo: produto.preco_custo,
+    unidade_medida: produto.unidade_medida,
     quantidade: produto.quantidade,
-    estoqueMinimo: produto.estoqueMinimo,
-    estoqueMaximo: produto.estoqueMaximo,
-    descricao: produto.descricao || ''
+    quantidade_minima: produto.quantidade_minima,
+    descricao: produto.descricao || '',
+    codigo_barras: produto.codigo_barras || '',
+    localizacao: produto.localizacao || ''
   }
   modalProduto.value = true
 }
@@ -693,25 +663,42 @@ function fecharModalProduto() {
   produtoEditando.value = null
 }
 
-function salvarProduto() {
-  if (produtoEditando.value) {
-    // Editar produto existente
-    const index = produtos.value.findIndex(p => p.id === produtoEditando.value!.id)
-    if (index !== -1) {
-      produtos.value[index] = {
-        ...produtoEditando.value,
-        ...formProduto.value
-      }
+async function salvarProduto() {
+  try {
+    if (produtoEditando.value) {
+      // Editar produto existente
+      await updateProduto(produtoEditando.value.id, {
+        nome: formProduto.value.nome,
+        categoria: formProduto.value.categoria || null,
+        preco_venda: formProduto.value.preco_venda,
+        preco_custo: formProduto.value.preco_custo,
+        unidade_medida: formProduto.value.unidade_medida,
+        quantidade: formProduto.value.quantidade,
+        quantidade_minima: formProduto.value.quantidade_minima,
+        descricao: formProduto.value.descricao || null,
+        codigo_barras: formProduto.value.codigo_barras || null,
+        localizacao: formProduto.value.localizacao || null
+      })
+    } else {
+      // Criar novo produto
+      await addProduto({
+        nome: formProduto.value.nome,
+        categoria: formProduto.value.categoria || null,
+        preco_venda: formProduto.value.preco_venda,
+        preco_custo: formProduto.value.preco_custo,
+        unidade_medida: formProduto.value.unidade_medida,
+        quantidade: formProduto.value.quantidade,
+        quantidade_minima: formProduto.value.quantidade_minima,
+        descricao: formProduto.value.descricao || null,
+        codigo_barras: formProduto.value.codigo_barras || null,
+        localizacao: formProduto.value.localizacao || null,
+        ativo: true
+      })
     }
-  } else {
-    // Criar novo produto
-    const novoId = Math.max(...produtos.value.map(p => p.id), 0) + 1
-    produtos.value.push({
-      id: novoId,
-      ...formProduto.value
-    })
+    fecharModalProduto()
+  } catch (err) {
+    console.error('Erro ao salvar produto:', err)
   }
-  fecharModalProduto()
 }
 
 function confirmarExclusao(produto: Produto) {
@@ -724,11 +711,15 @@ function fecharModalConfirmarExclusao() {
   produtoParaExcluir.value = null
 }
 
-function excluirProduto() {
+async function excluirProduto() {
   if (produtoParaExcluir.value) {
-    produtos.value = produtos.value.filter(p => p.id !== produtoParaExcluir.value!.id)
+    try {
+      await deleteProduto(produtoParaExcluir.value.id)
+      fecharModalConfirmarExclusao()
+    } catch (err) {
+      console.error('Erro ao excluir produto:', err)
+    }
   }
-  fecharModalConfirmarExclusao()
 }
 
 function abrirModalAjustarEstoque(produto: Produto) {
@@ -755,18 +746,15 @@ function calcularNovoEstoque(): number {
   }
 }
 
-function confirmarAjusteEstoque() {
+async function confirmarAjusteEstoque() {
   if (produtoSelecionado.value) {
-    const novoEstoque = calcularNovoEstoque()
-    ajustarEstoque(produtoSelecionado.value, novoEstoque - produtoSelecionado.value.quantidade)
-  }
-  fecharModalAjustarEstoque()
-}
-
-function ajustarEstoque(produto: Produto, quantidade: number) {
-  const index = produtos.value.findIndex(p => p.id === produto.id)
-  if (index !== -1) {
-    produtos.value[index].quantidade = Math.max(0, produtos.value[index].quantidade + quantidade)
+    try {
+      const novoEstoque = calcularNovoEstoque()
+      await ajustarQuantidade(produtoSelecionado.value.id, novoEstoque)
+      fecharModalAjustarEstoque()
+    } catch (err) {
+      console.error('Erro ao ajustar estoque:', err)
+    }
   }
 }
 </script>

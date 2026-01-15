@@ -3,10 +3,10 @@
     <!-- Header com botões de exportação -->
     <div class="flex items-center justify-between p-6 border-b border-border">
       <div>
-        <h2 class="text-xl font-semibold text-foreground">Relatórios</h2>
-        <p class="text-sm text-muted-foreground mt-1">Acompanhe todos os registros do sistema</p>
+        <h2 class="text-xl font-semibold text-foreground">Relatórios de Movimentação</h2>
+        <p class="text-sm text-muted-foreground mt-1">Acompanhe todas as entradas e saídas de produtos</p>
         <p v-if="relatoriosFiltrados && relatoriosFiltrados.length > 0" class="text-xs text-muted-foreground mt-1">
-          Total de registros: <span class="font-semibold text-primary">{{ relatoriosFiltrados.length }}</span>
+          Total de movimentações: <span class="font-semibold text-primary">{{ relatoriosFiltrados.length }}</span>
         </p>
       </div>
       <div class="flex items-center space-x-2">
@@ -52,30 +52,28 @@
           />
         </div>
 
-        <!-- Filtro por CNPJ/Nome da Loja -->
+        <!-- Filtro por Produto -->
         <div>
-          <label class="block text-sm font-medium text-foreground mb-2">CNPJ ou Nome da Loja</label>
+          <label class="block text-sm font-medium text-foreground mb-2">Produto</label>
           <input
-            v-model="filtros.lojaOuCnpj"
+            v-model="filtros.produto"
             type="text"
-            placeholder="Digite CNPJ ou nome da loja"
+            placeholder="Digite o nome do produto"
             class="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           />
         </div>
 
-        <!-- Filtro por Empresa/Operadora -->
+        <!-- Filtro por Tipo de Movimentação -->
         <div>
-          <label class="block text-sm font-medium text-foreground mb-2">Empresa</label>
+          <label class="block text-sm font-medium text-foreground mb-2">Tipo</label>
           <select
-            v-model="filtros.empresa"
+            v-model="filtros.tipo"
             class="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
           >
-            <option value="">Todas as empresas</option>
-            <option value="Vivo">Vivo</option>
-            <option value="Tim">Tim</option>
-            <option value="Claro">Claro</option>
-            <option value="Oi">Oi</option>
-            <option value="Casas Bahia">Casas Bahia</option>
+            <option value="">Todos os tipos</option>
+            <option value="Entrada">Entrada</option>
+            <option value="Saída">Saída</option>
+            <option value="Ajuste">Ajuste</option>
           </select>
         </div>
       </div>
@@ -127,10 +125,10 @@
         <div class="flex flex-col items-center">
           <Icon icon="file-alt" class-name="w-12 h-12 text-muted-foreground/50 mb-4" fallback="" />
           <h3 class="text-lg font-medium text-foreground mb-2">
-            {{ filtrosAplicados ? 'Nenhum relatório encontrado' : 'Nenhum relatório disponível' }}
+            {{ filtrosAplicados ? 'Nenhuma movimentação encontrada' : 'Nenhuma movimentação disponível' }}
           </h3>
           <p class="text-muted-foreground">
-            {{ filtrosAplicados ? 'Tente ajustar os filtros para encontrar relatórios.' : 'Quando houver relatórios de tickets, eles aparecerão aqui.' }}
+            {{ filtrosAplicados ? 'Tente ajustar os filtros para encontrar movimentações.' : 'Quando houver movimentações de estoque, elas aparecerão aqui.' }}
           </p>
         </div>
       </div>
@@ -141,13 +139,13 @@
           <table class="w-full">
             <thead>
               <tr class="border-b border-border">
-                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Nome</th>
-                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Telefone</th>
-                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Loja</th>
-                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">CNPJ</th>
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Produto</th>
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Quantidade</th>
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Tipo</th>
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Valor Unit.</th>
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Valor Total</th>
                 <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Data/Hora</th>
-                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Motivo</th>
-                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Empresa</th>
+                <th class="text-left py-2 px-3 font-medium text-muted-foreground text-xs">Observação</th>
               </tr>
             </thead>
             <tbody>
@@ -156,50 +154,50 @@
                 :key="relatorio.id"
                 class="border-b border-border/50 hover:bg-muted/30 transition-colors"
               >
-                <!-- Nome da pessoa -->
+                <!-- Produto -->
                 <td class="py-3 px-3">
                   <div class="flex items-center">
                     <div class="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center mr-2">
-                      <Icon icon="user" class-name="w-3 h-3 text-primary" fallback="" />
+                      <Icon icon="box" class-name="w-3 h-3 text-primary" fallback="" />
                     </div>
-                    <span class="font-medium text-foreground text-sm">{{ relatorio.nome_pessoa }}</span>
+                    <span class="font-medium text-foreground text-sm">{{ relatorio.produto }}</span>
                   </div>
                 </td>
                 
-                <!-- Telefone -->
+                <!-- Quantidade -->
                 <td class="py-3 px-3">
-                  <span class="text-foreground text-sm">{{ relatorio.telefone }}</span>
+                  <span class="text-foreground font-semibold text-sm">{{ relatorio.quantidade }}</span>
                 </td>
                 
-                <!-- Nome da loja -->
+                <!-- Tipo -->
                 <td class="py-3 px-3">
-                  <span class="text-foreground font-medium text-sm">{{ relatorio.nome_loja }}</span>
+                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                        :class="getTipoClass(relatorio.tipo)">
+                    {{ relatorio.tipo }}
+                  </span>
                 </td>
                 
-                <!-- CNPJ -->
+                <!-- Valor Unitário -->
                 <td class="py-3 px-3">
-                  <span class="text-foreground text-xs font-mono">{{ relatorio.cnpj }}</span>
+                  <span class="text-foreground text-sm">R$ {{ relatorio.valorUnitario.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}</span>
+                </td>
+                
+                <!-- Valor Total -->
+                <td class="py-3 px-3">
+                  <span class="text-foreground font-semibold text-sm">R$ {{ relatorio.valorTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}</span>
                 </td>
                 
                 <!-- Data e Hora -->
                 <td class="py-3 px-3">
                   <div class="text-xs">
-                    <div class="font-medium text-foreground">{{ relatorio.data_abertura_chamado }}</div>
-                    <div class="text-muted-foreground">{{ relatorio.hora_abertura_chamado }}</div>
+                    <div class="font-medium text-foreground">{{ relatorio.data }}</div>
+                    <div class="text-muted-foreground">{{ relatorio.hora }}</div>
                   </div>
                 </td>
                 
-                <!-- Motivo -->
+                <!-- Observação -->
                 <td class="py-3 px-3">
-                  <span class="text-foreground text-xs">{{ relatorio.motivo_chamado }}</span>
-                </td>
-                
-                <!-- Empresa -->
-                <td class="py-3 px-3">
-                  <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
-                        :class="getEmpresaClass(relatorio.nome_empresa)">
-                    {{ relatorio.nome_empresa }}
-                  </span>
+                  <span class="text-foreground text-xs">{{ relatorio.observacao }}</span>
                 </td>
               </tr>
               
@@ -225,17 +223,17 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-// Interface para relatório
+// Interface para relatório de movimentação
 interface Relatorio {
   id: string
-  nome_pessoa: string
-  telefone: string
-  nome_loja: string
-  cnpj: string
-  nome_empresa: string
-  data_abertura_chamado: string
-  hora_abertura_chamado: string
-  motivo_chamado: string
+  produto: string
+  quantidade: number
+  tipo: string
+  valorUnitario: number
+  valorTotal: number
+  data: string
+  hora: string
+  observacao: string
   created_at: string
 }
 
@@ -243,30 +241,143 @@ interface Relatorio {
 interface Filtros {
   dataInicial: string
   dataFinal: string
-  lojaOuCnpj: string
-  empresa: string
+  produto: string
+  tipo: string
 }
 
-// Usar o composable de relatórios
-const { 
-  relatorios: relatoriosData, 
-  isLoading, 
-  error, 
-  fetchRelatorios, 
-  clearError 
-} = useRelatorios()
+// Dados mockados de movimentações
+const relatoriosData = ref<Relatorio[]>([
+  {
+    id: '1',
+    produto: 'Arroz Branco 5kg',
+    quantidade: 50,
+    tipo: 'Entrada',
+    valorUnitario: 18.90,
+    valorTotal: 945.00,
+    data: '14/01/2026',
+    hora: '08:30',
+    observacao: 'Compra do fornecedor Distribuidora ABC',
+    created_at: '2026-01-14T08:30:00'
+  },
+  {
+    id: '2',
+    produto: 'Feijão Preto 1kg',
+    quantidade: 30,
+    tipo: 'Entrada',
+    valorUnitario: 7.50,
+    valorTotal: 225.00,
+    data: '14/01/2026',
+    hora: '09:15',
+    observacao: 'Reposição de estoque',
+    created_at: '2026-01-14T09:15:00'
+  },
+  {
+    id: '3',
+    produto: 'Óleo de Soja 900ml',
+    quantidade: 15,
+    tipo: 'Saída',
+    valorUnitario: 8.90,
+    valorTotal: 133.50,
+    data: '13/01/2026',
+    hora: '14:20',
+    observacao: 'Venda para cliente Maria Silva',
+    created_at: '2026-01-13T14:20:00'
+  },
+  {
+    id: '4',
+    produto: 'Açúcar Cristal 1kg',
+    quantidade: 100,
+    tipo: 'Entrada',
+    valorUnitario: 4.20,
+    valorTotal: 420.00,
+    data: '13/01/2026',
+    hora: '10:00',
+    observacao: 'Fornecedor Açúcar Doce Ltda',
+    created_at: '2026-01-13T10:00:00'
+  },
+  {
+    id: '5',
+    produto: 'Macarrão Espaguete 500g',
+    quantidade: 25,
+    tipo: 'Saída',
+    valorUnitario: 3.80,
+    valorTotal: 95.00,
+    data: '12/01/2026',
+    hora: '16:45',
+    observacao: 'Venda para cliente João Santos',
+    created_at: '2026-01-12T16:45:00'
+  },
+  {
+    id: '6',
+    produto: 'Café em Pó 500g',
+    quantidade: 5,
+    tipo: 'Ajuste',
+    valorUnitario: 12.50,
+    valorTotal: 62.50,
+    data: '12/01/2026',
+    hora: '11:30',
+    observacao: 'Correção de inventário',
+    created_at: '2026-01-12T11:30:00'
+  },
+  {
+    id: '7',
+    produto: 'Leite Integral 1L',
+    quantidade: 40,
+    tipo: 'Entrada',
+    valorUnitario: 5.30,
+    valorTotal: 212.00,
+    data: '11/01/2026',
+    hora: '07:45',
+    observacao: 'Fornecedor Laticínios Bom Leite',
+    created_at: '2026-01-11T07:45:00'
+  },
+  {
+    id: '8',
+    produto: 'Sabão em Pó 1kg',
+    quantidade: 20,
+    tipo: 'Saída',
+    valorUnitario: 9.90,
+    valorTotal: 198.00,
+    data: '11/01/2026',
+    hora: '15:00',
+    observacao: 'Venda para cliente Ana Costa',
+    created_at: '2026-01-11T15:00:00'
+  },
+  {
+    id: '9',
+    produto: 'Farinha de Trigo 1kg',
+    quantidade: 60,
+    tipo: 'Entrada',
+    valorUnitario: 5.80,
+    valorTotal: 348.00,
+    data: '10/01/2026',
+    hora: '09:00',
+    observacao: 'Compra mensal - Moinho Central',
+    created_at: '2026-01-10T09:00:00'
+  },
+  {
+    id: '10',
+    produto: 'Detergente Líquido 500ml',
+    quantidade: 35,
+    tipo: 'Entrada',
+    valorUnitario: 2.80,
+    valorTotal: 98.00,
+    data: '10/01/2026',
+    hora: '13:20',
+    observacao: 'Fornecedor Limpeza Total',
+    created_at: '2026-01-10T13:20:00'
+  }
+])
+
+const isLoading = ref(false)
+const error = ref<string | null>(null)
 
 // Estados reativos
 const filtros = ref<Filtros>({
   dataInicial: '',
   dataFinal: '',
-  lojaOuCnpj: '',
-  empresa: ''
-})
-
-// Carregar relatórios quando o componente for montado
-onMounted(() => {
-  fetchRelatorios()
+  produto: '',
+  tipo: ''
 })
 
 // Computed para detectar se há filtros ativos automaticamente
@@ -284,7 +395,7 @@ const relatoriosFiltrados = computed(() => {
   if (filtros.value.dataInicial) {
     resultado = resultado.filter(r => {
       // Converter data do formato DD/MM/YYYY para comparação
-      const dataRelatorio = new Date(r.data_abertura_chamado.split('/').reverse().join('-'))
+      const dataRelatorio = new Date(r.data.split('/').reverse().join('-'))
       const dataFiltro = new Date(filtros.value.dataInicial)
       return dataRelatorio >= dataFiltro
     })
@@ -292,24 +403,23 @@ const relatoriosFiltrados = computed(() => {
 
   if (filtros.value.dataFinal) {
     resultado = resultado.filter(r => {
-      const dataRelatorio = new Date(r.data_abertura_chamado.split('/').reverse().join('-'))
+      const dataRelatorio = new Date(r.data.split('/').reverse().join('-'))
       const dataFiltro = new Date(filtros.value.dataFinal)
       return dataRelatorio <= dataFiltro
     })
   }
 
-  if (filtros.value.lojaOuCnpj) {
-    const termo = filtros.value.lojaOuCnpj.toLowerCase()
+  if (filtros.value.produto) {
+    const termo = filtros.value.produto.toLowerCase()
     resultado = resultado.filter(r => 
-      r.nome_loja.toLowerCase().includes(termo) || 
-      r.cnpj.toLowerCase().includes(termo)
+      r.produto.toLowerCase().includes(termo)
     )
   }
 
-  if (filtros.value.empresa) {
+  if (filtros.value.tipo) {
     resultado = resultado.filter(r =>
-      r.nome_empresa && filtros.value.empresa &&
-      r.nome_empresa.toLowerCase() === filtros.value.empresa.toLowerCase()
+      r.tipo && filtros.value.tipo &&
+      r.tipo.toLowerCase() === filtros.value.tipo.toLowerCase()
     )
   }
 
@@ -324,10 +434,10 @@ const relatoriosOrdenados = computed(() => {
   }) : []
 })
 
-// Função para recarregar relatórios
+// Função para recarregar relatórios (mockado)
 const recarregarRelatorios = () => {
-  clearError()
-  fetchRelatorios()
+  error.value = null
+  isLoading.value = false
 }
 
 // Função para limpar filtros
@@ -335,21 +445,19 @@ function limparFiltros() {
   filtros.value = {
     dataInicial: '',
     dataFinal: '',
-    lojaOuCnpj: '',
-    empresa: ''
+    produto: '',
+    tipo: ''
   }
-  console.log('Filtros limpos - os filtros agora são automáticos!')
 }
 
-// Função para obter classes CSS da empresa
-function getEmpresaClass(empresa: string) {
+// Função para obter classes CSS do tipo de movimentação
+function getTipoClass(tipo: string) {
   const classes = {
-    'VIVO': 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
-    'TIM': 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
-    'CLARO': 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
-    'OI': 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
+    'Entrada': 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
+    'Saída': 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
+    'Ajuste': 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
   }
-  return classes[empresa as keyof typeof classes] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
+  return classes[tipo as keyof typeof classes] || 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400'
 }
 
 // Função auxiliar para converter data sem problemas de fuso horário
