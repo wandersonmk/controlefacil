@@ -96,8 +96,34 @@ export default defineNuxtPlugin(async () => {
       loading.value = false
       
       // Escutar mudanças de autenticação
-      supabase.auth.onAuthStateChange((event: any, newSession: Session | null) => {
-        console.log('[Auth Plugin] Auth state changed:', event)
+      supabase.auth.onAuthStateChange(async (event: any, newSession: Session | null) => {
+        console.log('[Auth Plugin] Auth state changed:', event, { hasSession: !!newSession })
+        
+        // Se deslogou ou sessão expirou, limpar tudo e redirecionar
+        if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !newSession)) {
+          console.log('[Auth Plugin] Sessão encerrada, limpando dados...')
+          
+          // Limpar estados
+          user.value = null
+          session.value = null
+          
+          // Limpar localStorage completo
+          try {
+            localStorage.clear()
+            console.log('[Auth Plugin] localStorage limpo')
+          } catch (e) {
+            console.error('[Auth Plugin] Erro ao limpar localStorage:', e)
+          }
+          
+          // Redirecionar para login (apenas se não estiver já lá)
+          if (window.location.pathname !== '/login') {
+            console.log('[Auth Plugin] Redirecionando para /login...')
+            await navigateTo('/login', { replace: true })
+          }
+          return
+        }
+        
+        // Atualizar estado normalmente para outros eventos
         user.value = newSession?.user ?? null
         session.value = newSession
         console.log('[Auth Plugin] Estado atualizado:', { 
