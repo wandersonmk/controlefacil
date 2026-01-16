@@ -91,7 +91,7 @@ const planos = [
     periodo: '1 mês',
     preco: 29.90,
     precoMensal: 29.90,
-    tokens: '10.000',
+    tokens: '100.000',
     economia: null,
     descricao: 'Uso ocasional do Mentor IA',
     destaque: false,
@@ -105,7 +105,7 @@ const planos = [
     periodo: '6 meses',
     preco: 119.90,
     precoMensal: 19.98,
-    tokens: '25.000',
+    tokens: '250.000',
     economia: 33,
     descricao: 'Uso frequente',
     destaque: true,
@@ -119,7 +119,7 @@ const planos = [
     periodo: '12 meses',
     preco: 199.90,
     precoMensal: 16.66,
-    tokens: '50.000',
+    tokens: '500.000',
     economia: 44,
     descricao: 'Mentor quase diário',
     destaque: false,
@@ -332,11 +332,11 @@ const selecionarPlano = (plano: any) => {
               </p>
               <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
                 <span class="text-sm font-medium text-indigo-700 dark:text-indigo-400">
-                  💡 Exemplo: 10.000 tokens ≈ 7.500 palavras
+                  💡 Exemplo: 100.000 tokens ≈ 75.000 palavras
                 </span>
               </div>
               <p class="text-xs text-muted-foreground mt-3">
-                ⚠️ Os tokens renovam todo mês e não acumulam
+                🔄 Os tokens são adicionados automaticamente todo mês na renovação
               </p>
               <p class="text-xs text-muted-foreground mt-2">
                 ✨ Se os tokens acabarem antes do fim do mês, você pode comprar tokens adicionais ou usar a <NuxtLink to="/calculadora" class="text-primary font-medium hover:underline">Calculadora manual</NuxtLink>

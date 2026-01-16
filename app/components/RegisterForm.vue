@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 
 const name = ref('')
 const companyName = ref('')
+const whatsapp = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -27,6 +28,28 @@ const emailError = computed(() => {
   return 'Email inválido'
 })
 
+// Validação de WhatsApp
+const isWhatsAppValid = computed(() => {
+  if (!whatsapp.value) return true // Não mostra erro se estiver vazio
+  const cleanPhone = whatsapp.value.replace(/\D/g, '')
+  return cleanPhone.length >= 10 && cleanPhone.length <= 11
+})
+
+const whatsappError = computed(() => {
+  if (!whatsapp.value || isWhatsAppValid.value) return ''
+  return 'WhatsApp inválido (ex: 11999999999)'
+})
+
+// Formatar WhatsApp enquanto digita
+const formatWhatsApp = (value: string) => {
+  const cleaned = value.replace(/\D/g, '')
+  if (cleaned.length <= 11) {
+    whatsapp.value = cleaned
+      .replace(/^(\d{2})(\d)/g, '($1) $2')
+      .replace(/(\d)(\d{4})$/, '$1-$2')
+  }
+}
+
 const passwordsMatch = computed(() => {
   if (!password.value || !confirmPassword.value) return true // Não mostra erro se estiver vazio
   return password.value === confirmPassword.value
@@ -48,7 +71,7 @@ const passwordStrengthError = computed(() => {
 })
 
 async function handleRegister() {
-  if (!name.value || !companyName.value || !email.value || !password.value || !confirmPassword.value) {
+  if (!name.value || !companyName.value || !whatsapp.value || !email.value || !password.value || !confirmPassword.value) {
     toast?.warning('Preencha todos os campos')
     return
   }
@@ -57,6 +80,13 @@ async function handleRegister() {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(email.value)) {
     toast?.error('Digite um email válido')
+    return
+  }
+
+  // Validação de WhatsApp
+  const cleanPhone = whatsapp.value.replace(/\D/g, '')
+  if (cleanPhone.length < 10 || cleanPhone.length > 11) {
+    toast?.error('Digite um WhatsApp válido')
     return
   }
   
@@ -75,6 +105,7 @@ async function handleRegister() {
     await signUp({
       name: name.value,
       companyName: companyName.value,
+      whatsapp: cleanPhone,
       email: email.value,
       password: password.value
     })
@@ -129,6 +160,22 @@ function handleEmailModalClose() {
         required
         :valid="!!companyName"
       />
+
+      <div>
+        <AppInput
+          v-model="whatsapp"
+          type="tel"
+          placeholder="WhatsApp (11 99999-9999)"
+          autocomplete="tel"
+          required
+          @input="formatWhatsApp($event.target.value)"
+          :invalid="!!whatsappError"
+          :valid="!!whatsapp && isWhatsAppValid"
+        />
+        <div v-if="whatsappError" class="text-xs text-red-500 mt-1 px-1">
+          {{ whatsappError }}
+        </div>
+      </div>
       
       <div>
         <AppInput
@@ -183,7 +230,7 @@ function handleEmailModalClose() {
       <AppButton 
         type="submit" 
         block 
-        :disabled="isLoading || !name || !companyName || !email || !password || !confirmPassword || !isEmailValid || !passwordsMatch || !isPasswordStrong"
+        :disabled="isLoading || !name || !companyName || !whatsapp || !email || !password || !confirmPassword || !isEmailValid || !isWhatsAppValid || !passwordsMatch || !isPasswordStrong"
       >
         <span v-if="isLoading">Criando conta...</span>
         <span v-else>Criar conta</span>

@@ -42,7 +42,7 @@ export function useAuth() {
       isLoading.value = false
     }
   }
-  const signUp = async ({ name, companyName, email, password }: { name: string, companyName: string, email: string, password: string }) => {
+  const signUp = async ({ name, companyName, whatsapp, email, password }: { name: string, companyName: string, whatsapp: string, email: string, password: string }) => {
     const supabase = getSupabase()
     if (!supabase) return false
     
@@ -57,7 +57,8 @@ export function useAuth() {
           emailRedirectTo,
           data: {
             name,
-            companyName
+            companyName,
+            whatsapp
           }
         }
       })
