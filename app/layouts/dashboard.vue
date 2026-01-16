@@ -28,10 +28,25 @@
           
             <!-- Área de sair -->
             <div class="flex items-center space-x-3 relative">
+              <!-- Info Plano Free -->
+              <NuxtLink
+                to="/assinatura"
+                class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all"
+              >
+                <span class="text-base">🎁</span>
+                <div class="text-left">
+                  <div class="text-xs font-semibold text-blue-700 dark:text-blue-400 leading-tight">Plano Free</div>
+                  <div class="text-xs text-muted-foreground leading-tight">
+                    <span class="font-bold text-blue-700 dark:text-blue-400">7 dias</span> restantes
+                  </div>
+                </div>
+              </NuxtLink>
 
+              <!-- Toggle de Tema -->
+              <ThemeToggle />
             
-            <!-- Botão Sair -->
-            <button 
+              <!-- Botão Sair -->
+              <button 
               @click="handleLogout"
               class="flex items-center gap-2 px-3 py-2 rounded-lg text-foreground/70 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all duration-200 group"
               title="Sair"

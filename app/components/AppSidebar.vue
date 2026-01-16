@@ -180,27 +180,6 @@
             </NuxtLink>
           </li>
         </ul>
-
-        <!-- Info Plano Free -->
-        <div class="mt-4 mx-4 p-3 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-lg">🎁</span>
-            <span class="text-xs font-semibold text-blue-700 dark:text-blue-400">Plano Free</span>
-          </div>
-          <p class="text-xs text-muted-foreground mb-2">
-            Teste gratuito
-          </p>
-          <div class="flex items-center justify-between text-xs mb-2">
-            <span class="text-muted-foreground">Restam:</span>
-            <span class="font-bold text-blue-700 dark:text-blue-400">7 dias</span>
-          </div>
-          <NuxtLink 
-            to="/assinatura" 
-            class="w-full block text-center py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium transition-colors"
-          >
-            Ver Planos
-          </NuxtLink>
-        </div>
       </nav>
 
       <!-- Seção inferior com informações do usuário e botão sair -->
@@ -450,28 +429,6 @@
             </NuxtLink>
           </li>
         </ul>
-
-        <!-- Info Plano Free (Mobile) -->
-        <div class="mt-4 mx-4 p-3 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-lg">🎁</span>
-            <span class="text-xs font-semibold text-blue-700 dark:text-blue-400">Plano Free</span>
-          </div>
-          <p class="text-xs text-muted-foreground mb-2">
-            Teste gratuito
-          </p>
-          <div class="flex items-center justify-between text-xs mb-2">
-            <span class="text-muted-foreground">Restam:</span>
-            <span class="font-bold text-blue-700 dark:text-blue-400">7 dias</span>
-          </div>
-          <NuxtLink 
-            to="/assinatura"
-            @click="$emit('close-mobile')"
-            class="w-full block text-center py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium transition-colors"
-          >
-            Ver Planos
-          </NuxtLink>
-        </div>
       </nav>
 
       <!-- Seção inferior com informações do usuário (mobile) -->
