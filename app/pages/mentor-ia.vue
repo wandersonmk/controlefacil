@@ -1,79 +1,49 @@
 <script setup lang="ts">
+import MentorTopCards from '~/components/mentor/MentorTopCards.vue'
+import MentorChatHistory from '~/components/mentor/MentorChatHistory.vue'
+import MentorChatWindow from '~/components/mentor/MentorChatWindow.vue'
+import MentorChatInput from '~/components/mentor/MentorChatInput.vue'
+
 definePageMeta({
   middleware: 'auth',
   layout: 'dashboard'
 })
+
+const { fetchUsage } = useMentor()
+
+// Buscar uso ao carregar página (segurança: validar tokens no servidor)
+onMounted(() => {
+  if (process.client) {
+    fetchUsage()
+  }
+})
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-12rem)] flex items-center justify-center p-6">
-    <div class="max-w-2xl w-full text-center space-y-6">
-      <!-- Ícone -->
-      <div class="flex justify-center mb-8">
-        <div class="w-32 h-32 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-6xl animate-pulse">
-          🤖
-        </div>
+  <div class="flex flex-col h-[calc(100vh-12rem)] max-h-[calc(100vh-12rem)]">
+    <!-- Cards do Topo -->
+    <div class="flex-shrink-0">
+      <MentorTopCards />
+    </div>
+
+    <!-- Layout Principal: História + Chat -->
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-3 overflow-hidden min-h-0">
+      <!-- Coluna Esquerda: Histórico de Conversas -->
+      <div class="lg:col-span-1 h-full overflow-hidden">
+        <MentorChatHistory />
       </div>
 
-      <!-- Título -->
-      <h1 class="text-4xl md:text-5xl font-bold text-foreground">
-        Mentor IA
-      </h1>
-
-      <!-- Descrição -->
-      <p class="text-xl text-muted-foreground max-w-lg mx-auto">
-        Seu assistente inteligente para gestão de negócios está sendo preparado. Em breve você poderá tirar dúvidas sobre precificação, estratégias e muito mais!
-      </p>
-
-      <!-- Features Futuras -->
-      <div class="grid md:grid-cols-3 gap-6 mt-12">
-        <div class="p-6 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors">
-          <div class="text-3xl mb-3">💡</div>
-          <h3 class="font-semibold text-foreground mb-2">Consultoria IA</h3>
-          <p class="text-sm text-muted-foreground">Respostas inteligentes sobre gestão</p>
+      <!-- Coluna Direita: Janela do Chat + Input -->
+      <div class="lg:col-span-3 h-full flex flex-col gap-3 min-h-0">
+        <!-- Janela do Chat -->
+        <div class="flex-1 overflow-hidden min-h-0">
+          <MentorChatWindow />
         </div>
-        
-        <div class="p-6 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors">
-          <div class="text-3xl mb-3">📊</div>
-          <h3 class="font-semibold text-foreground mb-2">Análises</h3>
-          <p class="text-sm text-muted-foreground">Insights sobre seu negócio</p>
-        </div>
-        
-        <div class="p-6 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors">
-          <div class="text-3xl mb-3">🎯</div>
-          <h3 class="font-semibold text-foreground mb-2">Estratégias</h3>
-          <p class="text-sm text-muted-foreground">Sugestões personalizadas</p>
-        </div>
-      </div>
 
-      <!-- Info sobre Tokens -->
-      <div class="mt-8 p-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20 rounded-xl border border-indigo-500/20">
-        <div class="flex items-center justify-center gap-3 mb-3">
-          <span class="text-2xl">⚡</span>
-          <h3 class="font-semibold text-foreground">Funciona com tokens</h3>
+        <!-- Input de Mensagem -->
+        <div class="flex-shrink-0">
+          <MentorChatInput />
         </div>
-        <p class="text-sm text-muted-foreground">
-          O Mentor IA utiliza tokens do seu plano de assinatura. Veja os planos disponíveis na página de <NuxtLink to="/assinatura" class="text-primary font-medium hover:underline">Assinatura</NuxtLink>.
-        </p>
-      </div>
-
-      <!-- CTA -->
-      <div class="mt-8 flex gap-4 justify-center">
-        <NuxtLink
-          to="/"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors font-medium"
-        >
-          <span>←</span>
-          Voltar ao Dashboard
-        </NuxtLink>
-        
-        <NuxtLink
-          to="/assinatura"
-          class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
-        >
-          <span>Ver Planos</span>
-          <span>→</span>
-        </NuxtLink>
       </div>
     </div>
   </div>
