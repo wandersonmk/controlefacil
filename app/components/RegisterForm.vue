@@ -7,6 +7,22 @@ const whatsapp = ref('')
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+
+// Função para formatar WhatsApp
+const formatWhatsApp = (value: string) => {
+  const numbers = value.replace(/\D/g, '')
+  if (numbers.length <= 2) return numbers
+  if (numbers.length <= 7) return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`
+  if (numbers.length <= 11) return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7)}`
+  return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`
+}
+
+const handleWhatsAppInput = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const formatted = formatWhatsApp(input.value)
+  whatsapp.value = formatted
+  input.value = formatted
+}
 let toast: any
 onMounted(async () => {
   toast = await useToastSafe()
@@ -155,9 +171,11 @@ function handleEmailModalClose() {
         <AppInput
           v-model="whatsapp"
           type="tel"
-          placeholder="WhatsApp (11999999999)"
+          placeholder="WhatsApp (11) 99999-9999"
           autocomplete="tel"
+          maxlength="15"
           required
+          @input="handleWhatsAppInput"
           :invalid="!!whatsappError"
           :valid="!!whatsapp && isWhatsAppValid"
         />
