@@ -35,13 +35,17 @@ export default defineNuxtPlugin(async () => {
 
         if (error || errorDescription) {
           console.error('[Auth Plugin] Erro no callback do Supabase:', { error, errorDescription })
+          window.location.href = '/login?error=' + (error || 'unknown')
+          return
         }
 
         if (code) {
           console.log('[Auth Plugin] Code detectado na URL, trocando por sessão...')
           
-          // Mostrar loading na tela durante o processo
-          document.body.innerHTML = `
+          // Mostrar loading imediatamente
+          const loadingDiv = document.createElement('div')
+          loadingDiv.id = 'auth-loading'
+          loadingDiv.innerHTML = `
             <div style="
               position: fixed;
               inset: 0;
@@ -50,20 +54,25 @@ export default defineNuxtPlugin(async () => {
               flex-direction: column;
               align-items: center;
               justify-content: center;
-              gap: 1rem;
-              z-index: 9999;
+              gap: 1.5rem;
+              z-index: 99999;
             ">
               <div style="
-                width: 48px;
-                height: 48px;
-                border: 4px solid rgba(139, 92, 246, 0.2);
+                width: 56px;
+                height: 56px;
+                border: 5px solid rgba(139, 92, 246, 0.2);
                 border-top-color: rgb(139, 92, 246);
                 border-radius: 50%;
-                animation: spin 1s linear infinite;
+                animation: spin 0.8s linear infinite;
               "></div>
-              <p style="color: rgb(203, 213, 225); font-size: 1rem;">
-                Confirmando seu email...
-              </p>
+              <div style="text-align: center;">
+                <p style="color: rgb(226, 232, 240); font-size: 1.125rem; font-weight: 600; margin: 0;">
+                  Confirmando seu email
+                </p>
+                <p style="color: rgb(148, 163, 184); font-size: 0.875rem; margin-top: 0.5rem;">
+                  Aguarde um momento...
+                </p>
+              </div>
             </div>
             <style>
               @keyframes spin {
@@ -71,31 +80,34 @@ export default defineNuxtPlugin(async () => {
               }
             </style>
           `
+          document.body.appendChild(loadingDiv)
           
           const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
           if (exchangeError) {
             console.error('[Auth Plugin] Falha ao trocar code por sessão:', exchangeError)
-            // Redireciona para login com erro
             window.location.href = '/login?error=confirmation_failed'
             return
           }
           
           if (exchangeData?.session) {
-            console.log('[Auth Plugin] Sessão criada via PKCE, redirecionando para dashboard...')
+            console.log('[Auth Plugin] Sessão criada via PKCE, salvando e redirecionando...')
             user.value = exchangeData.session.user
             session.value = exchangeData.session
             
-            // Aguarda um pouco para garantir que a sessão foi salva no localStorage
-            await new Promise(resolve => setTimeout(resolve, 500))
+            // Aguarda para garantir que localStorage foi atualizado
+            await new Promise(resolve => setTimeout(resolve, 800))
             
-            // Force reload para garantir que tudo inicializa corretamente
+            // Vai para dashboard com reload completo
+            console.log('[Auth Plugin] Redirecionando para dashboard...')
             window.location.href = '/'
             return
           }
         }
       } catch (callbackError) {
         console.error('[Auth Plugin] Erro ao processar callback do Supabase:', callbackError)
+        window.location.href = '/login?error=callback_failed'
+        return
       }
       
       // Verificar se existe uma sessão salva

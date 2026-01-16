@@ -49,7 +49,7 @@ export function useAuth() {
     isLoading.value = true
     errorMessage.value = null
     try {
-      const emailRedirectTo = process.client ? `${window.location.origin}/login` : undefined
+      const emailRedirectTo = process.client ? `${window.location.origin}/` : undefined
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
