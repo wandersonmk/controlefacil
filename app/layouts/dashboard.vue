@@ -19,17 +19,16 @@
                 <Icon icon="bars" class-name="w-5 h-5" fallback="☰" />
               </button>
             
-            <!-- Título -->
-            <div>
-              <h1 class="text-2xl font-bold text-foreground">{{ pageTitle }}</h1>
-              <p class="text-sm text-muted-foreground">{{ pageDescription }}</p>
+              <!-- Título -->
+              <div>
+                <h1 class="text-2xl font-bold text-foreground">{{ pageTitle }}</h1>
+                <p class="text-sm text-muted-foreground">{{ pageDescription }}</p>
+              </div>
             </div>
-          </div>
           
-          <!-- Área de sair -->
-          <div class="flex items-center space-x-3 relative">
-            <!-- Toggle de Tema -->
-            <ThemeToggle />
+            <!-- Área de sair -->
+            <div class="flex items-center space-x-3 relative">
+
             
             <!-- Botão Sair -->
             <button 
@@ -86,6 +85,8 @@ const pageTitle = computed(() => {
       return 'Saídas'
     case '/calculadora':
       return 'Calculadora de Preços'
+    case '/mentor-ia':
+      return 'Mentor IA'
     case '/relatorios':
       return 'Relatórios'
     case '/configuracoes':
@@ -94,6 +95,10 @@ const pageTitle = computed(() => {
       return 'Ajuda'
     case '/ajuste-da-ia':
       return 'Ajuste da IA'
+    case '/comunidade':
+      return 'Comunidade'
+    case '/assinatura':
+      return 'Assinatura'
     default:
       console.log('[Dashboard] Using default title for path:', route.path)
       return 'Dashboard'
@@ -121,6 +126,8 @@ const pageDescription = computed(() => {
       return 'Registre e gerencie as saídas e despesas'
     case '/calculadora':
       return 'Calcule o preço ideal para seus produtos'
+    case '/mentor-ia':
+      return 'Seu assistente inteligente para gestão de negócios'
     case '/relatorios':
       return 'Acompanhe receitas, despesas e movimentações'
     case '/configuracoes':
@@ -129,6 +136,10 @@ const pageDescription = computed(() => {
       return 'Central de ajuda e guias do sistema'
     case '/ajuste-da-ia':
       return 'Configure as configurações de inteligência artificial'
+    case '/comunidade':
+      return 'Conecte-se com outros empreendedores'
+    case '/assinatura':
+      return 'Gerencie seu plano e assinatura'
     default:
       return 'Visão geral do sistema'
   }

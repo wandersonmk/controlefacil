@@ -108,6 +108,18 @@
             </NuxtLink>
           </li>
 
+          <!-- Mentor IA -->
+          <li>
+            <NuxtLink 
+              to="/mentor-ia"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/mentor-ia' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="robot" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Mentor IA</span>
+            </NuxtLink>
+          </li>
+
           <!-- Relatórios -->
           <li>
             <NuxtLink 
@@ -129,6 +141,18 @@
             >
               <Icon icon="cog" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Configurações</span>
+            </NuxtLink>
+          </li>
+
+          <!-- Comunidade -->
+          <li>
+            <NuxtLink 
+              to="/comunidade"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/comunidade' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="users" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Comunidade</span>
             </NuxtLink>
           </li>
 
@@ -156,6 +180,27 @@
             </NuxtLink>
           </li>
         </ul>
+
+        <!-- Info Plano Free -->
+        <div class="mt-4 mx-4 p-3 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">🎁</span>
+            <span class="text-xs font-semibold text-blue-700 dark:text-blue-400">Plano Free</span>
+          </div>
+          <p class="text-xs text-muted-foreground mb-2">
+            Teste gratuito
+          </p>
+          <div class="flex items-center justify-between text-xs mb-2">
+            <span class="text-muted-foreground">Restam:</span>
+            <span class="font-bold text-blue-700 dark:text-blue-400">7 dias</span>
+          </div>
+          <NuxtLink 
+            to="/assinatura" 
+            class="w-full block text-center py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium transition-colors"
+          >
+            Ver Planos
+          </NuxtLink>
+        </div>
       </nav>
 
       <!-- Seção inferior com informações do usuário e botão sair -->
@@ -314,6 +359,19 @@
             </NuxtLink>
           </li>
 
+          <!-- Mentor IA -->
+          <li>
+            <NuxtLink 
+              to="/mentor-ia"
+              @click="$emit('close-mobile')"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/mentor-ia' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="robot" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Mentor IA</span>
+            </NuxtLink>
+          </li>
+
           <!-- Relatórios -->
           <li>
             <NuxtLink 
@@ -340,6 +398,19 @@
             </NuxtLink>
           </li>
 
+          <!-- Comunidade -->
+          <li>
+            <NuxtLink 
+              to="/comunidade"
+              @click="$emit('close-mobile')"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/comunidade' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="users" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Comunidade</span>
+            </NuxtLink>
+          </li>
+
           <!-- Assinatura -->
           <li>
             <NuxtLink 
@@ -356,6 +427,19 @@
           <!-- Ajuda -->
           <li>
             <NuxtLink 
+              to="/comunidade"
+              @click="$emit('close-mobile')"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/comunidade' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="users" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Comunidade</span>
+            </NuxtLink>
+          </li>
+
+          <!-- Ajuda -->
+          <li>
+            <NuxtLink 
               to="/ajuda"
               @click="$emit('close-mobile')"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -366,6 +450,28 @@
             </NuxtLink>
           </li>
         </ul>
+
+        <!-- Info Plano Free (Mobile) -->
+        <div class="mt-4 mx-4 p-3 rounded-lg bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">🎁</span>
+            <span class="text-xs font-semibold text-blue-700 dark:text-blue-400">Plano Free</span>
+          </div>
+          <p class="text-xs text-muted-foreground mb-2">
+            Teste gratuito
+          </p>
+          <div class="flex items-center justify-between text-xs mb-2">
+            <span class="text-muted-foreground">Restam:</span>
+            <span class="font-bold text-blue-700 dark:text-blue-400">7 dias</span>
+          </div>
+          <NuxtLink 
+            to="/assinatura"
+            @click="$emit('close-mobile')"
+            class="w-full block text-center py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium transition-colors"
+          >
+            Ver Planos
+          </NuxtLink>
+        </div>
       </nav>
 
       <!-- Seção inferior com informações do usuário (mobile) -->
