@@ -35,9 +35,8 @@
               >
                 <span class="text-base">🎁</span>
                 <div class="text-left">
-                  <div class="text-xs font-semibold text-blue-700 dark:text-blue-400 leading-tight">{{ planDisplayText }}</div>
-                  <div class="text-xs text-muted-foreground leading-tight">
-                    <span class="font-bold text-blue-700 dark:text-blue-400">{{ daysRemainingText }}</span> restantes
+                  <div class="text-xs font-semibold text-blue-700 dark:text-blue-400 leading-tight">
+                    <span class="font-bold">{{ daysRemainingText }}</span> restantes
                   </div>
                 </div>
               </NuxtLink>

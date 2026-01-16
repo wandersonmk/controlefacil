@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     const { data: subscriptionStatus, error } = await supabase
       .from('user_subscription_status')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('auth_user_id', user.id)
       .single()
 
     if (error) {
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
     const { data: subscriptionActions } = await supabase
       .from('user_subscription_actions')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('auth_user_id', user.id)
       .single()
 
     return {
