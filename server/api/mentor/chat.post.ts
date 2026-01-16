@@ -151,7 +151,10 @@ export default defineEventHandler(async (event) => {
       })
 
     // Configurar OpenAI
-    const openaiApiKey = (config as any).openaiApiKey || process.env.OPENAI_API_KEY
+    const openaiApiKey =
+      (config as any).openaiApiKey ||
+      process.env.NUXT_OPENAI_API_KEY ||
+      process.env.OPENAI_API_KEY
     if (!openaiApiKey) {
       throw createError({
         statusCode: 500,
