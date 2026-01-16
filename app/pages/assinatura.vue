@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useSubscription } from '@/composables/useSubscription'
+
 // Aplica middleware de autenticação
 definePageMeta({
   middleware: 'auth',
@@ -18,6 +20,9 @@ const isLoading = ref(true)
 let authLoading: any = ref(false)
 const isClient = typeof window !== 'undefined'
 
+// Buscar informações da assinatura atual
+const { subscriptionStatus, fetchSubscriptionStatus } = useSubscription()
+
 if (isClient) {
   const auth = useAuth()
   authLoading = auth.isLoading
@@ -26,6 +31,7 @@ if (isClient) {
     while (authLoading.value) {
       await new Promise(resolve => setTimeout(resolve, 50))
     }
+    await fetchSubscriptionStatus()
     await new Promise(resolve => setTimeout(resolve, 300))
     isLoading.value = false
   })
@@ -33,10 +39,55 @@ if (isClient) {
   isLoading.value = false
 }
 
+// Mapear período para tipo de plano
+const getPlanType = (period: string | null) => {
+  if (!period) return null
+  switch (period) {
+    case '1month': return 'mensal'
+    case '6months': return 'semestral'
+    case '12months': return 'anual'
+    default: return null
+  }
+}
+
+// Verificar tipo de ação (upgrade/downgrade/atual)
+const getPlanAction = (planType: string) => {
+  const currentPlanType = getPlanType(subscriptionStatus.value?.subscriptionPeriod)
+  
+  // Se não tem plano ativo (trial ou sem assinatura), todos são "assinar"
+  if (!currentPlanType && subscriptionStatus.value?.subscriptionStatus !== 'active') {
+    return 'assinar'
+  }
+  
+  if (currentPlanType === planType) {
+    return 'atual'
+  }
+  
+  const planOrder = { 'mensal': 1, 'semestral': 2, 'anual': 3 }
+  const currentOrder = planOrder[currentPlanType as keyof typeof planOrder] || 0
+  const targetOrder = planOrder[planType as keyof typeof planOrder] || 0
+  
+  return targetOrder > currentOrder ? 'upgrade' : 'downgrade'
+}
+
+// Verificar se pode clicar no botão
+const canClickPlan = (planType: string) => {
+  const action = getPlanAction(planType)
+  
+  // Se é o plano atual, só pode renovar se estiver nos últimos 3 dias
+  if (action === 'atual') {
+    return subscriptionStatus.value?.canRenewSamePlan !== false
+  }
+  
+  // Upgrades sempre permitidos, downgrades também
+  return true
+}
+
 // Planos de assinatura
 const planos = [
   {
     nome: 'Mensal',
+    tipo: 'mensal',
     periodo: '1 mês',
     preco: 29.90,
     precoMensal: 29.90,
@@ -50,6 +101,7 @@ const planos = [
   },
   {
     nome: 'Semestral',
+    tipo: 'semestral',
     periodo: '6 meses',
     preco: 119.90,
     precoMensal: 19.98,
@@ -63,6 +115,7 @@ const planos = [
   },
   {
     nome: 'Anual',
+    tipo: 'anual',
     periodo: '12 meses',
     preco: 199.90,
     precoMensal: 16.66,
@@ -84,8 +137,35 @@ const formatarPreco = (valor: number) => {
   })
 }
 
+// Obter texto do botão
+const getButtonText = (plano: any) => {
+  const action = getPlanAction(plano.tipo)
+  const canClick = canClickPlan(plano.tipo)
+  
+  if (action === 'atual') {
+    if (!canClick) {
+      const dias = subscriptionStatus.value?.daysRemaining || 0
+      return `Renovar em ${dias} ${dias === 1 ? 'dia' : 'dias'}`
+    }
+    return 'Renovar Agora'
+  }
+  
+  if (action === 'upgrade') {
+    return '⬆️ Fazer Upgrade'
+  }
+  
+  if (action === 'downgrade') {
+    return '⬇️ Fazer Downgrade'
+  }
+  
+  return plano.destaque ? 'Assinar Agora' : 'Selecionar'
+}
+
 // Função de seleção de plano
 const selecionarPlano = (plano: any) => {
+  if (!canClickPlan(plano.tipo)) {
+    return
+  }
   console.log('Plano selecionado:', plano.nome)
   // Aqui você pode adicionar a lógica de checkout/pagamento
 }
@@ -109,27 +189,39 @@ const selecionarPlano = (plano: any) => {
       </div>
 
       <!-- Grid de Planos -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-12">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mb-12">
         <div
           v-for="plano in planos"
           :key="plano.nome"
-          class="relative group"
+          class="relative group flex"
         >
           <!-- Card -->
           <div
             :class="[
-              'relative h-full rounded-xl border-2 transition-all duration-300',
-              plano.destaque 
-                ? 'border-purple-500 shadow-xl shadow-purple-500/20 scale-105' 
+              'relative w-full flex flex-col rounded-xl border-2 transition-all duration-300',
+              getPlanAction(plano.tipo) === 'atual'
+                ? 'border-green-500 shadow-xl shadow-green-500/20 ring-2 ring-green-500/30' 
+                : plano.destaque 
+                ? 'border-purple-500 shadow-xl shadow-purple-500/20 md:scale-105' 
                 : 'border-border hover:border-primary/50 hover:shadow-lg'
             ]"
           >
+            <!-- Badge de Plano Atual -->
+            <div
+              v-if="getPlanAction(plano.tipo) === 'atual'"
+              class="absolute top-3 left-3 z-10"
+            >
+              <span class="px-2.5 py-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-semibold rounded-full shadow-lg whitespace-nowrap">
+                ✓ Plano Atual
+              </span>
+            </div>
+
             <!-- Badge de Destaque -->
             <div
-              v-if="plano.destaque"
+              v-else-if="plano.destaque"
               class="absolute top-3 right-3 z-10"
             >
-              <span class="px-2.5 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold rounded-full shadow-lg">
+              <span class="px-2.5 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-semibold rounded-full shadow-lg whitespace-nowrap">
                 Mais Popular
               </span>
             </div>
@@ -138,9 +230,9 @@ const selecionarPlano = (plano: any) => {
             <div :class="['absolute inset-0 rounded-xl opacity-50', plano.bgCard]" />
             
             <!-- Conteúdo do Card -->
-            <div class="relative p-5">
+            <div class="relative p-5 sm:p-6 flex flex-col flex-1">
               <!-- Cabeçalho do Plano -->
-              <div class="text-center mb-4">
+              <div class="text-center mb-4 pt-8">
                 <div :class="['inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-r mb-3', plano.gradient]">
                   <Icon :icon="plano.icone" class-name="w-6 h-6 text-white" fallback="" />
                 </div>
@@ -153,32 +245,32 @@ const selecionarPlano = (plano: any) => {
               </div>
 
               <!-- Preço -->
-              <div class="text-center mb-4 pb-4 border-b border-border">
-                <div class="mb-1">
-                  <span class="text-3xl font-bold text-foreground">
+              <div class="text-center mb-4 pb-4 border-b border-border space-y-3">
+                <div>
+                  <span class="text-3xl sm:text-4xl font-bold text-foreground">
                     R$ {{ formatarPreco(plano.preco) }}
                   </span>
                 </div>
-                <div class="text-xs text-muted-foreground mb-2">
+                <div class="text-xs text-muted-foreground">
                   {{ plano.periodo }}
                 </div>
                 
                 <!-- Tokens -->
-                <div class="mb-2">
+                <div>
                   <div class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 rounded-full border border-indigo-500/20">
-                    <span class="text-lg">🤖</span>
-                    <span class="text-sm font-semibold text-foreground">
+                    <span class="text-base sm:text-lg">🤖</span>
+                    <span class="text-xs sm:text-sm font-semibold text-foreground whitespace-nowrap">
                       {{ plano.tokens }} tokens/mês
                     </span>
                   </div>
                 </div>
                 
                 <!-- Preço Mensal e Economia -->
-                <div v-if="plano.economia" class="mt-2 space-y-1">
+                <div v-if="plano.economia" class="space-y-2">
                   <div class="text-sm font-semibold text-primary">
                     R$ {{ formatarPreco(plano.precoMensal) }}/mês
                   </div>
-                  <div class="inline-flex items-center px-2 py-0.5 bg-green-100 dark:bg-green-900/30 rounded-full">
+                  <div class="inline-flex items-center px-2.5 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
                     <span class="text-xs font-medium text-green-700 dark:text-green-400">
                       Economize {{ plano.economia }}%
                     </span>
@@ -186,11 +278,11 @@ const selecionarPlano = (plano: any) => {
                 </div>
                 
                 <!-- Espaçamento para plano sem economia -->
-                <div v-else class="mt-2 space-y-1">
+                <div v-else class="space-y-2">
                   <div class="text-sm font-medium text-muted-foreground">
                     Sem compromisso
                   </div>
-                  <div class="inline-flex items-center px-2 py-0.5 bg-green-100 dark:bg-green-900/30 rounded-full">
+                  <div class="inline-flex items-center px-2.5 py-1 bg-green-100 dark:bg-green-900/30 rounded-full">
                     <span class="text-xs font-medium text-green-700 dark:text-green-400">
                       Cancele quando quiser
                     </span>
@@ -199,17 +291,28 @@ const selecionarPlano = (plano: any) => {
               </div>
 
               <!-- Botão de Ação -->
-              <button
-                @click="selecionarPlano(plano)"
-                :class="[
-                  'w-full py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2',
-                  plano.destaque
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg hover:shadow-xl'
-                    : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                ]"
-              >
-                <span>{{ plano.destaque ? 'Assinar Agora' : 'Selecionar' }}</span>
-              </button>
+              <div class="mt-auto pt-4">
+                <button
+                  @click="selecionarPlano(plano)"
+                  :disabled="!canClickPlan(plano.tipo)"
+                  :class="[
+                    'w-full py-3 px-4 rounded-lg font-semibold text-sm transition-all duration-300 transform flex items-center justify-center gap-2',
+                    !canClickPlan(plano.tipo)
+                      ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-60'
+                      : getPlanAction(plano.tipo) === 'upgrade'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg hover:shadow-xl hover:scale-105'
+                      : getPlanAction(plano.tipo) === 'downgrade'
+                      ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-lg hover:shadow-xl hover:scale-105'
+                      : getPlanAction(plano.tipo) === 'atual'
+                      ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg hover:shadow-xl hover:scale-105'
+                      : plano.destaque
+                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg hover:shadow-xl hover:scale-105'
+                      : 'bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105'
+                  ]"
+                >
+                  <span class="text-center">{{ getButtonText(plano) }}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -48,15 +48,24 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Buscar informações de ações disponíveis
+    const { data: subscriptionActions } = await supabase
+      .from('user_subscription_actions')
+      .select('*')
+      .eq('user_id', user.id)
+      .single()
+
     return {
       success: true,
       isBlocked: subscriptionStatus?.is_blocked || false,
       subscriptionStatus: subscriptionStatus?.subscription_status || 'trial',
       subscriptionPlan: subscriptionStatus?.subscription_plan || 'free',
+      subscriptionPeriod: subscriptionStatus?.subscription_period || null,
       trialEndsAt: subscriptionStatus?.trial_ends_at,
       daysRemaining: subscriptionStatus?.days_remaining || 0,
       empresaNome: subscriptionStatus?.empresa_nome,
-      planDisplayName: subscriptionStatus?.plan_display_name || 'Free'
+      planDisplayName: subscriptionStatus?.plan_display_name || 'Free',
+      canRenewSamePlan: subscriptionActions?.can_renew_same_plan !== false
     }
 
   } catch (error: any) {

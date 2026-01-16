@@ -3,10 +3,12 @@ export const useSubscription = () => {
     isBlocked: boolean
     subscriptionStatus: string
     subscriptionPlan: string
+    subscriptionPeriod: string | null
     trialEndsAt: string | null
     daysRemaining: number
     empresaNome: string
     planDisplayName?: string
+    canRenewSamePlan?: boolean
   } | null>(null)
 
   const isLoading = ref(false)
@@ -28,10 +30,12 @@ export const useSubscription = () => {
         isBlocked: boolean
         subscriptionStatus: string
         subscriptionPlan: string
+        subscriptionPeriod: string | null
         trialEndsAt: string
         daysRemaining: number
         empresaNome: string
         planDisplayName: string
+        canRenewSamePlan: boolean
       }>('/api/subscription/status', {
         headers: {
           Authorization: `Bearer ${session.access_token}`
@@ -46,10 +50,12 @@ export const useSubscription = () => {
           isBlocked: response.isBlocked,
           subscriptionStatus: response.subscriptionStatus,
           subscriptionPlan: response.subscriptionPlan,
+          subscriptionPeriod: response.subscriptionPeriod,
           trialEndsAt: response.trialEndsAt,
           daysRemaining: response.daysRemaining,
           empresaNome: response.empresaNome,
-          planDisplayName: response.planDisplayName
+          planDisplayName: response.planDisplayName,
+          canRenewSamePlan: response.canRenewSamePlan
         }
 
         // Se acabou de expirar, redireciona imediatamente
