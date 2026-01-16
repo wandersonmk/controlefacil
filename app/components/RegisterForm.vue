@@ -40,16 +40,6 @@ const whatsappError = computed(() => {
   return 'WhatsApp inválido (ex: 11999999999)'
 })
 
-// Formatar WhatsApp enquanto digita
-const formatWhatsApp = (value: string) => {
-  const cleaned = value.replace(/\D/g, '')
-  if (cleaned.length <= 11) {
-    whatsapp.value = cleaned
-      .replace(/^(\d{2})(\d)/g, '($1) $2')
-      .replace(/(\d)(\d{4})$/, '$1-$2')
-  }
-}
-
 const passwordsMatch = computed(() => {
   if (!password.value || !confirmPassword.value) return true // Não mostra erro se estiver vazio
   return password.value === confirmPassword.value
@@ -165,10 +155,9 @@ function handleEmailModalClose() {
         <AppInput
           v-model="whatsapp"
           type="tel"
-          placeholder="WhatsApp (11 99999-9999)"
+          placeholder="WhatsApp (11999999999)"
           autocomplete="tel"
           required
-          @input="formatWhatsApp($event.target.value)"
           :invalid="!!whatsappError"
           :valid="!!whatsapp && isWhatsAppValid"
         />
