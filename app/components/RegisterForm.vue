@@ -27,7 +27,6 @@ let toast: any
 onMounted(async () => {
   toast = await useToastSafe()
 })
-const showEmailModal = ref(false)
 
 const { signUp, isLoading, errorMessage } = useAuth()
 
@@ -108,36 +107,46 @@ async function handleRegister() {
   }
   
   try {
-    await signUp({
+    // 1. Verificar se email já existe
+    toast?.info('Verificando disponibilidade...')
+    const { exists } = await $fetch('/api/auth/check-email', {
+      method: 'POST',
+      body: { email: email.value }
+    })
+
+    if (exists) {
+      toast?.error('Este email já está cadastrado. Faça login ou use outro email.')
+      return
+    }
+
+    // 2. Criar conta (sem confirmação de email)
+    toast?.info('Criando sua conta...')
+    const user = await signUp({
       name: name.value,
       companyName: companyName.value,
       whatsapp: cleanPhone,
       email: email.value,
       password: password.value
     })
-    
-    // Sucesso: mostrar modal de confirmação de email
-    showEmailModal.value = true
-    toast?.success('Conta criada com sucesso!')
-    
-  } catch (error) {
-    // Erro já é tratado no composable e mostrado via errorMessage
-    if (errorMessage.value) {
-      toast?.error(errorMessage.value)
+
+    if (!user) {
+      toast?.error(errorMessage.value || 'Erro ao criar conta')
+      return
     }
+
+    // 3. Login automático (Supabase já faz isso no signUp quando não tem confirmação)
+    toast?.success('Conta criada com sucesso! Entrando...')
+    
+    // Aguardar um pouco para garantir que o trigger criou empresa/usuário
+    await new Promise(resolve => setTimeout(resolve, 1500))
+
+    // 4. Redirecionar para dashboard
+    await navigateTo('/')
+    
+  } catch (error: any) {
     console.error('Erro no cadastro:', error)
+    toast?.error(error?.message || 'Erro ao criar conta. Tente novamente.')
   }
-}
-
-async function handleEmailModalConfirm() {
-  showEmailModal.value = false
-  // Redirecionar para página de obrigado
-  console.log('Redirecionando para /obrigado')
-  await navigateTo('/obrigado')
-}
-
-function handleEmailModalClose() {
-  showEmailModal.value = false
 }
 </script>
 
@@ -243,14 +252,6 @@ function handleEmailModalClose() {
         <span v-else>Criar conta</span>
       </AppButton>
     </form>
-
-    <!-- Modal de confirmação de email -->
-    <EmailConfirmationModal
-      v-if="showEmailModal"
-      :email="email"
-      @confirm="handleEmailModalConfirm"
-      @close="handleEmailModalClose"
-    />
   </div>
 </template>
 
