@@ -35,9 +35,9 @@
               >
                 <span class="text-base">🎁</span>
                 <div class="text-left">
-                  <div class="text-xs font-semibold text-blue-700 dark:text-blue-400 leading-tight">Plano Free</div>
+                  <div class="text-xs font-semibold text-blue-700 dark:text-blue-400 leading-tight">{{ planDisplayText }}</div>
                   <div class="text-xs text-muted-foreground leading-tight">
-                    <span class="font-bold text-blue-700 dark:text-blue-400">7 dias</span> restantes
+                    <span class="font-bold text-blue-700 dark:text-blue-400">{{ daysRemainingText }}</span> restantes
                   </div>
                 </div>
               </NuxtLink>
@@ -74,8 +74,30 @@
 </template>
 
 <script setup lang="ts">
+import { useSubscription } from '@/composables/useSubscription'
+
 // Estado do menu mobile
 const isMobileMenuOpen = ref(false)
+
+// Subscription status
+const { subscriptionStatus, fetchSubscriptionStatus } = useSubscription()
+
+// Computeds para exibir o plano e dias restantes
+const planDisplayText = computed(() => {
+  if (!subscriptionStatus.value) return 'Plano Free'
+  return subscriptionStatus.value.planDisplayName || 'Plano Free'
+})
+
+const daysRemainingText = computed(() => {
+  if (!subscriptionStatus.value) return '0 dias'
+  const days = subscriptionStatus.value.daysRemaining || 0
+  return days === 1 ? '1 dia' : `${days} dias`
+})
+
+// Carregar status da assinatura ao montar
+onMounted(() => {
+  fetchSubscriptionStatus()
+})
 
 // Título dinâmico baseado na rota
 const route = useRoute()

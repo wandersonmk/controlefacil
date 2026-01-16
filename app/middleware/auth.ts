@@ -63,7 +63,40 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       return navigateTo('/login')
     }
     
-    console.log('[Auth Middleware] Usuário autenticado, permitindo acesso')
+    console.log('[Auth Middleware] Usuário autenticado, verificando trial...')
+    
+    // Verificar status de trial/assinatura
+    try {
+      const supabase = useSupabaseClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.access_token) {
+        const response = await $fetch<{
+          success: boolean
+          isBlocked: boolean
+          subscriptionStatus: string
+          daysRemaining: number
+        }>('/api/subscription/status', {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        })
+        
+        console.log('[Auth Middleware] Status de assinatura:', response)
+        
+        // Se o trial expirou e o usuário não está na página de assinatura
+        if (response.isBlocked && to.path !== '/assinatura') {
+          console.log('[Auth Middleware] Trial expirado, redirecionando para /assinatura')
+          return navigateTo('/assinatura')
+        }
+      }
+    } catch (error) {
+      console.error('[Auth Middleware] Erro ao verificar trial:', error)
+      // Em caso de erro na verificação de trial, permite acesso
+      // (evita bloquear usuário por erro técnico)
+    }
+    
+    console.log('[Auth Middleware] Usuário autenticado e com acesso permitido')
   } catch (error) {
     // Se houver erro na inicialização, redireciona para login
     console.error('[Auth Middleware] Erro:', error)

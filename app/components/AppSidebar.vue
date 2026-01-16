@@ -25,7 +25,7 @@
       <nav class="px-4 py-2 flex-1 overflow-y-auto">
         <ul class="space-y-1">
           <!-- Dashboard -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/"
               class="flex items-center px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -37,7 +37,7 @@
           </li>
 
           <!-- Clientes -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/clientes"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -49,7 +49,7 @@
           </li>
 
           <!-- Fornecedores -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/fornecedores"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -61,7 +61,7 @@
           </li>
 
           <!-- Estoque -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/estoque"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -73,7 +73,7 @@
           </li>
 
           <!-- Entradas -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/entradas"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -85,7 +85,7 @@
           </li>
 
           <!-- Saídas -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/saidas"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -97,7 +97,7 @@
           </li>
 
           <!-- Calculadora -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/calculadora"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -109,7 +109,7 @@
           </li>
 
           <!-- Mentor IA -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/mentor-ia"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -121,7 +121,7 @@
           </li>
 
           <!-- Relatórios -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/relatorios"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -133,7 +133,7 @@
           </li>
 
           <!-- Configurações -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/configuracoes"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -145,7 +145,7 @@
           </li>
 
           <!-- Comunidade -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/comunidade"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -169,7 +169,7 @@
           </li>
 
           <!-- Ajuda -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/ajuda"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -248,7 +248,7 @@
       <nav class="px-4 py-2 flex-1 overflow-y-auto">
         <ul class="space-y-1">
           <!-- Dashboard -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/"
               @click="$emit('close-mobile')"
@@ -261,7 +261,7 @@
           </li>
 
           <!-- Clientes -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/clientes"
               @click="$emit('close-mobile')"
@@ -274,7 +274,7 @@
           </li>
 
           <!-- Fornecedores -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/fornecedores"
               @click="$emit('close-mobile')"
@@ -287,7 +287,7 @@
           </li>
 
           <!-- Estoque -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/estoque"
               @click="$emit('close-mobile')"
@@ -300,7 +300,7 @@
           </li>
 
           <!-- Entradas -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/entradas"
               @click="$emit('close-mobile')"
@@ -313,7 +313,7 @@
           </li>
 
           <!-- Saídas -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/saidas"
               @click="$emit('close-mobile')"
@@ -326,7 +326,7 @@
           </li>
 
           <!-- Calculadora -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/calculadora"
               @click="$emit('close-mobile')"
@@ -339,7 +339,7 @@
           </li>
 
           <!-- Mentor IA -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/mentor-ia"
               @click="$emit('close-mobile')"
@@ -352,7 +352,7 @@
           </li>
 
           <!-- Relatórios -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/relatorios"
               @click="$emit('close-mobile')"
@@ -365,7 +365,7 @@
           </li>
 
           <!-- Configurações -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/configuracoes"
               @click="$emit('close-mobile')"
@@ -378,7 +378,7 @@
           </li>
 
           <!-- Comunidade -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/comunidade"
               @click="$emit('close-mobile')"
@@ -404,20 +404,7 @@
           </li>
 
           <!-- Ajuda -->
-          <li>
-            <NuxtLink 
-              to="/comunidade"
-              @click="$emit('close-mobile')"
-              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
-              :class="$route.path === '/comunidade' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
-            >
-              <Icon icon="users" class-name="w-5 h-5 mr-3" fallback="" />
-              <span>Comunidade</span>
-            </NuxtLink>
-          </li>
-
-          <!-- Ajuda -->
-          <li>
+          <li v-if="!isTrialExpired">
             <NuxtLink 
               to="/ajuda"
               @click="$emit('close-mobile')"
@@ -518,6 +505,17 @@ if (process.client) {
     document.removeEventListener('visibilitychange', handleVisibilityChange)
   })
 }
+
+// Verificar status de assinatura
+const { subscriptionStatus, fetchSubscriptionStatus } = useSubscription()
+const isTrialExpired = computed(() => {
+  return subscriptionStatus.value?.isBlocked || false
+})
+
+// Carregar status ao montar
+onMounted(() => {
+  fetchSubscriptionStatus()
+})
 
 // Função para verificar sessão do usuário
 const checkUserSession = () => {
