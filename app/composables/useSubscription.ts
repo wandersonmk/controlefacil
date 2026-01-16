@@ -71,27 +71,8 @@ export const useSubscription = () => {
     }
   }
 
-  // Iniciar verificação periódica (a cada 5 minutos)
-  if (process.client) {
-    let intervalId: NodeJS.Timeout | null = null
-
-    onMounted(() => {
-      // Verificação inicial
-      fetchSubscriptionStatus()
-
-      // Verificar a cada 5 minutos (300000ms)
-      intervalId = setInterval(() => {
-        console.log('[useSubscription] Verificação periódica de assinatura')
-        fetchSubscriptionStatus()
-      }, 300000)
-    })
-
-    onUnmounted(() => {
-      if (intervalId) {
-        clearInterval(intervalId)
-      }
-    })
-  }
+  // Nota: A verificação periódica agora roda no plugin z-subscription-check.client.ts
+  // para garantir que funcione mesmo sem componente montado
 
   const isTrialActive = computed(() => {
     return subscriptionStatus.value?.subscriptionStatus === 'trial' && 
