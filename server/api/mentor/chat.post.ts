@@ -89,15 +89,41 @@ export default defineEventHandler(async (event) => {
     }
 
     // Verificar saldo de tokens antes de processar
-    const { data: tokenBalance } = await supabase
+    const { data: tokenBalance, error: tokenBalanceError } = await supabase
       .from('user_token_balance')
       .select('*')
       .eq('user_id', user.id)
       .single()
 
-    const availableTokens = tokenBalance 
-      ? (tokenBalance.total_tokens - tokenBalance.used_tokens) 
-      : 0
+    // Se não existe saldo ainda, cria um padrão (plano free)
+    let effectiveTokenBalance = tokenBalance
+    if (!effectiveTokenBalance) {
+      const { data: newBalance, error: createBalanceError } = await supabase
+        .from('user_token_balance')
+        .insert({
+          user_id: user.id,
+          total_tokens: 10000,
+          used_tokens: 0,
+          plan_type: 'free'
+        })
+        .select('*')
+        .single()
+
+      if (createBalanceError) {
+        console.error('[mentor/chat] Erro ao criar saldo de tokens:', createBalanceError, { tokenBalanceError })
+        throw createError({
+          statusCode: 500,
+          message: 'Erro ao inicializar saldo de tokens'
+        })
+      }
+
+      effectiveTokenBalance = newBalance
+    }
+
+    const availableTokens = Math.max(
+      0,
+      (effectiveTokenBalance?.total_tokens ?? 0) - (effectiveTokenBalance?.used_tokens ?? 0)
+    )
 
     if (availableTokens <= 0) {
       throw createError({
@@ -125,8 +151,16 @@ export default defineEventHandler(async (event) => {
       })
 
     // Configurar OpenAI
+    const openaiApiKey = (config as any).openaiApiKey || process.env.OPENAI_API_KEY
+    if (!openaiApiKey) {
+      throw createError({
+        statusCode: 500,
+        message: 'OPENAI_API_KEY não configurada no servidor'
+      })
+    }
+
     const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
+      apiKey: openaiApiKey
     })
 
     // Preparar mensagens para API
@@ -149,12 +183,25 @@ export default defineEventHandler(async (event) => {
     })
 
     // Chamar API da OpenAI
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4.1-mini',
-      messages,
-      temperature: 0.6,
-      max_tokens: 500
-    })
+    let completion
+    try {
+      completion = await openai.chat.completions.create({
+        model: 'gpt-4.1-mini',
+        messages,
+        temperature: 0.6,
+        max_tokens: 500
+      })
+    } catch (openaiError: any) {
+      console.error('[mentor/chat] Erro OpenAI:', openaiError?.message || openaiError, {
+        status: openaiError?.status,
+        code: openaiError?.code,
+        type: openaiError?.type
+      })
+      throw createError({
+        statusCode: 502,
+        message: 'Erro ao gerar resposta do Mentor IA'
+      })
+    }
 
     const assistantMessage = completion.choices[0]?.message?.content || 'Desculpe, não consegui gerar uma resposta.'
     const tokensUsed = completion.usage?.total_tokens || 0

@@ -20,6 +20,7 @@ export default defineNuxtConfig({
   },
   css: ['@fortawesome/fontawesome-svg-core/styles.css'],
   runtimeConfig: {
+    openaiApiKey: process.env.OPENAI_API_KEY,
     public: {
       supabaseUrl:
         process.env.NUXT_PUBLIC_SUPABASE_URL ||

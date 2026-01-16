@@ -55,14 +55,25 @@ export default defineEventHandler(async (event) => {
       .eq('auth_user_id', user.id)
       .single()
 
+    const subscriptionStatusValue = subscriptionStatus?.subscription_status || 'trial'
+    const daysRemainingValue = subscriptionStatus?.days_remaining || 0
+    const hasTrialEndDate = !!subscriptionStatus?.trial_ends_at
+
+    // Regra de bloqueio: quando NÃO está ativo e o trial acabou (0 dias restantes)
+    // (Não bloqueia plano ativo mesmo que days_remaining esteja 0 no dia da renovação.)
+    const isBlocked =
+      subscriptionStatusValue !== 'active' &&
+      hasTrialEndDate &&
+      daysRemainingValue <= 0
+
     return {
       success: true,
-      isBlocked: subscriptionStatus?.is_blocked || false,
-      subscriptionStatus: subscriptionStatus?.subscription_status || 'trial',
+      isBlocked,
+      subscriptionStatus: subscriptionStatusValue,
       subscriptionPlan: subscriptionStatus?.subscription_plan || 'free',
       subscriptionPeriod: subscriptionStatus?.subscription_period || null,
       trialEndsAt: subscriptionStatus?.trial_ends_at,
-      daysRemaining: subscriptionStatus?.days_remaining || 0,
+      daysRemaining: daysRemainingValue,
       empresaNome: subscriptionStatus?.empresa_nome,
       planDisplayName: subscriptionStatus?.plan_display_name || 'Free',
       canRenewSamePlan: subscriptionActions?.can_renew_same_plan !== false
