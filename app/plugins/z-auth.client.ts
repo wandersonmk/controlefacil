@@ -39,25 +39,58 @@ export default defineNuxtPlugin(async () => {
 
         if (code) {
           console.log('[Auth Plugin] Code detectado na URL, trocando por sessão...')
+          
+          // Mostrar loading na tela durante o processo
+          document.body.innerHTML = `
+            <div style="
+              position: fixed;
+              inset: 0;
+              background: rgb(15, 23, 42);
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 1rem;
+              z-index: 9999;
+            ">
+              <div style="
+                width: 48px;
+                height: 48px;
+                border: 4px solid rgba(139, 92, 246, 0.2);
+                border-top-color: rgb(139, 92, 246);
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+              "></div>
+              <p style="color: rgb(203, 213, 225); font-size: 1rem;">
+                Confirmando seu email...
+              </p>
+            </div>
+            <style>
+              @keyframes spin {
+                to { transform: rotate(360deg); }
+              }
+            </style>
+          `
+          
           const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
           if (exchangeError) {
             console.error('[Auth Plugin] Falha ao trocar code por sessão:', exchangeError)
-          } else if (exchangeData?.session) {
-            console.log('[Auth Plugin] Sessão criada via PKCE')
+            // Redireciona para login com erro
+            window.location.href = '/login?error=confirmation_failed'
+            return
+          }
+          
+          if (exchangeData?.session) {
+            console.log('[Auth Plugin] Sessão criada via PKCE, redirecionando para dashboard...')
             user.value = exchangeData.session.user
             session.value = exchangeData.session
-          }
-
-          // Limpar parâmetros da URL para não reprocessar o code em refresh
-          currentUrl.searchParams.delete('code')
-          currentUrl.searchParams.delete('error')
-          currentUrl.searchParams.delete('error_description')
-          history.replaceState({}, document.title, currentUrl.pathname + (currentUrl.searchParams.toString() ? `?${currentUrl.searchParams.toString()}` : '') + currentUrl.hash)
-
-          // Se veio pelo fluxo de confirmação e agora já temos sessão, manda para o dashboard
-          if (exchangeData?.session) {
-            await navigateTo('/', { replace: true })
+            
+            // Aguarda um pouco para garantir que a sessão foi salva no localStorage
+            await new Promise(resolve => setTimeout(resolve, 500))
+            
+            // Force reload para garantir que tudo inicializa corretamente
+            window.location.href = '/'
             return
           }
         }
