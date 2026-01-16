@@ -35,12 +35,28 @@ export default defineNuxtPlugin(async () => {
 
         if (error || errorDescription) {
           console.error('[Auth Plugin] Erro no callback do Supabase:', { error, errorDescription })
-          window.location.href = '/login?error=' + (error || 'unknown')
+          // Limpa a URL antes de redirecionar para evitar loop
+          window.history.replaceState({}, '', '/login')
           return
         }
 
         if (code) {
+          // Evitar processar o mesmo code múltiplas vezes (sessionStorage temporário)
+          const processedCode = sessionStorage.getItem('auth_code_processed')
+          if (processedCode === code) {
+            console.log('[Auth Plugin] Code já processado, ignorando...')
+            // Limpa URL e continua o fluxo normal
+            window.history.replaceState({}, '', '/')
+            return
+          }
+          
           console.log('[Auth Plugin] Code detectado na URL, trocando por sessão...')
+          
+          // Marca como processando
+          sessionStorage.setItem('auth_code_processed', code)
+          
+          // Limpa o code da URL imediatamente para evitar reprocessamento
+          window.history.replaceState({}, '', '/')
           
           // Mostrar loading imediatamente
           const loadingDiv = document.createElement('div')
@@ -86,7 +102,11 @@ export default defineNuxtPlugin(async () => {
 
           if (exchangeError) {
             console.error('[Auth Plugin] Falha ao trocar code por sessão:', exchangeError)
-            window.location.href = '/login?error=confirmation_failed'
+            sessionStorage.removeItem('auth_code_processed')
+            // Remove loading
+            loadingDiv?.remove()
+            // Não faz reload, apenas mostra mensagem de erro e limpa
+            alert('Erro ao confirmar email. O link pode ter expirado. Por favor, tente fazer login.')
             return
           }
           
@@ -96,17 +116,23 @@ export default defineNuxtPlugin(async () => {
             session.value = exchangeData.session
             
             // Aguarda para garantir que localStorage foi atualizado
-            await new Promise(resolve => setTimeout(resolve, 800))
+            await new Promise(resolve => setTimeout(resolve, 500))
             
-            // Vai para dashboard com reload completo
-            console.log('[Auth Plugin] Redirecionando para dashboard...')
-            window.location.href = '/'
+            // Limpa o marker do sessionStorage
+            sessionStorage.removeItem('auth_code_processed')
+            
+            // Remove loading
+            loadingDiv?.remove()
+            
+            // Já estamos em '/', apenas marca loading como false para continuar
+            loading.value = false
+            console.log('[Auth Plugin] Login confirmado com sucesso!')
             return
           }
         }
       } catch (callbackError) {
         console.error('[Auth Plugin] Erro ao processar callback do Supabase:', callbackError)
-        window.location.href = '/login?error=callback_failed'
+        sessionStorage.removeItem('auth_code_processed')
         return
       }
       
