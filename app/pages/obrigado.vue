@@ -4,9 +4,9 @@
 
 // Meta tags para SEO
 useHead({
-  title: 'Obrigado - Controle Fácil',
+  title: 'Obrigado - Precify',
   meta: [
-    { name: 'description', content: 'Obrigado por se cadastrar no Controle Fácil Gestão de Relatórios' }
+    { name: 'description', content: 'Obrigado por se cadastrar no Precify Gestão de Relatórios' }
   ]
 })
 

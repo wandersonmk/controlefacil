@@ -1,4 +1,4 @@
-# Agzap - Gestão de Clientes
+# Precify
 
 ## Ambiente (.env)
 

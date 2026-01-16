@@ -11,7 +11,7 @@
               </svg>
             </div>
             <div class="hidden sm:block">
-              <h1 class="text-xl font-semibold text-foreground">Agzap</h1>
+              <h1 class="text-xl font-semibold text-foreground">Precify</h1>
               <p class="text-xs text-muted-foreground">Gestão de Clientes</p>
             </div>
           </div>

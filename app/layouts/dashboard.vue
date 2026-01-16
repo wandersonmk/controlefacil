@@ -87,7 +87,7 @@ const pageTitle = computed(() => {
     case '/calculadora':
       return 'Calculadora de Preços'
     case '/relatorios':
-      return 'Relatórios de Tickets'
+      return 'Relatórios'
     case '/configuracoes':
       return 'Configurações'
     case '/ajuda':
@@ -122,7 +122,7 @@ const pageDescription = computed(() => {
     case '/calculadora':
       return 'Calcule o preço ideal para seus produtos'
     case '/relatorios':
-      return 'Gerencie todos os relatórios de chamados'
+      return 'Acompanhe receitas, despesas e movimentações'
     case '/configuracoes':
       return 'Configure e gerencie as configurações do sistema'
     case '/ajuda':

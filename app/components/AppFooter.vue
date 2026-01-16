@@ -3,7 +3,7 @@
     <div class="text-center">
       <p class="text-sm text-muted-foreground">
         © {{ currentYear }} 
-        <span class="font-medium text-foreground">Agzap – Controle Fácil</span>. Todos os direitos reservados.
+        <span class="font-medium text-foreground">Agzap – Precify</span>. Todos os direitos reservados.
       </p>
     </div>
   </footer>

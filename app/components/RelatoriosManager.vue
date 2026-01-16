@@ -516,7 +516,7 @@ async function exportToPDF() {
     doc.setTextColor(255, 255, 255)
     doc.setFontSize(24)
     doc.setFont('helvetica', 'bold')
-    doc.text('Controle Fácil', 20, 20)
+    doc.text('Precify', 20, 20)
     
     doc.setFontSize(14)
     doc.setFont('helvetica', 'normal')
@@ -646,7 +646,7 @@ async function exportToPDF() {
       // Texto do footer
       doc.setFontSize(8)
       doc.setTextColor(107, 114, 128)
-      doc.text('Controle Fácil - Sistema de Controle', 15, 208)
+      doc.text('Precify - Sistema de Controle', 15, 208)
       doc.text(`Página ${i} de ${pageCount}`, 282, 208, { align: 'right' })
     }
     
@@ -687,7 +687,7 @@ async function exportToExcel() {
     // Preparar dados completos para o Excel
     const dadosCompletos = [
       // Informações do cabeçalho
-      ['Controle Fácil - Sistema de Controle'],
+      ['Precify - Sistema de Controle'],
       ['Relatórios de Tickets'],
       [`Gerado em: ${dataFormatada}`],
       [`Total de registros: ${relatoriosFiltrados.value.length}`]

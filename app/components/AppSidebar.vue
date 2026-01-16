@@ -15,7 +15,7 @@
       <div class="flex items-center p-4 border-b border-border">
         <div class="flex-1 min-w-0">
           <h1 class="text-lg font-bold truncate">
-            Controle Fácil
+            Precify
           </h1>
           <p class="text-xs text-muted-foreground">Sistema de Controle</p>
         </div>
@@ -132,6 +132,18 @@
             </NuxtLink>
           </li>
 
+          <!-- Assinatura -->
+          <li>
+            <NuxtLink 
+              to="/assinatura"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/assinatura' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="crown" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Assinatura</span>
+            </NuxtLink>
+          </li>
+
           <!-- Ajuda -->
           <li>
             <NuxtLink 
@@ -192,7 +204,7 @@
       <div class="flex items-center justify-between p-4 border-b border-border">
         <div class="flex-1 min-w-0">
           <h1 class="text-lg font-bold truncate">
-            Controle Fácil
+            Precify
           </h1>
           <p class="text-xs text-muted-foreground">Sistema de Controle</p>
         </div>
@@ -325,6 +337,19 @@
             >
               <Icon icon="cog" class-name="w-5 h-5 mr-3" fallback="" />
               <span>Configurações</span>
+            </NuxtLink>
+          </li>
+
+          <!-- Assinatura -->
+          <li>
+            <NuxtLink 
+              to="/assinatura"
+              @click="$emit('close-mobile')"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/assinatura' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="crown" class-name="w-5 h-5 mr-3" fallback="" />
+              <span>Assinatura</span>
             </NuxtLink>
           </li>
 

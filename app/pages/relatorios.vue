@@ -35,11 +35,11 @@ if (isClient) {
     <AppLoading 
       v-if="isLoading || !isClient" 
       title="Carregando Relatórios"
-      description="Preparando a área de relatórios de tickets..."
+      description="Preparando seus relatórios..."
     />
     <!-- Conteúdo só aparece após carregamento client-side -->
     <div v-else class="space-y-6">
-      <RelatoriosManager />
+      <RelatoriosSimples />
     </div>
   </div>
 </template>

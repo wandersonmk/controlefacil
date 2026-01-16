@@ -31,7 +31,10 @@ import {
   faDatabase,
   faTicket,
   faBox,
-  faCalculator
+  faCalculator,
+  faCrown,
+  faStar,
+  faCalendar
 } from '@fortawesome/free-solid-svg-icons'
 
 // This is important, we are going to let Nuxt worry about the CSS
@@ -70,7 +73,10 @@ library.add(
   faDatabase,
   faTicket,
   faBox,
-  faCalculator
+  faCalculator,
+  faCrown,
+  faStar,
+  faCalendar
 )
 
 export default defineNuxtPlugin({

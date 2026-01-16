@@ -8,7 +8,7 @@
         </div>
         <div>
           <h2 class="text-lg font-semibold text-foreground">Central de Ajuda</h2>
-          <p class="text-sm text-muted-foreground">Guia completo para usar o sistema Controle Fácil</p>
+          <p class="text-sm text-muted-foreground">Guia completo para usar o sistema Precify</p>
         </div>
       </div>
     </div>

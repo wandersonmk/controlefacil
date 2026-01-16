@@ -1770,7 +1770,7 @@ async function exportarPDF() {
   doc.setFont('helvetica', 'italic')
   doc.setFontSize(8)
   doc.setTextColor(150, 150, 150)
-  doc.text('Agzap - Controle Facil | Sistema de Gestao Empresarial', 105, 285, { align: 'center' })
+  doc.text('Agzap - Precify | Sistema de Gestao Empresarial', 105, 285, { align: 'center' })
   
   // Salvar PDF
   const nomeArquivo = `calculo-${nomeProduto.value.replace(/\s+/g, '-').toLowerCase() || 'produto'}-${Date.now()}.pdf`
