@@ -84,8 +84,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         
         console.log('[Auth Middleware] Status de assinatura:', response)
         
-        // Se o trial expirou e o usuário não está na página de assinatura
-        if (response.isBlocked && to.path !== '/assinatura') {
+        // Se o trial expirou e o usuário não está na página de assinatura ou ajuda
+        if (response.isBlocked && to.path !== '/assinatura' && to.path !== '/ajuda') {
           console.log('[Auth Middleware] Trial expirado, redirecionando para /assinatura')
           return navigateTo('/assinatura')
         }

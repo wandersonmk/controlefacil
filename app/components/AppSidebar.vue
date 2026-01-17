@@ -169,7 +169,7 @@
           </li>
 
           <!-- Ajuda -->
-          <li v-if="!isTrialExpired">
+          <li>
             <NuxtLink 
               to="/ajuda"
               class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
@@ -404,7 +404,7 @@
           </li>
 
           <!-- Ajuda -->
-          <li v-if="!isTrialExpired">
+          <li>
             <NuxtLink 
               to="/ajuda"
               @click="$emit('close-mobile')"
