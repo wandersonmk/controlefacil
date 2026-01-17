@@ -8,11 +8,50 @@ definePageMeta({
 
 const {
   isLoading,
-  planoAtual,
-  hasActiveSubscription,
-  statusAssinatura,
-  dataProximaRenovacao
+  subscriptionStatus,
+  isPremium,
+  isTrialActive,
+  fetchSubscriptionStatus
 } = useSubscription()
+
+// Mapeamento de planos do banco para nossos IDs
+const planMap: Record<string, 'mensal' | 'semestral' | 'anual'> = {
+  'basic': 'mensal',
+  'pro': 'semestral',
+  'enterprise': 'anual',
+  'free': 'mensal'
+}
+
+// Computed para compatibilidade com o template
+const planoAtual = computed(() => {
+  const dbPlan = subscriptionStatus.value?.subscriptionPlan
+  return dbPlan ? (planMap[dbPlan] || null) : null
+})
+const hasActiveSubscription = computed(() => isPremium.value || isTrialActive.value)
+const statusAssinatura = computed(() => {
+  if (!subscriptionStatus.value) return null
+  if (subscriptionStatus.value.isBlocked) return 'cancelada'
+  return subscriptionStatus.value.subscriptionStatus === 'active' ? 'ativa' : null
+})
+// Usar subscription_renews_at do banco de dados
+const dataProximaRenovacao = computed(() => {
+  // Primeiro tenta pegar do subscriptionPeriod, se não tiver usa trial_ends_at
+  return subscriptionStatus.value?.subscriptionPeriod || subscriptionStatus.value?.trialEndsAt || null
+})
+
+// Calcular dias restantes até a renovação
+const diasRestantes = computed(() => {
+  if (!dataProximaRenovacao.value) return 0
+  const hoje = new Date()
+  const dataRenovacao = new Date(dataProximaRenovacao.value)
+  
+  // Verificar se a data é válida
+  if (isNaN(dataRenovacao.getTime())) return 0
+  
+  const diff = dataRenovacao.getTime() - hoje.getTime()
+  const dias = Math.ceil(diff / (1000 * 60 * 60 * 24))
+  return dias > 0 ? dias : 0
+})
 
 interface Plano {
   id: 'mensal' | 'semestral' | 'anual'
@@ -25,6 +64,7 @@ interface Plano {
   tokensFormatado: string
   badge?: string
   economia?: string
+  precoMensal?: number
   destaque?: boolean
   beneficios: string[]
 }
@@ -34,61 +74,48 @@ const planos: Plano[] = [
     id: 'mensal',
     nome: 'Mensal',
     preco: 29.90,
-    periodo: '/mês',
+    periodo: '1 mês',
     duracao: 1,
     tokens: 100000,
     tokensFormatado: '100 mil',
-    beneficios: [
-      '100 mil tokens/mês',
-      'Mentor IA ilimitado',
-      'Suporte por email',
-      'Atualizações gratuitas'
-    ]
+    badge: 'Ideal para começar',
+    beneficios: []
   },
   {
     id: 'semestral',
     nome: 'Semestral',
     preco: 119.90,
     precoAntes: 179.40,
-    periodo: '/6 meses',
+    periodo: '6 meses',
     duracao: 6,
     tokens: 250000,
     tokensFormatado: '250 mil',
     badge: 'Mais Popular',
-    economia: 'Economize 33%',
+    economia: 'Economia de ~33%',
+    precoMensal: 19.98,
     destaque: true,
-    beneficios: [
-      '250 mil tokens/mês',
-      'Mentor IA ilimitado',
-      'Suporte prioritário',
-      'Relatórios avançados',
-      'Backup automático'
-    ]
+    beneficios: []
   },
   {
     id: 'anual',
     nome: 'Anual',
     preco: 199.90,
     precoAntes: 358.80,
-    periodo: '/ano',
+    periodo: '12 meses',
     duracao: 12,
     tokens: 500000,
     tokensFormatado: '500 mil',
-    badge: 'Melhor Custo',
-    economia: 'Economize 44%',
-    beneficios: [
-      '500 mil tokens/mês',
-      'Mentor IA ilimitado',
-      'Suporte VIP 24/7',
-      'Relatórios premium',
-      'API de integração',
-      'Backup automático',
-      'Consultoria mensal'
-    ]
+    badge: 'Máxima economia',
+    economia: 'Economia de ~44%',
+    precoMensal: 16.66,
+    beneficios: []
   }
 ]
 
 const getPlanType = (planId: string): 'atual' | 'upgrade' | 'downgrade' | 'novo' => {
+  // Se está em trial (sem assinatura paga), considera como novo usuário
+  if (isTrialActive.value && !isPremium.value) return 'novo'
+  
   if (!hasActiveSubscription.value) return 'novo'
   if (planoAtual.value === planId) return 'atual'
   
@@ -104,25 +131,58 @@ const getPlanAction = (planId: string): string => {
   switch (type) {
     case 'atual': return 'Plano Atual'
     case 'upgrade': return 'Fazer Upgrade'
-    case 'downgrade': return 'Mudar Plano'
+    case 'downgrade': return 'Fazer Downgrade'
     case 'novo': return 'Assinar Agora'
   }
 }
 
 const canClickPlan = (planId: string): boolean => {
-  return getPlanType(planId) !== 'atual'
+  const type = getPlanType(planId)
+  
+  // Debug
+  if (type === 'atual') {
+    console.log('🔍 Verificando plano atual:', {
+      planId,
+      diasRestantes: diasRestantes.value,
+      dataProximaRenovacao: dataProximaRenovacao.value,
+      podeClicar: diasRestantes.value <= 3
+    })
+  }
+  
+  // Se é um plano novo, pode clicar
+  if (type === 'novo') return true
+  
+  // Se é upgrade ou downgrade, sempre pode clicar
+  if (type === 'upgrade' || type === 'downgrade') return true
+  
+  // Se é o plano atual, só pode clicar se faltar 3 dias ou menos para renovar
+  if (type === 'atual') {
+    return diasRestantes.value <= 3
+  }
+  
+  return false
 }
 
 const getButtonText = (planId: string): string => {
-  if (!hasActiveSubscription.value) return 'Assinar Agora'
-  if (planoAtual.value === planId) {
-    if (statusAssinatura.value === 'ativa') return 'Plano Atual'
-    if (statusAssinatura.value === 'cancelada') return 'Renovar Assinatura'
+  const type = getPlanType(planId)
+  
+  // Se está em trial, sempre mostra 'Assinar'
+  if (isTrialActive.value && !isPremium.value) return 'Assinar'
+  
+  if (type === 'novo') return 'Começar Agora'
+  
+  if (type === 'upgrade') return 'Upgrade'
+  
+  if (type === 'downgrade') return 'Downgrade'
+  
+  if (type === 'atual') {
+    if (diasRestantes.value <= 3) {
+      return 'Renovar Assinatura'
+    }
+    return 'Plano Atual'
   }
-  const planoAtualIndex = planos.findIndex(p => p.id === planoAtual.value)
-  const planIndex = planos.findIndex(p => p.id === planId)
-  if (planIndex > planoAtualIndex) return 'Fazer Upgrade'
-  return 'Mudar para este Plano'
+  
+  return 'Começar Agora'
 }
 
 const selecionarPlano = (plano: Plano) => {
@@ -132,180 +192,186 @@ const selecionarPlano = (plano: Plano) => {
   console.log('Plano selecionado:', plano)
   alert(`Funcionalidade em desenvolvimento!\n\nVocê selecionou o plano ${plano.nome} por R$ ${plano.preco.toFixed(2)}`)
 }
+
+// Debug: verificar dados da assinatura
+onMounted(async () => {
+  // Buscar dados de assinatura
+  await fetchSubscriptionStatus()
+  
+  console.log('📊 Status da Assinatura:', {
+    subscriptionStatus: subscriptionStatus.value,
+    planoAtual: planoAtual.value,
+    hasActiveSubscription: hasActiveSubscription.value,
+    statusAssinatura: statusAssinatura.value,
+    dataProximaRenovacao: dataProximaRenovacao.value,
+    diasRestantes: diasRestantes.value
+  })
+})
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto space-y-6">
+  <div class="max-w-7xl mx-auto space-y-6 md:space-y-8 px-3 md:px-4">
     <!-- Cabeçalho -->
-    <div class="text-center mb-8">
-      <h1 class="text-3xl md:text-4xl font-bold text-foreground mb-3">
-        Escolha seu Plano de Assinatura
+    <div class="text-center mb-8 md:mb-12">
+      <h1 class="text-3xl md:text-4xl lg:text-5xl font-semibold text-foreground mb-3 md:mb-4">
+        Escolha seu <span class="bg-gradient-to-r from-purple-600 via-pink-600 to-fuchsia-600 bg-clip-text text-transparent">Plano Ideal</span>
       </h1>
-      <p class="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
-        Acesso completo ao Mentor IA com tokens mensais renovados automaticamente
+      <p class="text-muted-foreground text-base md:text-lg max-w-3xl mx-auto px-4">
+        Transforme sua gestão empresarial com o Precify. Todos os planos incluem acesso completo a todas as funcionalidades.
       </p>
     </div>
 
-    <!-- Status da Assinatura Atual -->
-    <div v-if="hasActiveSubscription" class="mb-8 bg-gradient-to-br from-blue-50/30 to-cyan-50/20 dark:from-blue-950/10 dark:to-cyan-950/5 border border-blue-200/40 dark:border-blue-800/20 rounded-lg p-4">
-      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-        <div>
-          <h3 class="text-lg font-semibold text-foreground mb-1">Sua Assinatura Atual</h3>
-          <p class="text-sm text-muted-foreground">
-            Plano: <span class="font-semibold text-foreground">{{ planos.find(p => p.id === planoAtual)?.nome || 'N/A' }}</span>
-            <span v-if="dataProximaRenovacao" class="ml-2">
-              • Próxima renovação: <span class="font-semibold text-foreground">{{ new Date(dataProximaRenovacao).toLocaleDateString('pt-BR') }}</span>
-            </span>
-          </p>
-        </div>
-        <div v-if="statusAssinatura === 'ativa'" class="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded-full text-sm font-semibold">
-          <span>✓</span>
-          <span>Ativa</span>
-        </div>
-        <div v-else-if="statusAssinatura === 'cancelada'" class="flex items-center gap-2 px-3 py-1.5 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 rounded-full text-sm font-semibold">
-          <span>⚠️</span>
-          <span>Cancelada</span>
-        </div>
-      </div>
-    </div>
-
     <!-- Grid de Planos -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 max-w-4xl mx-auto">
+      <!-- Plano Mensal -->
       <div
-        v-for="plano in planos"
-        :key="plano.id"
+        @click="selecionarPlano(planos[0])"
         :class="[
-          'relative bg-card border rounded-lg shadow-sm transition-all duration-300',
-          plano.destaque ? 'border-purple-500 dark:border-purple-600 ring-2 ring-purple-500/20 scale-[1.02]' : 'border-border hover:shadow-lg',
-          canClickPlan(plano.id) ? 'cursor-pointer hover:scale-[1.02]' : 'opacity-80'
+          'relative bg-gradient-to-br from-blue-50/50 to-cyan-50/30 dark:from-blue-950/20 dark:to-cyan-950/10 border-2 border-blue-200 dark:border-blue-800 rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg transition-all duration-300',
+          canClickPlan(planos[0].id) ? 'cursor-pointer hover:scale-105 hover:shadow-2xl' : 'opacity-80 cursor-not-allowed',
+          getPlanType(planos[0].id) === 'atual' ? 'ring-2 ring-blue-500' : ''
         ]"
-        @click="selecionarPlano(plano)"
       >
-        <!-- Badge -->
-        <div v-if="plano.badge" class="absolute -top-3 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold rounded-full shadow-lg">
-          {{ plano.badge }}
+        <!-- Badge Plano Atual -->
+        <div v-if="getPlanType(planos[0].id) === 'atual'" class="absolute -top-3 left-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white px-3 md:px-4 py-1 rounded-full text-[10px] md:text-xs font-medium shadow-lg">
+          ✓ Plano Atual<span v-if="diasRestantes > 0"> ({{ diasRestantes }} dias)</span>
+        </div>
+        <!-- Ícone -->
+        <div class="flex justify-center mb-3 md:mb-4">
+          <div class="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-full flex items-center justify-center text-white text-xl md:text-2xl shadow-lg">
+            💼
+          </div>
         </div>
 
-        <!-- Conteúdo do Card -->
-        <div class="p-6">
-          <!-- Nome do Plano -->
-          <h3 class="text-2xl font-bold text-foreground mb-2">
-            {{ plano.nome }}
-          </h3>
+        <!-- Nome e Descrição -->
+        <h3 class="text-xl md:text-2xl font-medium text-center text-foreground mb-1">{{ planos[0].nome }}</h3>
+        <p class="text-xs md:text-sm text-center text-muted-foreground mb-4 md:mb-6">{{ planos[0].badge }}</p>
 
-          <!-- Economia -->
-          <p v-if="plano.economia" class="text-sm font-semibold text-green-600 dark:text-green-400 mb-4">
-            {{ plano.economia }}
-          </p>
-
-          <!-- Preço -->
-          <div class="mb-6">
-            <p v-if="plano.precoAntes" class="text-sm text-muted-foreground line-through">
-              De R$ {{ plano.precoAntes.toFixed(2).replace('.', ',') }}
-            </p>
-            <div class="flex items-baseline gap-1">
-              <span class="text-4xl font-extrabold text-foreground">
-                R$ {{ plano.preco.toFixed(2).replace('.', ',') }}
-              </span>
-              <span class="text-sm text-muted-foreground">{{ plano.periodo }}</span>
-            </div>
+        <!-- Preço -->
+        <div class="text-center mb-6">
+          <div class="text-3xl md:text-4xl font-semibold text-foreground mb-1">
+            R$ {{ planos[0].preco.toFixed(2).replace('.', ',') }}
           </div>
-
-          <!-- Tokens -->
-          <div class="mb-6 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-purple-950/10 border border-indigo-200/30 dark:border-indigo-800/20 rounded-lg">
-            <p class="text-sm text-muted-foreground mb-1">Tokens mensais</p>
-            <p class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-              {{ plano.tokensFormatado }}
-            </p>
-          </div>
-
-          <!-- Benefícios -->
-          <ul class="space-y-3 mb-6">
-            <li
-              v-for="(beneficio, index) in plano.beneficios"
-              :key="index"
-              class="flex items-start gap-2 text-sm text-muted-foreground"
-            >
-              <span class="text-green-500 text-base flex-shrink-0">✓</span>
-              <span>{{ beneficio }}</span>
-            </li>
-          </ul>
-
-          <!-- Botão de Ação -->
-          <button
-            :disabled="!canClickPlan(plano.id)"
-            :class="[
-              'w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200',
-              canClickPlan(plano.id)
-                ? plano.destaque
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 shadow-md hover:shadow-lg'
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg'
-                : 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed'
-            ]"
-          >
-            {{ getButtonText(plano.id) }}
-          </button>
+          <p class="text-sm text-muted-foreground">{{ planos[0].periodo }}</p>
+          <p class="text-xs text-blue-600 dark:text-blue-400 font-medium mt-2">{{ planos[0].tokensFormatado }} tokens/mês</p>
         </div>
+
+        <!-- Botão -->
+        <button
+          :disabled="!canClickPlan(planos[0].id)"
+          class="w-full py-2.5 md:py-3 px-3 md:px-4 text-sm md:text-base bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ getButtonText(planos[0].id) }}
+        </button>
+      </div>
+
+      <!-- Plano Semestral (Destaque) -->
+      <div
+        @click="selecionarPlano(planos[1])"
+        :class="[
+          'relative bg-gradient-to-br from-orange-50/50 to-amber-50/30 dark:from-orange-950/20 dark:to-amber-950/10 border-2 border-orange-500 dark:border-orange-600 rounded-2xl p-6 shadow-2xl transition-all duration-300 transform scale-105',
+          canClickPlan(planos[1].id) ? 'cursor-pointer hover:scale-110 hover:shadow-3xl' : 'opacity-80 cursor-not-allowed',
+          getPlanType(planos[1].id) === 'atual' ? 'ring-2 ring-orange-500' : ''
+        ]"
+      >
+        <!-- Badge Mais Popular ou Plano Atual -->
+        <div v-if="getPlanType(planos[1].id) === 'atual'" class="absolute -top-4 left-4 bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 text-white px-4 md:px-6 py-2 rounded-full text-xs md:text-sm font-medium shadow-lg">
+          ✓ Plano Atual<span v-if="diasRestantes > 0"> ({{ diasRestantes }} dias)</span>
+        </div>
+        <div v-else class="absolute -top-4 left-4 bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 text-white px-4 md:px-6 py-2 rounded-full text-xs md:text-sm font-medium shadow-lg">
+          {{ planos[1].badge }}
+        </div>
+
+        <!-- Ícone -->
+        <div class="flex justify-center mb-4 mt-4">
+          <div class="w-16 h-16 bg-gradient-to-br from-orange-500 via-amber-600 to-yellow-600 rounded-full flex items-center justify-center text-white text-2xl shadow-lg animate-pulse">
+            ⭐
+          </div>
+        </div>
+
+        <!-- Nome e Descrição -->
+        <h3 class="text-xl md:text-2xl font-medium text-center text-foreground mb-1">{{ planos[1].nome }}</h3>
+        <p class="text-sm text-center text-orange-600 dark:text-orange-400 mb-6 font-medium">Melhor custo-benefício</p>
+
+        <!-- Preço -->
+        <div class="text-center mb-6">
+          <div class="text-3xl md:text-4xl font-semibold text-foreground mb-1">
+            R$ {{ planos[1].preco.toFixed(2).replace('.', ',') }}
+          </div>
+          <p class="text-sm text-muted-foreground">{{ planos[1].periodo }}</p>
+          <p class="text-xs text-orange-600 dark:text-orange-400 font-medium mt-2">{{ planos[1].tokensFormatado }} tokens/mês</p>
+        </div>
+
+        <!-- Botão -->
+        <button
+          :disabled="!canClickPlan(planos[1].id)"
+          class="w-full py-3 px-4 bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 hover:from-orange-700 hover:via-amber-700 hover:to-yellow-700 text-white font-medium rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ getButtonText(planos[1].id) }}
+        </button>
+      </div>
+
+      <!-- Plano Anual -->
+      <div
+        @click="selecionarPlano(planos[2])"
+        :class="[
+          'relative bg-gradient-to-br from-emerald-50/50 to-teal-50/30 dark:from-emerald-950/20 dark:to-teal-950/10 border-2 border-emerald-200 dark:border-emerald-800 rounded-2xl p-6 shadow-lg transition-all duration-300',
+          canClickPlan(planos[2].id) ? 'cursor-pointer hover:scale-105 hover:shadow-2xl' : 'opacity-80 cursor-not-allowed',
+          getPlanType(planos[2].id) === 'atual' ? 'ring-2 ring-emerald-500' : ''
+        ]"
+      >
+        <!-- Badge Plano Atual -->
+        <div v-if="getPlanType(planos[2].id) === 'atual'" class="absolute -top-3 left-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-3 md:px-4 py-1 rounded-full text-[10px] md:text-xs font-medium shadow-lg">
+          ✓ Plano Atual<span v-if="diasRestantes > 0"> ({{ diasRestantes }} dias)</span>
+        </div>
+        <!-- Ícone -->
+        <div class="flex justify-center mb-4">
+          <div class="w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full flex items-center justify-center text-white text-2xl shadow-lg">
+            👑
+          </div>
+        </div>
+
+        <!-- Nome e Descrição -->
+        <h3 class="text-xl md:text-2xl font-medium text-center text-foreground mb-1">{{ planos[2].nome }}</h3>
+        <p class="text-sm text-center text-muted-foreground mb-6">{{ planos[2].badge }}</p>
+
+        <!-- Preço -->
+        <div class="text-center mb-6">
+          <div class="text-3xl md:text-4xl font-semibold text-foreground mb-1">
+            R$ {{ planos[2].preco.toFixed(2).replace('.', ',') }}
+          </div>
+          <p class="text-sm text-muted-foreground">{{ planos[2].periodo }}</p>
+          <p class="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-2">{{ planos[2].tokensFormatado }} tokens/mês</p>
+        </div>
+
+        <!-- Botão -->
+        <button
+          :disabled="!canClickPlan(planos[2].id)"
+          class="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium rounded-lg transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ getButtonText(planos[2].id) }}
+        </button>
       </div>
     </div>
 
-    <!-- Informações Adicionais -->
-    <div class="mt-12 bg-gradient-to-br from-amber-50/20 to-orange-50/10 dark:from-amber-950/10 dark:to-orange-950/5 border border-amber-200/30 dark:border-amber-800/20 rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-        <span>💡</span>
-        <span>Informações Importantes</span>
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
-        <div class="flex items-start gap-2">
-          <span class="text-blue-500 text-lg flex-shrink-0">🔄</span>
-          <div>
-            <p class="font-semibold text-foreground mb-1">Renovação Automática</p>
-            <p>Seus tokens são renovados automaticamente a cada período. Sem preocupações!</p>
+    <!-- Explicação sobre Tokens -->
+    <div class="mt-8 max-w-4xl mx-auto bg-gradient-to-br from-indigo-50/50 to-purple-50/30 dark:from-indigo-950/20 dark:to-purple-950/10 border border-indigo-200/40 dark:border-indigo-800/20 rounded-xl p-4 md:p-6">
+      <div class="flex items-start gap-3">
+        <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+          <span class="text-xl">💡</span>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-base md:text-lg font-semibold text-foreground mb-2">Como funcionam os tokens?</h3>
+          <div class="space-y-2 text-xs md:text-sm text-muted-foreground">
+            <p>
+              <span class="font-semibold text-indigo-600 dark:text-indigo-400">📊 Equivalência:</span> 
+              Cada <strong>10.000 tokens</strong> equivalem a aproximadamente <strong>7.500 palavras</strong> processadas pelo Mentor IA.
+            </p>
+            <p>
+              <span class="font-semibold text-purple-600 dark:text-purple-400">🔄 Acumulação:</span> 
+              Seus tokens <strong>acumulam e não expiram</strong>. Tokens não utilizados permanecem disponíveis para uso futuro, somando-se aos novos tokens recebidos a cada renovação.
+            </p>
           </div>
-        </div>
-        <div class="flex items-start gap-2">
-          <span class="text-green-500 text-lg flex-shrink-0">📈</span>
-          <div>
-            <p class="font-semibold text-foreground mb-1">Upgrade Simples</p>
-            <p>Faça upgrade do seu plano a qualquer momento e pague apenas a diferença proporcional.</p>
-          </div>
-        </div>
-        <div class="flex items-start gap-2">
-          <span class="text-purple-500 text-lg flex-shrink-0">🎯</span>
-          <div>
-            <p class="font-semibold text-foreground mb-1">Cancelamento Flexível</p>
-            <p>Cancele quando quiser. Você mantém acesso até o fim do período pago.</p>
-          </div>
-        </div>
-        <div class="flex items-start gap-2">
-          <span class="text-orange-500 text-lg flex-shrink-0">💰</span>
-          <div>
-            <p class="font-semibold text-foreground mb-1">Tokens Extras</p>
-            <p>Precisa de mais tokens? <NuxtLink to="/tokens" class="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">Compre pacotes adicionais</NuxtLink></p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- FAQ -->
-    <div class="mt-8 bg-card border border-border rounded-lg p-6">
-      <h3 class="text-lg font-semibold text-foreground mb-4">Perguntas Frequentes</h3>
-      <div class="space-y-4">
-        <div>
-          <p class="font-semibold text-foreground mb-1">Como funciona a renovação dos tokens?</p>
-          <p class="text-sm text-muted-foreground">Seus tokens são renovados automaticamente no início de cada período. Se sobrarem tokens, eles expiram e são substituídos pelos novos.</p>
-        </div>
-        <div>
-          <p class="font-semibold text-foreground mb-1">Posso mudar de plano depois?</p>
-          <p class="text-sm text-muted-foreground">Sim! Você pode fazer upgrade ou downgrade a qualquer momento. No upgrade, pagamos apenas a diferença proporcional.</p>
-        </div>
-        <div>
-          <p class="font-semibold text-foreground mb-1">E se eu precisar de mais tokens?</p>
-          <p class="text-sm text-muted-foreground">Você pode comprar pacotes de tokens adicionais que não expiram. <NuxtLink to="/tokens" class="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold">Veja os pacotes disponíveis</NuxtLink></p>
-        </div>
-        <div>
-          <p class="font-semibold text-foreground mb-1">Como cancelo minha assinatura?</p>
-          <p class="text-sm text-muted-foreground">Você pode cancelar a qualquer momento nas configurações da sua conta. Você mantém acesso até o fim do período já pago.</p>
         </div>
       </div>
     </div>

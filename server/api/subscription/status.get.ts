@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
       isBlocked,
       subscriptionStatus: subscriptionStatusValue,
       subscriptionPlan: subscriptionStatus?.subscription_plan || 'free',
-      subscriptionPeriod: subscriptionStatus?.subscription_period || null,
+      subscriptionPeriod: subscriptionStatus?.subscription_renews_at || subscriptionStatus?.subscription_period || null,
       trialEndsAt: subscriptionStatus?.trial_ends_at,
       daysRemaining: daysRemainingValue,
       empresaNome: subscriptionStatus?.empresa_nome,
