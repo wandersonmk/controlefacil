@@ -158,7 +158,7 @@ export default defineEventHandler(async (event) => {
     if (!openaiApiKey) {
       throw createError({
         statusCode: 500,
-        message: 'OPENAI_API_KEY não configurada no servidor'
+        message: 'Configuração do servidor incompleta (OpenAI)'
       })
     }
 
@@ -202,7 +202,12 @@ export default defineEventHandler(async (event) => {
       })
       throw createError({
         statusCode: 502,
-        message: 'Erro ao gerar resposta do Mentor IA'
+        message: 'Erro ao gerar resposta do Mentor IA',
+        data: {
+          code: 'OPENAI_CALL_FAILED',
+          status: openaiError?.status,
+          openaiCode: openaiError?.code
+        }
       })
     }
 
@@ -286,9 +291,11 @@ export default defineEventHandler(async (event) => {
 
   } catch (error: any) {
     console.error('Erro no chat do mentor:', error)
+    // Preserva H3Error (statusCode + data) para debug em produção
+    if (error?.statusCode) throw error
     throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || 'Erro ao processar mensagem'
+      statusCode: 500,
+      message: 'Erro ao processar mensagem'
     })
   }
 })
