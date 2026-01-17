@@ -135,6 +135,8 @@ const pageTitle = computed(() => {
       return 'Comunidade'
     case '/assinatura':
       return 'Assinatura'
+    case '/tokens':
+      return 'Tokens Adicionais'
     default:
       console.log('[Dashboard] Using default title for path:', route.path)
       return 'Dashboard'
@@ -176,6 +178,8 @@ const pageDescription = computed(() => {
       return 'Conecte-se com outros empreendedores'
     case '/assinatura':
       return 'Gerencie seu plano e assinatura'
+    case '/tokens':
+      return 'Adquira tokens extras para usar o Mentor IA'
     default:
       return 'Visão geral do sistema'
   }
