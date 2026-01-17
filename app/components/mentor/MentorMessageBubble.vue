@@ -50,7 +50,7 @@ const mensagemRenderizada = computed(() => {
       <!-- Avatar do Mentor -->
       <div v-if="tipo === 'mentor'" class="flex items-start gap-2 md:gap-3 mb-2.5 md:mb-3">
         <div class="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm md:text-base flex-shrink-0">
-          🤖
+          <span>&#129302;</span>
         </div>
         <div class="flex-1">
           <p class="text-xs md:text-sm font-semibold text-muted-foreground">Mentor IA</p>

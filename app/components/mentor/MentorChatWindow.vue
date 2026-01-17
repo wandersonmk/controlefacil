@@ -45,7 +45,7 @@ watch(mensagensAtuais, (msgs) => {
     <div class="border-b border-border p-3 md:p-4">
       <div class="flex items-center gap-2 md:gap-3">
         <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm md:text-base">
-          🤖
+          <span>&#129302;</span>
         </div>
         <div>
           <h2 class="font-semibold text-sm md:text-base">Mentor IA</h2>
@@ -59,7 +59,7 @@ watch(mensagensAtuais, (msgs) => {
       <!-- Mensagem de boas-vindas se não houver mensagens -->
       <div v-if="mensagensAtuais.length === 0" class="h-full flex items-center justify-center px-4">
         <div class="text-center max-w-md">
-          <div class="text-5xl md:text-6xl mb-4">\ud83e\udd16</div>
+          <div class="text-5xl md:text-6xl mb-4"><span>&#129302;</span></div>
           <h3 class="text-lg md:text-xl font-semibold mb-2">Olá! Sou o Mentor IA</h3>
           <p class="text-sm md:text-base text-muted-foreground">
             Estou aqui para ajudar com precificação, combos lucrativos e gestão do seu negócio. 
