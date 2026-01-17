@@ -36,10 +36,37 @@ const form = ref({
   observacoes: ''
 })
 
+const valorFormatado = ref('')
+
 // Mostrar campo funcionário apenas para categoria "Vale Funcionário"
 const mostrarCampoFuncionario = computed(() => {
   return form.value.categoria === 'Vale Funcionário'
 })
+
+// Formatar valor como moeda brasileira
+const formatarMoeda = (value: string) => {
+  const numero = parseFloat(value.replace(/\D/g, '')) / 100
+  if (isNaN(numero)) return ''
+  return numero.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+}
+
+// Atualizar valor enquanto digita
+const handleValorInput = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const apenasNumeros = input.value.replace(/\D/g, '')
+  
+  if (apenasNumeros) {
+    const numero = parseFloat(apenasNumeros) / 100
+    form.value.valor = numero
+    valorFormatado.value = formatarMoeda(apenasNumeros)
+  } else {
+    form.value.valor = 0
+    valorFormatado.value = ''
+  }
+}
 
 // Preencher form ao editar
 watch(
@@ -51,11 +78,24 @@ watch(
         valor: saida.valor || 0,
         data: saida.data ? new Date(saida.data).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
         categoria: saida.categoria || 'Outros',
-        formaPagamento: saida.formaPagamento || 'Dinheiro',
+        formaPagamento: saida.forma_pagamento || 'Dinheiro',
         status: saida.status || 'Pendente',
         funcionario: saida.funcionario || '',
         observacoes: saida.observacoes || ''
       }
+      valorFormatado.value = formatarMoeda((saida.valor * 100).toString())
+    } else {
+      form.value = {
+        descricao: '',
+        valor: 0,
+        data: new Date().toISOString().split('T')[0],
+        categoria: 'Outros',
+        formaPagamento: 'Dinheiro',
+        status: 'Pendente',
+        funcionario: '',
+        observacoes: ''
+      }
+      valorFormatado.value = ''
     }
   },
   { immediate: true }
@@ -86,14 +126,14 @@ const salvar = () => {
   if (!validar()) return
 
   const dados = {
-    ...form.value,
+    descricao: form.value.descricao,
     valor: Number(form.value.valor),
-    data: new Date(form.value.data).toISOString()
-  }
-
-  // Remover campo funcionario se não for Vale
-  if (!mostrarCampoFuncionario.value) {
-    delete dados.funcionario
+    data: new Date(form.value.data).toISOString(),
+    categoria: form.value.categoria,
+    forma_pagamento: form.value.formaPagamento,
+    status: form.value.status,
+    observacoes: form.value.observacoes || undefined,
+    funcionario: mostrarCampoFuncionario.value ? form.value.funcionario : undefined
   }
 
   emit('salvar', dados)
@@ -124,17 +164,21 @@ const cancelar = () => {
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
-          Valor (R$) <span class="text-red-500">*</span>
+          Valor <span class="text-red-500">*</span>
         </label>
-        <input
-          v-model.number="form.valor"
-          type="number"
-          step="0.01"
-          min="0"
-          placeholder="0.00"
-          class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition-all text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-400"
-          required
-        />
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
+            R$
+          </span>
+          <input
+            :value="valorFormatado"
+            @input="handleValorInput"
+            type="text"
+            placeholder="0,00"
+            class="w-full pl-12 pr-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+            required
+          />
+        </div>
       </div>
 
       <div>

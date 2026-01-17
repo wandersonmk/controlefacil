@@ -14,6 +14,7 @@ const emit = defineEmits<{
 // Form data
 const descricao = ref('')
 const valor = ref('')
+const valorFormatado = ref('')
 const data = ref(new Date().toISOString().split('T')[0])
 const categoria = ref('Vendas')
 const formaRecebimento = ref<'Pix' | 'Cartão' | 'Dinheiro' | 'Transferência' | 'Outro'>('Pix')
@@ -30,6 +31,7 @@ watch(() => props.entrada, (nova) => {
   if (nova) {
     descricao.value = nova.descricao
     valor.value = nova.valor.toString()
+    valorFormatado.value = formatarMoeda(nova.valor.toString())
     data.value = nova.data.split('T')[0]
     categoria.value = nova.categoria
     formaRecebimento.value = nova.formaRecebimento
@@ -39,6 +41,7 @@ watch(() => props.entrada, (nova) => {
     // Limpar
     descricao.value = ''
     valor.value = ''
+    valorFormatado.value = ''
     data.value = new Date().toISOString().split('T')[0]
     categoria.value = 'Vendas'
     formaRecebimento.value = 'Pix'
@@ -47,16 +50,28 @@ watch(() => props.entrada, (nova) => {
   }
 }, { immediate: true })
 
-// Formatar valor enquanto digita
-const formatarValorInput = (event: Event) => {
+// Formatar valor como moeda brasileira
+const formatarMoeda = (value: string) => {
+  const numero = parseFloat(value.replace(/\D/g, '')) / 100
+  if (isNaN(numero)) return ''
+  return numero.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+}
+
+// Atualizar valor enquanto digita
+const handleValorInput = (event: Event) => {
   const input = event.target as HTMLInputElement
-  let value = input.value.replace(/\D/g, '')
+  const apenasNumeros = input.value.replace(/\D/g, '')
   
-  if (value) {
-    const numero = parseInt(value) / 100
+  if (apenasNumeros) {
+    const numero = parseFloat(apenasNumeros) / 100
     valor.value = numero.toFixed(2)
+    valorFormatado.value = formatarMoeda(apenasNumeros)
   } else {
     valor.value = ''
+    valorFormatado.value = ''
   }
 }
 
@@ -72,7 +87,7 @@ const handleSubmit = () => {
     valor: parseFloat(valor.value),
     data: new Date(data.value).toISOString(),
     categoria: categoria.value,
-    formaRecebimento: formaRecebimento.value,
+    forma_recebimento: formaRecebimento.value,
     status: status.value,
     observacoes: observacoes.value || undefined
   }
@@ -101,13 +116,19 @@ const handleSubmit = () => {
         <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
           Valor <span class="text-red-500">*</span>
         </label>
-        <AppInput
-          v-model="valor"
-          type="number"
-          step="0.01"
-          placeholder="0,00"
-          required
-        />
+        <div class="relative">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 font-medium">
+            R$
+          </span>
+          <input
+            :value="valorFormatado"
+            @input="handleValorInput"
+            type="text"
+            placeholder="0,00"
+            class="w-full pl-12 pr-3 py-2 text-sm bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-emerald-500 dark:focus:ring-emerald-400 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500"
+            required
+          />
+        </div>
       </div>
 
       <!-- Data -->

@@ -4,6 +4,8 @@ export const useProdutos = () => {
     supabase = useSupabaseClient()
   }
 
+  const toast = useToastSafe()
+
   // Interface para Produto
   interface Produto {
     id: string
@@ -121,6 +123,8 @@ export const useProdutos = () => {
 
       console.log('✅ Produto adicionado:', data)
       
+      toast.success('Produto cadastrado com sucesso!')
+      
       // Recarregar a lista
       await fetchProdutos()
       
@@ -148,6 +152,8 @@ export const useProdutos = () => {
 
       console.log('✅ Produto atualizado:', data)
       
+      toast.success('Produto atualizado com sucesso!')
+      
       // Recarregar a lista
       await fetchProdutos()
       
@@ -174,6 +180,8 @@ export const useProdutos = () => {
 
       console.log('✅ Produto deletado com sucesso')
       
+      toast.success('Produto excluído com sucesso!')
+      
       // Recarregar a lista
       await fetchProdutos()
     } catch (err: any) {
@@ -198,6 +206,8 @@ export const useProdutos = () => {
       }
 
       console.log('✅ Quantidade ajustada:', data)
+      
+      toast.success('Estoque ajustado com sucesso!')
       
       // Recarregar a lista
       await fetchProdutos()

@@ -1,43 +1,19 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import type { Entrada } from '../../shared/types/entradas.types'
+import { ref, computed, onMounted } from 'vue'
+
+// Composable do Supabase
+const { entradas, isLoading, fetchEntradas, addEntrada, updateEntrada, deleteEntrada } = useEntradas()
 
 // Estado
 const showModal = ref(false)
-const editingEntrada = ref<Entrada | null>(null)
-const entradas = ref<Entrada[]>([
-  // Mock data para desenvolvimento
-  {
-    id: '1',
-    descricao: 'Venda de açaí',
-    valor: 150.00,
-    data: new Date().toISOString(),
-    categoria: 'Vendas',
-    formaRecebimento: 'Pix',
-    status: 'Confirmada',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    descricao: 'Venda balcão',
-    valor: 85.50,
-    data: new Date(Date.now() - 86400000).toISOString(),
-    categoria: 'Vendas',
-    formaRecebimento: 'Dinheiro',
-    status: 'Confirmada',
-    createdAt: new Date(Date.now() - 86400000).toISOString()
-  },
-  {
-    id: '3',
-    descricao: 'Pedido delivery',
-    valor: 220.00,
-    data: new Date(Date.now() - 172800000).toISOString(),
-    categoria: 'Vendas',
-    formaRecebimento: 'Cartão',
-    status: 'Confirmada',
-    createdAt: new Date(Date.now() - 172800000).toISOString()
-  }
-])
+const showDeleteModal = ref(false)
+const editingEntrada = ref<any | null>(null)
+const entradaToDelete = ref<any | null>(null)
+
+// Buscar entradas ao montar
+onMounted(async () => {
+  await fetchEntradas()
+})
 
 // Calcular resumos
 const resumo = computed(() => {
@@ -48,20 +24,20 @@ const resumo = computed(() => {
   const anoAtras = new Date(hoje.getTime() - 365 * 24 * 60 * 60 * 1000)
 
   const diario = entradas.value
-    .filter((e: Entrada) => new Date(e.data) >= hoje)
-    .reduce((sum: number, e: Entrada) => sum + e.valor, 0)
+    .filter((e: any) => new Date(e.data) >= hoje && e.status === 'Confirmada')
+    .reduce((sum: number, e: any) => sum + Number(e.valor), 0)
 
   const semanal = entradas.value
-    .filter((e: Entrada) => new Date(e.data) >= semanaAtras)
-    .reduce((sum: number, e: Entrada) => sum + e.valor, 0)
+    .filter((e: any) => new Date(e.data) >= semanaAtras && e.status === 'Confirmada')
+    .reduce((sum: number, e: any) => sum + Number(e.valor), 0)
 
   const mensal = entradas.value
-    .filter((e: Entrada) => new Date(e.data) >= mesAtras)
-    .reduce((sum: number, e: Entrada) => sum + e.valor, 0)
+    .filter((e: any) => new Date(e.data) >= mesAtras && e.status === 'Confirmada')
+    .reduce((sum: number, e: any) => sum + Number(e.valor), 0)
 
   const anual = entradas.value
-    .filter((e: Entrada) => new Date(e.data) >= anoAtras)
-    .reduce((sum: number, e: Entrada) => sum + e.valor, 0)
+    .filter((e: any) => new Date(e.data) >= anoAtras && e.status === 'Confirmada')
+    .reduce((sum: number, e: any) => sum + Number(e.valor), 0)
 
   return { diario, semanal, mensal, anual }
 })
@@ -72,32 +48,31 @@ const abrirModalNova = () => {
   showModal.value = true
 }
 
-const abrirModalEditar = (entrada: Entrada) => {
+const abrirModalEditar = (entrada: any) => {
   editingEntrada.value = entrada
   showModal.value = true
 }
 
-const excluirEntrada = (id: string) => {
-  if (confirm('Deseja realmente excluir esta entrada?')) {
-    entradas.value = entradas.value.filter((e: Entrada) => e.id !== id)
+const abrirModalExcluir = (entrada: any) => {
+  entradaToDelete.value = entrada
+  showDeleteModal.value = true
+}
+
+const confirmarExclusao = async () => {
+  if (entradaToDelete.value) {
+    await deleteEntrada(entradaToDelete.value.id)
+    showDeleteModal.value = false
+    entradaToDelete.value = null
   }
 }
 
-const salvarEntrada = (dados: any) => {
+const salvarEntrada = async (dados: any) => {
   if (editingEntrada.value) {
     // Editar
-    const index = entradas.value.findIndex((e: Entrada) => e.id === editingEntrada.value!.id)
-    if (index !== -1) {
-      entradas.value[index] = { ...entradas.value[index], ...dados }
-    }
+    await updateEntrada(editingEntrada.value.id, dados)
   } else {
     // Nova
-    const nova: Entrada = {
-      id: Date.now().toString(),
-      ...dados,
-      createdAt: new Date().toISOString()
-    }
-    entradas.value.unshift(nova)
+    await addEntrada(dados)
   }
   showModal.value = false
 }
@@ -194,7 +169,14 @@ const getIconeFormaPagamento = (forma: string) => {
     </div>
 
     <!-- Lista de Entradas -->
-    <div v-if="entradas.length === 0" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
+    <div v-if="isLoading" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
+      <div class="flex flex-col items-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mb-4"></div>
+        <p class="text-lg font-medium text-muted-foreground">Carregando entradas...</p>
+      </div>
+    </div>
+
+    <div v-else-if="entradas.length === 0" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
       <span class="text-6xl mb-4 block">📭</span>
       <p class="text-lg font-medium text-muted-foreground">Nenhuma entrada registrada</p>
       <p class="text-sm text-muted-foreground mt-1">Clique em "Nova Entrada" para começar</p>
@@ -231,10 +213,10 @@ const getIconeFormaPagamento = (forma: string) => {
           </div>
 
           <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
-            <p class="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+            <p class="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
               {{ formatarValor(entrada.valor) }}
             </p>
-            <div class="flex gap-1">
+            <div class="flex gap-1 flex-shrink-0">
               <button
                 @click="abrirModalEditar(entrada)"
                 class="p-2 hover:bg-blue-500/10 text-blue-500 rounded-lg transition-colors"
@@ -245,7 +227,7 @@ const getIconeFormaPagamento = (forma: string) => {
                 </svg>
               </button>
               <button
-                @click="excluirEntrada(entrada.id)"
+                @click="abrirModalExcluir(entrada)"
                 class="p-2 hover:bg-red-500/10 text-red-500 rounded-lg transition-colors"
                 title="Excluir"
               >
@@ -263,7 +245,7 @@ const getIconeFormaPagamento = (forma: string) => {
       </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal Nova/Editar Entrada -->
     <Teleport to="body">
       <div
         v-if="showModal"
@@ -288,6 +270,60 @@ const getIconeFormaPagamento = (forma: string) => {
             @salvar="salvarEntrada"
             @cancelar="showModal = false"
           />
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Modal Confirmar Exclusão -->
+    <Teleport to="body">
+      <div
+        v-if="showDeleteModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        @click.self="showDeleteModal = false"
+      >
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+          <div class="p-6">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Confirmar Exclusão</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  Tem certeza que deseja excluir esta entrada?
+                </p>
+              </div>
+            </div>
+
+            <div v-if="entradaToDelete" class="mb-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                {{ entradaToDelete.descricao }}
+              </p>
+              <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+                <span>{{ formatarData(entradaToDelete.data) }}</span>
+                <span class="font-semibold text-emerald-600 dark:text-emerald-400">
+                  {{ formatarValor(entradaToDelete.valor) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <button
+                @click="showDeleteModal = false"
+                class="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                @click="confirmarExclusao"
+                class="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </Teleport>

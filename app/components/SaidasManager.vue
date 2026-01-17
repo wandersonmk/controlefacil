@@ -1,46 +1,19 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
-interface Saida {
-  id: string
-  descricao: string
-  valor: number
-  data: string
-  categoria: string
-  formaPagamento: 'Dinheiro' | 'PIX' | 'Cartão' | 'Transferência' | 'Outro'
-  status: 'Paga' | 'Pendente'
-  funcionario?: string // Para vales
-  observacoes?: string
-  createdAt: string
-}
+// Composable do Supabase
+const { saidas, isLoading, fetchSaidas, addSaida, updateSaida, deleteSaida } = useSaidas()
 
 // Estado
 const showModal = ref(false)
-const editingSaida = ref<Saida | null>(null)
-const saidas = ref<Saida[]>([
-  // Mock data
-  {
-    id: '1',
-    descricao: 'Aluguel do mês',
-    valor: 2500.00,
-    data: new Date().toISOString(),
-    categoria: 'Aluguel',
-    formaPagamento: 'Transferência',
-    status: 'Paga',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    descricao: 'Vale - João Silva',
-    valor: 150.00,
-    data: new Date(Date.now() - 86400000).toISOString(),
-    categoria: 'Vale Funcionário',
-    formaPagamento: 'Dinheiro',
-    status: 'Paga',
-    funcionario: 'João Silva',
-    createdAt: new Date(Date.now() - 86400000).toISOString()
-  }
-])
+const showDeleteModal = ref(false)
+const editingSaida = ref<any | null>(null)
+const saidaToDelete = ref<any | null>(null)
+
+// Buscar saídas ao montar
+onMounted(async () => {
+  await fetchSaidas()
+})
 
 // Calcular resumos
 const resumo = computed(() => {
@@ -51,20 +24,20 @@ const resumo = computed(() => {
   const anoAtras = new Date(hoje.getTime() - 365 * 24 * 60 * 60 * 1000)
 
   const diario = saidas.value
-    .filter((s: Saida) => new Date(s.data) >= hoje)
-    .reduce((sum: number, s: Saida) => sum + s.valor, 0)
+    .filter((s: any) => new Date(s.data) >= hoje && s.status === 'Paga')
+    .reduce((sum: number, s: any) => sum + Number(s.valor), 0)
 
   const semanal = saidas.value
-    .filter((s: Saida) => new Date(s.data) >= semanaAtras)
-    .reduce((sum: number, s: Saida) => sum + s.valor, 0)
+    .filter((s: any) => new Date(s.data) >= semanaAtras && s.status === 'Paga')
+    .reduce((sum: number, s: any) => sum + Number(s.valor), 0)
 
   const mensal = saidas.value
-    .filter((s: Saida) => new Date(s.data) >= mesAtras)
-    .reduce((sum: number, s: Saida) => sum + s.valor, 0)
+    .filter((s: any) => new Date(s.data) >= mesAtras && s.status === 'Paga')
+    .reduce((sum: number, s: any) => sum + Number(s.valor), 0)
 
   const anual = saidas.value
-    .filter((s: Saida) => new Date(s.data) >= anoAtras)
-    .reduce((sum: number, s: Saida) => sum + s.valor, 0)
+    .filter((s: any) => new Date(s.data) >= anoAtras && s.status === 'Paga')
+    .reduce((sum: number, s: any) => sum + Number(s.valor), 0)
 
   return { diario, semanal, mensal, anual }
 })
@@ -75,32 +48,31 @@ const abrirModalNova = () => {
   showModal.value = true
 }
 
-const abrirModalEditar = (saida: Saida) => {
+const abrirModalEditar = (saida: any) => {
   editingSaida.value = saida
   showModal.value = true
 }
 
-const excluirSaida = (id: string) => {
-  if (confirm('Deseja realmente excluir esta saída?')) {
-    saidas.value = saidas.value.filter((s: Saida) => s.id !== id)
+const abrirModalExcluir = (saida: any) => {
+  saidaToDelete.value = saida
+  showDeleteModal.value = true
+}
+
+const confirmarExclusao = async () => {
+  if (saidaToDelete.value) {
+    await deleteSaida(saidaToDelete.value.id)
+    showDeleteModal.value = false
+    saidaToDelete.value = null
   }
 }
 
-const salvarSaida = (dados: any) => {
+const salvarSaida = async (dados: any) => {
   if (editingSaida.value) {
     // Editar
-    const index = saidas.value.findIndex((s: Saida) => s.id === editingSaida.value!.id)
-    if (index !== -1) {
-      saidas.value[index] = { ...saidas.value[index], ...dados }
-    }
+    await updateSaida(editingSaida.value.id, dados)
   } else {
     // Nova
-    const nova: Saida = {
-      id: Date.now().toString(),
-      ...dados,
-      createdAt: new Date().toISOString()
-    }
-    saidas.value.unshift(nova)
+    await addSaida(dados)
   }
   showModal.value = false
 }
@@ -201,8 +173,14 @@ const getIconeCategoria = (categoria: string) => {
       </button>
     </div>
 
+    <!-- Loading -->
+    <div v-if="isLoading" class="text-center py-12">
+      <div class="inline-block w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+      <p class="text-sm text-muted-foreground mt-3">Carregando saídas...</p>
+    </div>
+
     <!-- Lista vazia -->
-    <div v-if="saidas.length === 0" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
+    <div v-else-if="saidas.length === 0" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
       <span class="text-6xl mb-4 block">📭</span>
       <p class="text-lg font-medium text-muted-foreground">Nenhuma saída registrada</p>
       <p class="text-sm text-muted-foreground mt-1">Clique em "Nova Saída" para começar</p>
@@ -246,10 +224,10 @@ const getIconeCategoria = (categoria: string) => {
           </div>
 
           <div class="flex items-center justify-between sm:justify-end gap-3 sm:gap-4">
-            <p class="text-xl sm:text-2xl font-bold text-red-600 dark:text-red-400">
+            <p class="text-base sm:text-lg font-bold text-red-600 dark:text-red-400 whitespace-nowrap">
               {{ formatarValor(saida.valor) }}
             </p>
-            <div class="flex gap-1">
+            <div class="flex gap-1 flex-shrink-0">
               <button
                 @click="abrirModalEditar(saida)"
                 class="p-2 hover:bg-blue-500/10 text-blue-500 rounded-lg transition-colors"
@@ -260,7 +238,7 @@ const getIconeCategoria = (categoria: string) => {
                 </svg>
               </button>
               <button
-                @click="excluirSaida(saida.id)"
+                @click="abrirModalExcluir(saida)"
                 class="p-2 hover:bg-red-500/10 text-red-500 rounded-lg transition-colors"
                 title="Excluir"
               >
@@ -278,7 +256,7 @@ const getIconeCategoria = (categoria: string) => {
       </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal Nova/Editar Saída -->
     <Teleport to="body">
       <div
         v-if="showModal"
@@ -303,6 +281,60 @@ const getIconeCategoria = (categoria: string) => {
             @salvar="salvarSaida"
             @cancelar="showModal = false"
           />
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Modal Confirmar Exclusão -->
+    <Teleport to="body">
+      <div
+        v-if="showDeleteModal"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+        @click.self="showDeleteModal = false"
+      >
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-gray-700">
+          <div class="p-6">
+            <div class="flex items-center gap-4 mb-4">
+              <div class="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                <svg class="w-6 h-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">Confirmar Exclusão</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  Tem certeza que deseja excluir esta saída?
+                </p>
+              </div>
+            </div>
+
+            <div v-if="saidaToDelete" class="mb-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+              <p class="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
+                {{ saidaToDelete.descricao }}
+              </p>
+              <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+                <span>{{ formatarData(saidaToDelete.data) }}</span>
+                <span class="font-semibold text-red-600 dark:text-red-400">
+                  {{ formatarValor(saidaToDelete.valor) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="flex gap-3">
+              <button
+                @click="showDeleteModal = false"
+                class="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors font-medium text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                @click="confirmarExclusao"
+                class="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </Teleport>

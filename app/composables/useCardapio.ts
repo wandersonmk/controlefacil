@@ -204,17 +204,21 @@ export const useCardapio = () => {
 
   // Funções para produtos
   const adicionarProduto = (produto: Omit<Produto, 'id'>) => {
+    const toast = useToastSafe()
     const novoProduto: Produto = {
       ...produto,
       id: Date.now().toString()
     }
     cardapioState.value.produtos.push(novoProduto)
+    toast.success('Produto cadastrado com sucesso!')
   }
 
   const editarProduto = (id: string, dados: Partial<Omit<Produto, 'id'>>) => {
+    const toast = useToastSafe()
     const produto = cardapioState.value.produtos.find(p => p.id === id)
     if (produto) {
       Object.assign(produto, dados)
+      toast.success('Produto atualizado com sucesso!')
     }
   }
 
