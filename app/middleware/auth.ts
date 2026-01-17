@@ -7,9 +7,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   try {
     console.log('[Auth Middleware] Iniciando verificação...')
     
-    // Aguardar o plugin de auth ter executado - aumentado para dar mais tempo
-    await new Promise(resolve => setTimeout(resolve, 1200))
-    
     const { isAuthenticated, user, isLoading } = useAuth()
     
     console.log('[Auth Middleware] Estado inicial:', { 
@@ -19,13 +16,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       email: user.value?.email
     })
     
-    // Aguarda o carregamento ser concluído se ainda estiver carregando
+    // Aguarda o carregamento ser concluído de forma mais eficiente
     let attempts = 0
-    const maxAttempts = 15 // Aumentado para 1.5 segundo adicional
+    const maxAttempts = 20
     
     while (isLoading.value && attempts < maxAttempts) {
       console.log(`[Auth Middleware] Aguardando loading... tentativa ${attempts + 1}`)
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise(resolve => setTimeout(resolve, 50))
       attempts++
     }
     

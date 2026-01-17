@@ -11,9 +11,6 @@ export default defineNuxtPlugin(async () => {
     const loading = useState<boolean>('auth_loading', () => true)
     
     try {
-      // Aguardar um pouco para garantir que Supabase está disponível (reduzido)
-      await new Promise(resolve => setTimeout(resolve, 200))
-      
       const nuxtApp = useNuxtApp()
       
       if (!nuxtApp.$supabase) {

@@ -14,9 +14,11 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       email: user.value?.email 
     })
     
-    // Aguarda apenas um curto período se ainda estiver carregando
-    if (isLoading.value) {
-      await new Promise(resolve => setTimeout(resolve, 500))
+    // Aguarda loading de forma mais eficiente
+    let attempts = 0
+    while (isLoading.value && attempts < 10) {
+      await new Promise(resolve => setTimeout(resolve, 50))
+      attempts++
     }
     
     console.log('Guest middleware - Após loading:', { 
