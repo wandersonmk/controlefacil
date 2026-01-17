@@ -146,7 +146,7 @@ const formatarData = (dataStr: string) => {
     </div>
 
     <!-- Lista de Conversas -->
-    <div v-else-if="conversations.length > 0" class="flex-1 overflow-y-auto space-y-2">
+    <div v-else-if="conversations.length > 0" class="flex-1 overflow-y-auto space-y-2 scrollbar-custom">
       <div
         v-for="conversa in conversations"
         :key="conversa.id"
@@ -187,3 +187,40 @@ const formatarData = (dataStr: string) => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.scrollbar-custom::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: rgb(229 231 235);
+  border-radius: 4px;
+}
+
+.dark .scrollbar-custom::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99);
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: rgb(209 213 219);
+}
+
+.dark .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128);
+}
+
+/* Firefox */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(229 231 235) transparent;
+}
+
+.dark .scrollbar-custom {
+  scrollbar-color: rgb(75 85 99) transparent;
+}
+</style>
