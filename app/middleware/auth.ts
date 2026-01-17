@@ -87,7 +87,12 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         // Se o trial expirou e o usuário não está na página de assinatura ou ajuda
         if (response.isBlocked && to.path !== '/assinatura' && to.path !== '/ajuda') {
           console.log('[Auth Middleware] Trial expirado, redirecionando para /assinatura')
-          return navigateTo('/assinatura')
+          // Usar window.location para garantir carregamento completo dos estilos
+          if (process.client) {
+            window.location.href = '/assinatura'
+            return
+          }
+          return navigateTo('/assinatura', { replace: true })
         }
       }
     } catch (error) {
