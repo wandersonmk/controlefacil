@@ -1,56 +1,5 @@
 <template>
   <div class="space-y-6">
-    <!-- Cards de Resumo (no topo) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 mb-2">
-      <!-- Total Entradas (Receitas) -->
-      <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 p-1.5 rounded-md border border-green-200 dark:border-green-800 shadow-sm">
-        <div class="flex items-start justify-between mb-1">
-          <span class="text-green-700 dark:text-green-400 text-[11px] font-medium leading-none">💰 Receitas</span>
-          <span class="text-sm leading-none">📈</span>
-        </div>
-        <p class="text-lg font-bold text-green-700 dark:text-green-400 leading-none mb-1">
-          R$ {{ formatarValor(totais.entradas) }}
-        </p>
-        <p class="text-[9px] text-muted-foreground leading-none">{{ totais.qtdEntradas }} registros</p>
-      </div>
-
-      <!-- Total Saídas (Despesas) -->
-      <div class="bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 p-1.5 rounded-md border border-red-200 dark:border-red-800 shadow-sm">
-        <div class="flex items-start justify-between mb-1">
-          <span class="text-red-700 dark:text-red-400 text-[11px] font-medium leading-none">💸 Despesas</span>
-          <span class="text-sm leading-none">📉</span>
-        </div>
-        <p class="text-lg font-bold text-red-700 dark:text-red-400 leading-none mb-1">
-          R$ {{ formatarValor(totais.saidas) }}
-        </p>
-        <p class="text-[9px] text-muted-foreground leading-none">{{ totais.qtdSaidas }} registros</p>
-      </div>
-
-      <!-- Saldo -->
-      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 p-1.5 rounded-md border border-blue-200 dark:border-blue-800 shadow-sm">
-        <div class="flex items-start justify-between mb-1">
-          <span class="text-blue-700 dark:text-blue-400 text-[11px] font-medium leading-none">📊 Saldo</span>
-          <span class="text-sm leading-none">💵</span>
-        </div>
-        <p class="text-lg font-bold leading-none mb-1" :class="totais.saldo >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-red-700 dark:text-red-400'">
-          R$ {{ formatarValor(totais.saldo) }}
-        </p>
-        <p class="text-[9px] text-muted-foreground leading-none">Receitas - Despesas</p>
-      </div>
-
-      <!-- Estoque -->
-      <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 p-1.5 rounded-md border border-purple-200 dark:border-purple-800 shadow-sm">
-        <div class="flex items-start justify-between mb-1">
-          <span class="text-purple-700 dark:text-purple-400 text-[11px] font-medium leading-none">📦 Produtos</span>
-          <span class="text-sm leading-none">🎯</span>
-        </div>
-        <p class="text-lg font-bold text-purple-700 dark:text-purple-400 leading-none mb-1">
-          {{ totais.estoque }}
-        </p>
-        <p class="text-[9px] text-muted-foreground leading-none">Itens disponíveis</p>
-      </div>
-    </div>
-
     <!-- Cabeçalho com Filtros e Exportação -->
     <div class="bg-card text-card-foreground rounded-lg border border-border shadow-sm">
       <div class="p-6 border-b border-border">
@@ -79,7 +28,7 @@
 
       <!-- Filtros -->
       <div class="p-6 bg-muted/30">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label class="block text-sm font-medium text-foreground mb-2">Data Inicial</label>
             <input
@@ -102,6 +51,14 @@
               class="w-full px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-sm font-medium"
             >
               Aplicar Filtros
+            </button>
+          </div>
+          <div class="flex items-end">
+            <button
+              @click="limparFiltros"
+              class="w-full px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors text-sm font-medium border border-border"
+            >
+              Limpar Filtros
             </button>
           </div>
         </div>
@@ -173,25 +130,52 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+
+// Composables
+const { entradas: entradasDB, fetchEntradas } = useEntradas()
+const { saidas: saidasDB, fetchSaidas } = useSaidas()
+
 // Filtros
 const filtros = ref({
   dataInicial: '',
   dataFinal: ''
 })
 
-// Dados dos totais
-const totais = ref({
-  entradas: 0,
-  saidas: 0,
-  saldo: 0,
-  estoque: 0,
-  qtdEntradas: 0,
-  qtdSaidas: 0
+// Entradas e saídas filtradas
+const entradas = computed(() => {
+  let dados = entradasDB.value || []
+  
+  if (filtros.value.dataInicial) {
+    const dataInicial = new Date(filtros.value.dataInicial)
+    dados = dados.filter((e: any) => new Date(e.data) >= dataInicial)
+  }
+  
+  if (filtros.value.dataFinal) {
+    const dataFinal = new Date(filtros.value.dataFinal)
+    dataFinal.setHours(23, 59, 59, 999)
+    dados = dados.filter((e: any) => new Date(e.data) <= dataFinal)
+  }
+  
+  return dados
 })
 
-// Listas de registros
-const entradas = ref<any[]>([])
-const saidas = ref<any[]>([])
+const saidas = computed(() => {
+  let dados = saidasDB.value || []
+  
+  if (filtros.value.dataInicial) {
+    const dataInicial = new Date(filtros.value.dataInicial)
+    dados = dados.filter((s: any) => new Date(s.data) >= dataInicial)
+  }
+  
+  if (filtros.value.dataFinal) {
+    const dataFinal = new Date(filtros.value.dataFinal)
+    dataFinal.setHours(23, 59, 59, 999)
+    dados = dados.filter((s: any) => new Date(s.data) <= dataFinal)
+  }
+  
+  return dados
+})
 
 // Funções
 const formatarValor = (valor: number) => {
@@ -206,8 +190,18 @@ const formatarData = (data: string) => {
 }
 
 const aplicarFiltros = () => {
-  // Em breve: buscar dados filtrados do banco
-  console.log('Aplicando filtros:', filtros.value)
+  // Os filtros são aplicados automaticamente via computed
+  console.log('Filtros aplicados:', {
+    dataInicial: filtros.value.dataInicial,
+    dataFinal: filtros.value.dataFinal,
+    totalEntradas: entradas.value.length,
+    totalSaidas: saidas.value.length
+  })
+}
+
+const limparFiltros = () => {
+  filtros.value.dataInicial = ''
+  filtros.value.dataFinal = ''
 }
 
 const exportarPDF = () => {
@@ -220,10 +214,11 @@ const exportarExcel = () => {
   console.log('Exportando para Excel')
 }
 
-// Em breve: carregar dados reais do banco
-onMounted(() => {
-  // Exemplo de dados (será substituído por dados reais)
-  // entradas.value = [...dados do banco]
-  // saidas.value = [...dados do banco]
+// Carregar dados do banco
+onMounted(async () => {
+  await Promise.all([
+    fetchEntradas(),
+    fetchSaidas()
+  ])
 })
 </script>
