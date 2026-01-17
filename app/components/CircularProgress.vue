@@ -1,9 +1,11 @@
 <template>
-  <div class="bg-card text-card-foreground rounded-lg border border-border shadow-sm p-6">
-    <h3 class="text-lg font-semibold text-foreground mb-6">Visão geral de clientes</h3>
+  <div class="relative bg-gradient-to-br from-purple-50/50 via-blue-50/30 to-cyan-50/50 dark:from-purple-950/20 dark:via-blue-950/15 dark:to-cyan-950/20 text-card-foreground rounded-lg border border-purple-200/50 dark:border-purple-800/30 shadow-sm hover:shadow-md transition-shadow duration-300 p-6 overflow-hidden">
+    <!-- Overlay sutil para profundidade -->
+    <div class="absolute inset-0 bg-gradient-to-br from-transparent via-purple-100/10 to-transparent dark:via-purple-900/5 pointer-events-none"></div>
+    <h3 class="relative text-lg font-semibold text-foreground mb-6">Visão geral de clientes</h3>
 
     <!-- Gráfico Circular Principal -->
-    <div class="flex flex-col items-center mb-8">
+    <div class="relative flex flex-col items-center mb-8">
       <div class="relative w-48 h-48 mb-6">
         <!-- Background circle -->
         <svg class="w-full h-full transform -rotate-90" viewBox="0 0 120 120" style="overflow: visible;">
@@ -12,10 +14,10 @@
             cx="60"
             cy="60"
             r="40"
-            stroke="currentColor"
+            stroke="#E0E7FF"
             stroke-width="8"
             fill="none"
-            class="text-muted/20"
+            class="dark:stroke-indigo-900/30"
           />
           
           <!-- Círculo de progresso com gradiente -->
@@ -52,7 +54,7 @@
     </div>
 
     <!-- Barra de Progresso Mensal -->
-    <div>
+    <div class="relative">
       <div class="flex justify-between text-sm mb-2">
         <span class="text-gray-400 uppercase tracking-wide">CLIENTES</span>
         <span class="text-foreground font-medium">{{ displayTotal }}</span>

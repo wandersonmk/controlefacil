@@ -78,18 +78,18 @@
           <Icon icon="info-circle" :class-name="'w-12 h-12 text-muted-foreground/50 mx-auto mb-4'" fallback="" />
           <p class="text-muted-foreground">Nenhuma entrada registrada no período</p>
         </div>
-        <div v-else class="space-y-3">
+        <div v-else class="space-y-2">
           <div
             v-for="entrada in entradas"
             :key="entrada.id"
-            class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-muted/30 rounded-lg gap-2"
+            class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gradient-to-br from-green-50/30 to-emerald-50/20 dark:from-green-950/10 dark:to-emerald-950/5 rounded-lg border border-green-200/30 dark:border-green-800/20 shadow-sm hover:shadow-md transition-shadow duration-200 gap-2"
           >
             <div class="flex-1">
-              <p class="font-medium text-foreground">{{ entrada.descricao }}</p>
-              <p class="text-sm text-muted-foreground">{{ formatarData(entrada.data) }}</p>
+              <p class="font-medium text-foreground text-sm">{{ entrada.descricao }}</p>
+              <p class="text-xs text-muted-foreground">{{ formatarData(entrada.data) }}</p>
             </div>
             <div class="text-right">
-              <p class="text-lg font-bold text-green-600 dark:text-green-400">+ R$ {{ formatarValor(entrada.valor) }}</p>
+              <p class="text-base font-bold text-green-600 dark:text-green-400">+ R$ {{ formatarValor(entrada.valor) }}</p>
             </div>
           </div>
         </div>
@@ -109,18 +109,18 @@
           <Icon icon="info-circle" :class-name="'w-12 h-12 text-muted-foreground/50 mx-auto mb-4'" fallback="" />
           <p class="text-muted-foreground">Nenhuma saída registrada no período</p>
         </div>
-        <div v-else class="space-y-3">
+        <div v-else class="space-y-2">
           <div
             v-for="saida in saidas"
             :key="saida.id"
-            class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-muted/30 rounded-lg gap-2"
+            class="flex flex-col sm:flex-row sm:items-center justify-between p-3 bg-gradient-to-br from-red-50/30 to-rose-50/20 dark:from-red-950/10 dark:to-rose-950/5 rounded-lg border border-red-200/30 dark:border-red-800/20 shadow-sm hover:shadow-md transition-shadow duration-200 gap-2"
           >
             <div class="flex-1">
-              <p class="font-medium text-foreground">{{ saida.descricao }}</p>
-              <p class="text-sm text-muted-foreground">{{ formatarData(saida.data) }}</p>
+              <p class="font-medium text-foreground text-sm">{{ saida.descricao }}</p>
+              <p class="text-xs text-muted-foreground">{{ formatarData(saida.data) }}</p>
             </div>
             <div class="text-right">
-              <p class="text-lg font-bold text-red-600 dark:text-red-400">- R$ {{ formatarValor(saida.valor) }}</p>
+              <p class="text-base font-bold text-red-600 dark:text-red-400">- R$ {{ formatarValor(saida.valor) }}</p>
             </div>
           </div>
         </div>

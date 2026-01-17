@@ -27,7 +27,7 @@ const consumoConversa = computed(() => usage.value?.tokensConversation || 0)
       </p>
       <p class="text-[9px] text-muted-foreground mb-1.5 leading-none">Renova todo mês</p>
       <NuxtLink 
-        to="/assinatura"
+        to="/tokens"
         class="inline-flex items-center justify-center gap-1 w-full px-2 py-1 bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:from-purple-700 hover:via-pink-700 hover:to-rose-700 text-white rounded text-[10px] font-semibold transition-all shadow-md animate-pulse hover:animate-none hover:scale-105"
       >
         <span>🪙</span>
