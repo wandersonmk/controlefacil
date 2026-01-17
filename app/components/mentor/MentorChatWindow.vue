@@ -40,28 +40,28 @@ watch(mensagensAtuais, (msgs) => {
 </script>
 
 <template>
-  <div class="h-full bg-card border border-border rounded-xl flex flex-col">
+  <div class="h-full bg-card border border-border rounded-lg md:rounded-xl flex flex-col">
     <!-- Header do Chat -->
-    <div class="border-b border-border p-4">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
+    <div class="border-b border-border p-3 md:p-4">
+      <div class="flex items-center gap-2 md:gap-3">
+        <div class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm md:text-base">
           🤖
         </div>
         <div>
-          <h2 class="font-semibold">Mentor IA</h2>
-          <p class="text-xs text-muted-foreground">Assistente de gestão inteligente</p>
+          <h2 class="font-semibold text-sm md:text-base">Mentor IA</h2>
+          <p class="text-[10px] md:text-xs text-muted-foreground">Assistente de gestão inteligente</p>
         </div>
       </div>
     </div>
 
     <!-- Área de Mensagens -->
-    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 space-y-1">
+    <div ref="messagesContainer" class="flex-1 overflow-y-auto p-4 md:p-5 space-y-2">
       <!-- Mensagem de boas-vindas se não houver mensagens -->
-      <div v-if="mensagensAtuais.length === 0" class="h-full flex items-center justify-center">
+      <div v-if="mensagensAtuais.length === 0" class="h-full flex items-center justify-center px-4">
         <div class="text-center max-w-md">
-          <div class="text-5xl mb-4">🤖</div>
-          <h3 class="text-lg font-semibold mb-2">Olá! Sou o Mentor IA</h3>
-          <p class="text-sm text-muted-foreground">
+          <div class="text-5xl md:text-6xl mb-4">\ud83e\udd16</div>
+          <h3 class="text-lg md:text-xl font-semibold mb-2">Olá! Sou o Mentor IA</h3>
+          <p class="text-sm md:text-base text-muted-foreground">
             Estou aqui para ajudar com precificação, combos lucrativos e gestão do seu negócio. 
             Faça sua primeira pergunta abaixo!
           </p>

@@ -20,21 +20,21 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-12rem)] max-h-[calc(100vh-12rem)]">
-    <!-- Cards do Topo -->
-    <div class="flex-shrink-0">
+  <div class="flex flex-col h-[calc(100vh-3rem)] md:h-[calc(100vh-6rem)] max-h-[calc(100vh-3rem)] md:max-h-[calc(100vh-6rem)]">
+    <!-- Cards do Topo (escondido no mobile) -->
+    <div class="flex-shrink-0 hidden md:block">
       <MentorTopCards />
     </div>
 
     <!-- Layout Principal: História + Chat -->
     <div class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-3 overflow-hidden min-h-0">
-      <!-- Coluna Esquerda: Histórico de Conversas -->
-      <div class="lg:col-span-1 h-full overflow-hidden">
+      <!-- Coluna Esquerda: Histórico de Conversas (escondido no mobile) -->
+      <div class="hidden lg:block lg:col-span-1 h-full overflow-hidden">
         <MentorChatHistory />
       </div>
 
-      <!-- Coluna Direita: Janela do Chat + Input -->
-      <div class="lg:col-span-3 h-full flex flex-col gap-3 min-h-0">
+      <!-- Coluna Direita: Janela do Chat + Input (ocupa toda largura no mobile) -->
+      <div class="lg:col-span-3 h-full flex flex-col gap-2 md:gap-3 min-h-0">
         <!-- Janela do Chat -->
         <div class="flex-1 overflow-hidden min-h-0">
           <MentorChatWindow />
