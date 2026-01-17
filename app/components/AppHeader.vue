@@ -59,6 +59,31 @@
 
         <!-- Área do usuário e logout -->
         <div class="flex items-center space-x-4">
+          <!-- Avatar do usuário -->
+          <ClientOnly>
+            <NuxtLink to="/configuracoes" class="hidden sm:flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors">
+              <div class="relative">
+                <div v-if="userData.avatar_url" class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/50">
+                  <img 
+                    :src="userData.avatar_url" 
+                    :alt="userData.nome || 'Avatar'"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div v-else class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center border-2 border-primary/50">
+                  <span class="text-white text-sm font-semibold">
+                    {{ getInitials(userData.nome || userData.email) }}
+                  </span>
+                </div>
+                <div class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-background rounded-full"></div>
+              </div>
+              <div class="text-left">
+                <p class="text-sm font-medium text-foreground">{{ userData.nome || 'Usuário' }}</p>
+                <p class="text-xs text-muted-foreground">{{ userData.email }}</p>
+              </div>
+            </NuxtLink>
+          </ClientOnly>
+
           <!-- Menu mobile -->
           <div class="md:hidden">
             <button @click="mobileMenuOpen = !mobileMenuOpen" class="inline-flex items-center justify-center p-2 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
@@ -125,13 +150,67 @@
 </template>
 
 <script setup lang="ts">
+const { signOut, user } = useAuth()
 
-const { signOut } = useAuth()
+const mobileMenuOpen = ref(false)
+
 let toast: any
+
+const userData = ref({
+  nome: '',
+  email: '',
+  avatar_url: ''
+})
+
+// Carregar dados do usuário (somente no cliente)
+const carregarDadosUsuario = async () => {
+  if (!user.value?.id) return
+
+  const supabase = useSupabaseClient()
+
+  try {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('nome, email, avatar_url')
+      .eq('auth_user_id', user.value.id)
+      .single()
+
+    if (error) throw error
+
+    if (data) {
+      userData.value = {
+        nome: data.nome || '',
+        email: data.email || user.value.email || '',
+        avatar_url: data.avatar_url || ''
+      }
+    } else {
+      userData.value.email = user.value.email || ''
+    }
+  } catch (error) {
+    console.error('Erro ao carregar dados do usuário:', error)
+    userData.value.email = user.value.email || ''
+  }
+}
+
 onMounted(async () => {
   toast = await useToastSafe()
+  await carregarDadosUsuario()
+
+  // Recarrega avatar/nome quando for atualizado nas configurações
+  const onProfileUpdated = () => carregarDadosUsuario()
+  window.addEventListener('profile-updated', onProfileUpdated)
+  onBeforeUnmount(() => window.removeEventListener('profile-updated', onProfileUpdated))
 })
-const mobileMenuOpen = ref(false)
+
+// Função para pegar iniciais do nome
+const getInitials = (name: string) => {
+  if (!name) return '?'
+  const parts = name.split(' ')
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase()
+  }
+  return name.substring(0, 2).toUpperCase()
+}
 
 const handleLogout = async () => {
   try {

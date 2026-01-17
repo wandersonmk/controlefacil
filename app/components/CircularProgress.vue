@@ -101,22 +101,15 @@ async function fetchClientesDetalhados() {
 
     if (!userData?.empresa_id) return
 
-    // Buscar clientes ativos
-    const { count: ativos } = await supabase
+    // A tabela `clientes` não possui coluna `ativo`.
+    // Consideramos todos como "ativos" para fins do indicador.
+    const { count } = await supabase
       .from('clientes')
       .select('id', { count: 'exact', head: true })
       .eq('empresa_id', userData.empresa_id)
-      .eq('ativo', true)
-    
-    // Buscar clientes inativos
-    const { count: inativos } = await supabase
-      .from('clientes')
-      .select('id', { count: 'exact', head: true })
-      .eq('empresa_id', userData.empresa_id)
-      .eq('ativo', false)
-    
-    clientesAtivos.value = ativos || 0
-    clientesInativos.value = inativos || 0
+
+    clientesAtivos.value = count || 0
+    clientesInativos.value = 0
   } catch (err) {
     console.error('Erro ao buscar detalhes de clientes:', err)
   }

@@ -78,11 +78,29 @@ const metrics = ref({
 async function fetchTicketsTotais() {
   if (!process.client) return
   const supabase = useSupabaseClient()
-  const { count, error } = await supabase
-    .from('clientes')
-    .select('id', { count: 'exact', head: true })
-  if (!error && typeof count === 'number') {
-    metrics.value.ticketsTotais = count
+
+  try {
+    const { data: { user: currentUser } } = await supabase.auth.getUser()
+    if (!currentUser) return
+
+    const { data: userData, error: userError } = await supabase
+      .from('usuarios')
+      .select('empresa_id')
+      .eq('id', currentUser.id)
+      .single()
+
+    if (userError || !userData?.empresa_id) return
+
+    const { count, error } = await supabase
+      .from('clientes')
+      .select('id', { count: 'exact', head: true })
+      .eq('empresa_id', userData.empresa_id)
+
+    if (!error && typeof count === 'number') {
+      metrics.value.ticketsTotais = count
+    }
+  } catch (err) {
+    console.error('Erro ao buscar total de clientes:', err)
   }
 }
 

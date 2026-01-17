@@ -4,7 +4,7 @@ export const useProdutos = () => {
     supabase = useSupabaseClient()
   }
 
-  const toast = useToastSafe()
+  const getToast = async () => await useToastSafe()
 
   // Interface para Produto
   interface Produto {
@@ -38,6 +38,9 @@ export const useProdutos = () => {
     error.value = null
 
     try {
+      if (!supabase) {
+        throw new Error('Supabase client indisponível')
+      }
       // Buscar empresa_id do usuário atual
       const { data: { user: currentUser } } = await supabase.auth.getUser()
       
@@ -88,6 +91,9 @@ export const useProdutos = () => {
   // Função para adicionar produto
   const addProduto = async (produtoData: Omit<Produto, 'id' | 'empresa_id' | 'usuario_id' | 'created_at' | 'updated_at'>) => {
     try {
+      if (!supabase) {
+        throw new Error('Supabase client indisponível')
+      }
       const { data: { user: currentUser } } = await supabase.auth.getUser()
       
       if (!currentUser) {
@@ -122,8 +128,9 @@ export const useProdutos = () => {
       }
 
       console.log('✅ Produto adicionado:', data)
-      
-      toast.success('Produto cadastrado com sucesso!')
+
+      const toast = await getToast()
+      toast?.success?.('Produto cadastrado com sucesso!')
       
       // Recarregar a lista
       await fetchProdutos()
@@ -139,6 +146,9 @@ export const useProdutos = () => {
   // Função para atualizar produto
   const updateProduto = async (id: string, produtoData: Partial<Omit<Produto, 'id' | 'empresa_id' | 'usuario_id' | 'created_at' | 'updated_at'>>) => {
     try {
+      if (!supabase) {
+        throw new Error('Supabase client indisponível')
+      }
       const { data, error: updateError } = await supabase
         .from('produtos')
         .update(produtoData)
@@ -151,8 +161,9 @@ export const useProdutos = () => {
       }
 
       console.log('✅ Produto atualizado:', data)
-      
-      toast.success('Produto atualizado com sucesso!')
+
+      const toast = await getToast()
+      toast?.success?.('Produto atualizado com sucesso!')
       
       // Recarregar a lista
       await fetchProdutos()
@@ -168,6 +179,9 @@ export const useProdutos = () => {
   // Função para deletar produto (soft delete)
   const deleteProduto = async (id: string) => {
     try {
+      if (!supabase) {
+        throw new Error('Supabase client indisponível')
+      }
       const { error: deleteError } = await supabase
         .from('produtos')
         .update({ ativo: false })
@@ -179,8 +193,9 @@ export const useProdutos = () => {
       }
 
       console.log('✅ Produto deletado com sucesso')
-      
-      toast.success('Produto excluído com sucesso!')
+
+      const toast = await getToast()
+      toast?.success?.('Produto excluído com sucesso!')
       
       // Recarregar a lista
       await fetchProdutos()
@@ -194,6 +209,9 @@ export const useProdutos = () => {
   // Função para ajustar quantidade do produto
   const ajustarQuantidade = async (id: string, novaQuantidade: number) => {
     try {
+      if (!supabase) {
+        throw new Error('Supabase client indisponível')
+      }
       const { data, error: updateError } = await supabase
         .from('produtos')
         .update({ quantidade: novaQuantidade })
@@ -206,8 +224,9 @@ export const useProdutos = () => {
       }
 
       console.log('✅ Quantidade ajustada:', data)
-      
-      toast.success('Estoque ajustado com sucesso!')
+
+      const toast = await getToast()
+      toast?.success?.('Estoque ajustado com sucesso!')
       
       // Recarregar a lista
       await fetchProdutos()
