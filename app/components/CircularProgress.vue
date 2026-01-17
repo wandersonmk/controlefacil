@@ -78,16 +78,58 @@
 <script setup lang="ts">
 
 const props = defineProps<{ total: number }>()
-const monthlyLimit = 1000
-const monthlyUsed = 687
+
+// Buscar dados reais de clientes
+const clientesAtivos = ref(0)
+const clientesInativos = ref(0)
+
+async function fetchClientesDetalhados() {
+  if (!process.client) return
+  const supabase = useSupabaseClient()
+  
+  try {
+    const { data: { user: currentUser } } = await supabase.auth.getUser()
+    if (!currentUser) return
+
+    const { data: userData } = await supabase
+      .from('usuarios')
+      .select('empresa_id')
+      .eq('id', currentUser.id)
+      .single()
+
+    if (!userData?.empresa_id) return
+
+    // Buscar clientes ativos
+    const { count: ativos } = await supabase
+      .from('clientes')
+      .select('id', { count: 'exact', head: true })
+      .eq('empresa_id', userData.empresa_id)
+      .eq('ativo', true)
+    
+    // Buscar clientes inativos
+    const { count: inativos } = await supabase
+      .from('clientes')
+      .select('id', { count: 'exact', head: true })
+      .eq('empresa_id', userData.empresa_id)
+      .eq('ativo', false)
+    
+    clientesAtivos.value = ativos || 0
+    clientesInativos.value = inativos || 0
+  } catch (err) {
+    console.error('Erro ao buscar detalhes de clientes:', err)
+  }
+}
 
 // Estados reativos para animação
 const currentPercentage = ref(0)
 const displayTotal = ref(0)
 const monthlyPercentage = ref(0)
 
-// Calcular percentual baseado na meta mensal
-const targetPercentage = 100 // sempre 100% para círculo total
+// Calcular percentual baseado no total de clientes
+const targetPercentage = computed(() => {
+  const total = props.total || 1
+  return Math.min((clientesAtivos.value / total) * 100, 100)
+})
 
 // Cálculos do círculo
 const radius = 40
@@ -110,8 +152,8 @@ const animateProgress = () => {
     const progress = Math.min(elapsed / duration1, 1)
     const easeOut = 1 - Math.pow(1 - progress, 3)
 
-    currentPercentage.value = easeOut * targetPercentage
-  displayTotal.value = Math.round(easeOut * (typeof props.total === 'number' ? props.total : 0))
+    currentPercentage.value = easeOut * targetPercentage.value
+    displayTotal.value = Math.round(easeOut * (typeof props.total === 'number' ? props.total : 0))
 
     if (progress < 1) {
       requestAnimationFrame(animate1)
@@ -122,7 +164,7 @@ const animateProgress = () => {
   setTimeout(() => {
     const duration2 = 2000
     const startTime2 = Date.now()
-    const targetMonthly = (monthlyUsed / monthlyLimit) * 100
+    const targetMonthly = Math.min((clientesAtivos.value / (props.total || 1)) * 100, 100)
 
     const animate2 = () => {
       const elapsed = Date.now() - startTime2
@@ -143,7 +185,8 @@ const animateProgress = () => {
 }
 
 // Iniciar animação quando o componente for montado
-onMounted(() => {
+onMounted(async () => {
+  await fetchClientesDetalhados()
   setTimeout(() => {
     animateProgress()
   }, 300)

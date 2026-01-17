@@ -97,8 +97,8 @@ const lineChartRef = ref<HTMLCanvasElement | null>(null)
 
 const metrics = ref({
   produtosEstoque: 0,
-  entradasMes: 15450.00,
-  saidasMes: 8320.00,
+  entradasMes: 0,
+  saidasMes: 0,
   faturamento: 0,
   ticketsTotais: 0
 })
@@ -149,29 +149,145 @@ async function fetchProdutosEstoque() {
   }
 }
 
+// Buscar entradas do mês atual
+async function fetchEntradasMes() {
+  if (!process.client) return
+  const supabase = useSupabaseClient()
+  
+  try {
+    const { data: { user: currentUser } } = await supabase.auth.getUser()
+    if (!currentUser) return
+
+    const { data: userData } = await supabase
+      .from('usuarios')
+      .select('empresa_id')
+      .eq('id', currentUser.id)
+      .single()
+
+    if (!userData?.empresa_id) return
+
+    // Obter primeiro e último dia do mês atual
+    const now = new Date()
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+
+    const { data, error } = await supabase
+      .from('entradas')
+      .select('valor')
+      .eq('empresa_id', userData.empresa_id)
+      .gte('data', firstDay.toISOString())
+      .lte('data', lastDay.toISOString())
+      
+    if (!error && data) {
+      metrics.value.entradasMes = data.reduce((sum, e) => sum + Number(e.valor), 0)
+    }
+  } catch (err) {
+    console.error('Erro ao buscar entradas do mês:', err)
+  }
+}
+
+// Buscar saídas do mês atual
+async function fetchSaidasMes() {
+  if (!process.client) return
+  const supabase = useSupabaseClient()
+  
+  try {
+    const { data: { user: currentUser } } = await supabase.auth.getUser()
+    if (!currentUser) return
+
+    const { data: userData } = await supabase
+      .from('usuarios')
+      .select('empresa_id')
+      .eq('id', currentUser.id)
+      .single()
+
+    if (!userData?.empresa_id) return
+
+    // Obter primeiro e último dia do mês atual
+    const now = new Date()
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59)
+
+    const { data, error } = await supabase
+      .from('saidas')
+      .select('valor')
+      .eq('empresa_id', userData.empresa_id)
+      .gte('data', firstDay.toISOString())
+      .lte('data', lastDay.toISOString())
+      
+    if (!error && data) {
+      metrics.value.saidasMes = data.reduce((sum, s) => sum + Number(s.valor), 0)
+    }
+  } catch (err) {
+    console.error('Erro ao buscar saídas do mês:', err)
+  }
+}
+
 
 onMounted(() => {
   nextTick(() => {
     createLineChart()
     fetchProdutosEstoque()
     fetchTicketsTotais()
+    fetchEntradasMes()
+    fetchSaidasMes()
   })
 })
 
 
 // Configuração do gráfico de linha
-// Gráfico de vendas mensais (dados mockados por enquanto)
+// Gráfico de vendas mensais (dados reais do banco)
 async function createLineChart() {
   if (!lineChartRef.value) return
-
+  if (!process.client) return
+  
+  const supabase = useSupabaseClient()
   const now = new Date()
   const labels = []
-  const data = [3450.00, 5280.00, 4120.00, 6890.00, 5650.00, 7420.00] // Dados mockados
-  // Últimos 6 meses
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
-    const label = d.toLocaleString('pt-BR', { month: 'short' })
-    labels.push(label.charAt(0).toUpperCase() + label.slice(1))
+  const data = []
+  
+  try {
+    // Buscar empresa_id do usuário
+    const { data: { user: currentUser } } = await supabase.auth.getUser()
+    if (!currentUser) return
+
+    const { data: userData } = await supabase
+      .from('usuarios')
+      .select('empresa_id')
+      .eq('id', currentUser.id)
+      .single()
+
+    if (!userData?.empresa_id) return
+
+    // Últimos 6 meses
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const firstDay = new Date(d.getFullYear(), d.getMonth(), 1)
+      const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59)
+      
+      const label = d.toLocaleString('pt-BR', { month: 'short' })
+      labels.push(label.charAt(0).toUpperCase() + label.slice(1))
+      
+      // Buscar entradas do mês
+      const { data: entradasData } = await supabase
+        .from('entradas')
+        .select('valor')
+        .eq('empresa_id', userData.empresa_id)
+        .gte('data', firstDay.toISOString())
+        .lte('data', lastDay.toISOString())
+      
+      const totalMes = entradasData?.reduce((sum, e) => sum + Number(e.valor), 0) || 0
+      data.push(totalMes)
+    }
+  } catch (err) {
+    console.error('Erro ao buscar dados do gráfico:', err)
+    // Dados de fallback em caso de erro
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const label = d.toLocaleString('pt-BR', { month: 'short' })
+      labels.push(label.charAt(0).toUpperCase() + label.slice(1))
+      data.push(0)
+    }
   }
 
   const ctx = lineChartRef.value.getContext('2d')
@@ -243,7 +359,7 @@ async function createLineChart() {
               size: 11
             },
             callback: function(value) {
-              return value + ' tickets'
+              return 'R$ ' + value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
             }
           },
           grid: {
