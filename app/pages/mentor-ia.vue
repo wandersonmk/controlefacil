@@ -11,16 +11,44 @@ definePageMeta({
 
 const { fetchUsage } = useMentor()
 
-// Buscar uso ao carregar página (segurança: validar tokens no servidor)
-onMounted(() => {
-  if (process.client) {
+// Estado de carregamento
+const isLoading = ref(true)
+let authLoading: any = ref(false)
+const isClient = typeof window !== 'undefined'
+
+if (isClient) {
+  // Só executa useAuth no cliente
+  const auth = useAuth()
+  authLoading = auth.isLoading
+
+  onMounted(async () => {
+    // Aguarda o auth loading terminar
+    while (authLoading.value) {
+      await new Promise(resolve => setTimeout(resolve, 50))
+    }
+    // Delay adicional para garantir carregamento suave
+    await new Promise(resolve => setTimeout(resolve, 500))
+    isLoading.value = false
+    
+    // Buscar uso ao carregar página (segurança: validar tokens no servidor)
     fetchUsage()
-  }
-})
+  })
+} else {
+  isLoading.value = false
+}
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-6rem)] max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-6rem)]">
+  <div>
+    <!-- Loading animation -->
+    <AppLoading 
+      v-if="isLoading || !isClient" 
+      title="Carregando Mentor IA"
+      message="Preparando seu assistente..."
+    />
+    
+    <!-- Conteúdo principal -->
+    <div v-else class="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-6rem)] max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-6rem)]">
     <!-- Cards do Topo (escondido no mobile) -->
     <div class="flex-shrink-0 hidden md:block">
       <MentorTopCards />
@@ -45,6 +73,7 @@ onMounted(() => {
           <MentorChatInput />
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>
