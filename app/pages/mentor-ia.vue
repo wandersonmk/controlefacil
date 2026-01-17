@@ -20,7 +20,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-[calc(100vh-3rem)] md:h-[calc(100vh-6rem)] max-h-[calc(100vh-3rem)] md:max-h-[calc(100vh-6rem)]">
+  <div class="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-6rem)] max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-6rem)]">
     <!-- Cards do Topo (escondido no mobile) -->
     <div class="flex-shrink-0 hidden md:block">
       <MentorTopCards />
