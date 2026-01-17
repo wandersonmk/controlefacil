@@ -30,8 +30,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     
     // APENAS redireciona se estiver REALMENTE autenticado (com sessão válida)
     if (isAuthenticated.value && user.value) {
-      console.log('Guest middleware: Usuário autenticado, redirecionando para /estoque')
-      return navigateTo('/estoque', { replace: true })
+      console.log('Guest middleware: Usuário autenticado, redirecionando para dashboard')
+      return navigateTo('/dashboard', { replace: true })
     }
     
     // Se não estiver autenticado, permite acesso à página de login
