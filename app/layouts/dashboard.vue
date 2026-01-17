@@ -28,7 +28,7 @@
           
             <!-- Área de sair -->
             <div class="flex items-center space-x-3 relative">
-              <!-- Info Plano Free -->
+              <!-- Info Plano -->
               <NuxtLink
                 to="/assinatura"
                 class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all"
@@ -36,7 +36,7 @@
                 <span class="text-base">🎁</span>
                 <div class="text-left">
                   <div class="text-xs font-semibold text-blue-700 dark:text-blue-400 leading-tight">
-                    <span class="font-bold">{{ daysRemainingText }}</span> restantes
+                    <span class="font-bold">{{ planBadgeText }}</span>
                   </div>
                 </div>
               </NuxtLink>
@@ -91,6 +91,22 @@ const daysRemainingText = computed(() => {
   if (!subscriptionStatus.value) return '0 dias'
   const days = subscriptionStatus.value.daysRemaining || 0
   return days === 1 ? '1 dia' : `${days} dias`
+})
+
+const isTrial = computed(() => {
+  if (!subscriptionStatus.value) return true
+  const plan = subscriptionStatus.value.planDisplayName || ''
+  return plan.toLowerCase().includes('free') || plan.toLowerCase().includes('trial') || plan.toLowerCase().includes('grátis')
+})
+
+const planBadgeText = computed(() => {
+  const days = subscriptionStatus.value?.daysRemaining || 0
+  const daysText = days === 1 ? '1 dia' : `${days} dias`
+  
+  if (isTrial.value) {
+    return `${daysText} grátis`
+  }
+  return `${daysText} restante${days === 1 ? '' : 's'}`
 })
 
 // Carregar status da assinatura ao montar
