@@ -7,6 +7,33 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: false },
   modules: ['@nuxtjs/tailwindcss'],
+  routeRules: {
+    // Páginas públicas mantêm SSR
+    '/': { ssr: false },
+    '/login': { ssr: true },
+    '/obrigado': { ssr: true },
+    '/auth/**': { ssr: true },
+    // Todas as outras páginas protegidas sem SSR (evita flash de conteúdo)
+    '/dashboard': { ssr: false },
+    '/ajuda': { ssr: false },
+    '/ajuste-da-ia': { ssr: false },
+    '/assinatura': { ssr: false },
+    '/calculadora': { ssr: false },
+    '/cardapio': { ssr: false },
+    '/clientes': { ssr: false },
+    '/comunidade': { ssr: false },
+    '/configuracoes': { ssr: false },
+    '/entradas': { ssr: false },
+    '/estoque': { ssr: false },
+    '/fornecedores': { ssr: false },
+    '/mentor-ia': { ssr: false },
+    '/pedidos': { ssr: false },
+    '/planos': { ssr: false },
+    '/produtos': { ssr: false },
+    '/relatorios': { ssr: false },
+    '/saidas': { ssr: false },
+    '/tokens': { ssr: false }
+  },
   nitro: {
     preset: process.env.VERCEL ? 'vercel' : 'node-server'
   },
