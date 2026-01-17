@@ -71,6 +71,8 @@ if (isClient) {
     while (authLoading.value) {
       await new Promise(resolve => setTimeout(resolve, 50))
     }
+    // Delay adicional para garantir carregamento suave
+    await new Promise(resolve => setTimeout(resolve, 500))
     isLoading.value = false
     
     // Buscar dados reais
