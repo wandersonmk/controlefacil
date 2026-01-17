@@ -1,5 +1,56 @@
 <template>
   <div class="space-y-6">
+    <!-- Cards de Resumo (no topo) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 mb-2">
+      <!-- Total Entradas (Receitas) -->
+      <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 p-1.5 rounded-md border border-green-200 dark:border-green-800 shadow-sm">
+        <div class="flex items-start justify-between mb-1">
+          <span class="text-green-700 dark:text-green-400 text-[11px] font-medium leading-none">💰 Receitas</span>
+          <span class="text-sm leading-none">📈</span>
+        </div>
+        <p class="text-lg font-bold text-green-700 dark:text-green-400 leading-none mb-1">
+          R$ {{ formatarValor(totais.entradas) }}
+        </p>
+        <p class="text-[9px] text-muted-foreground leading-none">{{ totais.qtdEntradas }} registros</p>
+      </div>
+
+      <!-- Total Saídas (Despesas) -->
+      <div class="bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 p-1.5 rounded-md border border-red-200 dark:border-red-800 shadow-sm">
+        <div class="flex items-start justify-between mb-1">
+          <span class="text-red-700 dark:text-red-400 text-[11px] font-medium leading-none">💸 Despesas</span>
+          <span class="text-sm leading-none">📉</span>
+        </div>
+        <p class="text-lg font-bold text-red-700 dark:text-red-400 leading-none mb-1">
+          R$ {{ formatarValor(totais.saidas) }}
+        </p>
+        <p class="text-[9px] text-muted-foreground leading-none">{{ totais.qtdSaidas }} registros</p>
+      </div>
+
+      <!-- Saldo -->
+      <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 p-1.5 rounded-md border border-blue-200 dark:border-blue-800 shadow-sm">
+        <div class="flex items-start justify-between mb-1">
+          <span class="text-blue-700 dark:text-blue-400 text-[11px] font-medium leading-none">📊 Saldo</span>
+          <span class="text-sm leading-none">💵</span>
+        </div>
+        <p class="text-lg font-bold leading-none mb-1" :class="totais.saldo >= 0 ? 'text-blue-700 dark:text-blue-400' : 'text-red-700 dark:text-red-400'">
+          R$ {{ formatarValor(totais.saldo) }}
+        </p>
+        <p class="text-[9px] text-muted-foreground leading-none">Receitas - Despesas</p>
+      </div>
+
+      <!-- Estoque -->
+      <div class="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/30 dark:to-pink-950/30 p-1.5 rounded-md border border-purple-200 dark:border-purple-800 shadow-sm">
+        <div class="flex items-start justify-between mb-1">
+          <span class="text-purple-700 dark:text-purple-400 text-[11px] font-medium leading-none">📦 Produtos</span>
+          <span class="text-sm leading-none">🎯</span>
+        </div>
+        <p class="text-lg font-bold text-purple-700 dark:text-purple-400 leading-none mb-1">
+          {{ totais.estoque }}
+        </p>
+        <p class="text-[9px] text-muted-foreground leading-none">Itens disponíveis</p>
+      </div>
+    </div>
+
     <!-- Cabeçalho com Filtros e Exportação -->
     <div class="bg-card text-card-foreground rounded-lg border border-border shadow-sm">
       <div class="p-6 border-b border-border">
@@ -54,59 +105,6 @@
             </button>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Cards de Resumo -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-      <!-- Total Entradas (Receitas) -->
-      <div class="bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-950/30 dark:to-emerald-900/20 rounded-xl p-4 md:p-6 border border-green-200 dark:border-green-800">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
-            <Icon icon="shopping-cart" :class-name="'w-5 h-5 md:w-6 md:h-6 text-white'" fallback="" />
-          </div>
-        </div>
-        <h3 class="text-xs md:text-sm font-medium text-muted-foreground mb-1">💰 Receitas (Entradas)</h3>
-        <p class="text-2xl md:text-3xl font-bold text-foreground">R$ {{ formatarValor(totais.entradas) }}</p>
-        <p class="text-xs text-muted-foreground mt-2">{{ totais.qtdEntradas }} registros</p>
-      </div>
-
-      <!-- Total Saídas (Despesas) -->
-      <div class="bg-gradient-to-br from-red-50 to-rose-100 dark:from-red-950/30 dark:to-rose-900/20 rounded-xl p-4 md:p-6 border border-red-200 dark:border-red-800">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-red-500 to-rose-600 flex items-center justify-center">
-            <Icon icon="ticket" :class-name="'w-5 h-5 md:w-6 md:h-6 text-white'" fallback="" />
-          </div>
-        </div>
-        <h3 class="text-xs md:text-sm font-medium text-muted-foreground mb-1">💸 Despesas (Saídas)</h3>
-        <p class="text-2xl md:text-3xl font-bold text-foreground">R$ {{ formatarValor(totais.saidas) }}</p>
-        <p class="text-xs text-muted-foreground mt-2">{{ totais.qtdSaidas }} registros</p>
-      </div>
-
-      <!-- Saldo -->
-      <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/20 rounded-xl p-4 md:p-6 border border-blue-200 dark:border-blue-800">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center">
-            <Icon icon="chart-bar" :class-name="'w-5 h-5 md:w-6 md:h-6 text-white'" fallback="" />
-          </div>
-        </div>
-        <h3 class="text-xs md:text-sm font-medium text-muted-foreground mb-1">📊 Saldo</h3>
-        <p class="text-2xl md:text-3xl font-bold text-foreground" :class="totais.saldo >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
-          R$ {{ formatarValor(totais.saldo) }}
-        </p>
-        <p class="text-xs text-muted-foreground mt-2">Receitas - Despesas</p>
-      </div>
-
-      <!-- Estoque -->
-      <div class="bg-gradient-to-br from-purple-50 to-pink-100 dark:from-purple-950/30 dark:to-pink-900/20 rounded-xl p-4 md:p-6 border border-purple-200 dark:border-purple-800">
-        <div class="flex items-center justify-between mb-3">
-          <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-            <Icon icon="box" :class-name="'w-5 h-5 md:w-6 md:h-6 text-white'" fallback="" />
-          </div>
-        </div>
-        <h3 class="text-xs md:text-sm font-medium text-muted-foreground mb-1">📦 Produtos no Estoque</h3>
-        <p class="text-2xl md:text-3xl font-bold text-foreground">{{ totais.estoque }}</p>
-        <p class="text-xs text-muted-foreground mt-2">Itens disponíveis</p>
       </div>
     </div>
 
