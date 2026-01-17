@@ -185,12 +185,21 @@ const getButtonText = (planId: string): string => {
   return 'Começar Agora'
 }
 
+const planLinks: Record<string, string> = {
+  'mensal': 'https://pay.kiwify.com.br/1L40DjT',
+  'semestral': 'https://pay.kiwify.com.br/Bc0Zcf0',
+  'anual': 'https://pay.kiwify.com.br/29MCENF'
+}
+
 const selecionarPlano = (plano: Plano) => {
   if (!canClickPlan(plano.id)) return
   
-  // TODO: Implementar integração com gateway de pagamento
-  console.log('Plano selecionado:', plano)
-  alert(`Funcionalidade em desenvolvimento!\n\nVocê selecionou o plano ${plano.nome} por R$ ${plano.preco.toFixed(2)}`)
+  const link = planLinks[plano.id]
+  if (link) {
+    window.open(link, '_blank')
+  } else {
+    console.error('Link não encontrado para o plano:', plano.id)
+  }
 }
 
 // Debug: verificar dados da assinatura
