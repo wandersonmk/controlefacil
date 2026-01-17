@@ -82,10 +82,10 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit" class="p-6 space-y-5">
+  <form @submit.prevent="handleSubmit" class="p-4 space-y-3">
     <!-- Descrição -->
     <div>
-      <label class="block text-sm font-medium text-foreground mb-2">
+      <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
         Descrição <span class="text-red-500">*</span>
       </label>
       <AppInput
@@ -95,10 +95,10 @@ const handleSubmit = () => {
       />
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
       <!-- Valor -->
       <div>
-        <label class="block text-sm font-medium text-foreground mb-2">
+        <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
           Valor <span class="text-red-500">*</span>
         </label>
         <AppInput
@@ -112,7 +112,7 @@ const handleSubmit = () => {
 
       <!-- Data -->
       <div>
-        <label class="block text-sm font-medium text-foreground mb-2">
+        <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
           Data <span class="text-red-500">*</span>
         </label>
         <AppInput
@@ -125,7 +125,7 @@ const handleSubmit = () => {
 
     <!-- Forma de Recebimento -->
     <div>
-      <label class="block text-sm font-medium text-foreground mb-2">
+      <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
         Forma de Recebimento <span class="text-red-500">*</span>
       </label>
       <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
@@ -135,10 +135,10 @@ const handleSubmit = () => {
           type="button"
           @click="formaRecebimento = forma as any"
           :class="[
-            'px-4 py-3 rounded-xl border-2 transition-all font-medium text-sm',
+            'px-3 py-2 rounded-lg border-2 transition-all font-medium text-xs',
             formaRecebimento === forma
-              ? 'border-primary bg-primary/10 text-primary'
-              : 'border-border bg-card text-muted-foreground hover:border-primary/50'
+              ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+              : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-emerald-500/50'
           ]"
         >
           {{ forma }}
@@ -146,15 +146,15 @@ const handleSubmit = () => {
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
       <!-- Categoria -->
       <div>
-        <label class="block text-sm font-medium text-foreground mb-2">
+        <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
           Categoria
         </label>
         <select
           v-model="categoria"
-          class="w-full px-4 py-2.5 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option v-for="cat in categorias" :key="cat" :value="cat">
             {{ cat }}
@@ -164,12 +164,12 @@ const handleSubmit = () => {
 
       <!-- Status -->
       <div>
-        <label class="block text-sm font-medium text-foreground mb-2">
+        <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
           Status
         </label>
         <select
           v-model="status"
-          class="w-full px-4 py-2.5 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-emerald-500"
         >
           <option v-for="st in statusOpcoes" :key="st" :value="st">
             {{ st }}
@@ -180,23 +180,23 @@ const handleSubmit = () => {
 
     <!-- Observações -->
     <div>
-      <label class="block text-sm font-medium text-foreground mb-2">
+      <label class="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
         Observações
       </label>
       <textarea
         v-model="observacoes"
-        rows="3"
+        rows="2"
         placeholder="Informações adicionais..."
-        class="w-full px-4 py-2.5 rounded-xl border border-border bg-card text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+        class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
       ></textarea>
     </div>
 
     <!-- Botões -->
-    <div class="flex gap-3 pt-4">
-      <AppButton type="button" @click="emit('cancelar')" class="flex-1 bg-muted text-foreground hover:bg-muted/80">
+    <div class="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+      <AppButton type="button" @click="emit('cancelar')" class="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 px-4 py-2 text-sm">
         Cancelar
       </AppButton>
-      <AppButton type="submit" class="flex-1">
+      <AppButton type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 text-sm">
         {{ entrada ? 'Salvar Alterações' : 'Criar Entrada' }}
       </AppButton>
     </div>

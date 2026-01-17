@@ -270,14 +270,14 @@ const getIconeFormaPagamento = (forma: string) => {
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
         @click.self="showModal = false"
       >
-        <div class="bg-card rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-border">
-          <div class="sticky top-0 bg-card border-b border-border px-6 py-4 flex items-center justify-between">
-            <h3 class="text-xl font-bold text-foreground">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+          <div class="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100">
               {{ editingEntrada ? 'Editar Entrada' : 'Nova Entrada' }}
             </h3>
             <button
               @click="showModal = false"
-              class="text-muted-foreground hover:text-foreground transition-colors p-2"
+              class="text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 transition-colors p-2"
             >
               ✕
             </button>
