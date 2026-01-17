@@ -34,7 +34,13 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       attempts 
     })
     
-    // Se ainda não está autenticado, tenta verificar diretamente no Supabase
+    // Verificação rápida: se claramente não autenticado, redireciona imediatamente
+    if (!isLoading.value && !isAuthenticated.value && !user.value) {
+      console.log('[Auth Middleware] Usuário claramente não autenticado, redirecionando imediatamente')
+      return navigateTo('/login', { replace: true })
+    }
+    
+    // Se ainda não está autenticado, tenta verificação direta no Supabase
     if (!isAuthenticated.value || !user.value) {
       console.log('[Auth Middleware] Tentando verificação direta no Supabase...')
       
@@ -57,7 +63,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     // Se não está autenticado, redireciona para login
     if (!isAuthenticated.value || !user.value) {
       console.log('[Auth Middleware] Usuário não autenticado, redirecionando para login')
-      return navigateTo('/login')
+      return navigateTo('/login', { replace: true })
     }
     
     console.log('[Auth Middleware] Usuário autenticado, verificando trial...')

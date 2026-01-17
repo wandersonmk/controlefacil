@@ -1,38 +1,18 @@
 <script setup lang="ts">
-// Aplica middleware de autenticação
+// Redireciona automaticamente para a página de login
 definePageMeta({
-  middleware: 'auth',
-  layout: 'dashboard'
+  layout: false
 })
 
-// Estado de carregamento
-const isLoading = ref(true)
-const { isLoading: authLoading } = process.client ? useAuth() : { isLoading: ref(false) }
-
-// Aguarda a autenticação ser carregada e adiciona um delay mínimo para UX
-onMounted(async () => {
-  // Aguarda o auth loading terminar
-  while (authLoading.value) {
-    await new Promise(resolve => setTimeout(resolve, 50))
-  }
-  
-  // Delay reduzido para carregamento mais rápido
-  await new Promise(resolve => setTimeout(resolve, 300))
-  
-  isLoading.value = false
-})
+// Redireciona imediatamente para /login
+navigateTo('/login', { replace: true })
 </script>
 
 <template>
-  <div>
-    <!-- Loading enquanto carrega -->
-    <AppLoading 
-      v-if="isLoading"
-      title="Carregando Dashboard" 
-      description="Preparando visão geral do sistema..."
-    />
-    
-    <!-- Dashboard quando carregado -->
-    <DashboardOverview v-else />
+  <div class="min-h-screen bg-background flex items-center justify-center">
+    <div class="flex flex-col items-center gap-4">
+      <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+      <p class="text-sm text-muted-foreground">Redirecionando...</p>
+    </div>
   </div>
 </template>
