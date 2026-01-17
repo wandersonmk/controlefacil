@@ -1,11 +1,17 @@
 <script setup lang="ts">
-// Redireciona automaticamente para a página de login
+// Verifica autenticação e redireciona adequadamente
 definePageMeta({
   layout: false
 })
 
-// Redireciona imediatamente para /login
-navigateTo('/login', { replace: true })
+const { isAuthenticated } = useAuth()
+
+// Se autenticado, vai para estoque, senão para login
+if (isAuthenticated.value) {
+  navigateTo('/estoque', { replace: true })
+} else {
+  navigateTo('/login', { replace: true })
+}
 </script>
 
 <template>
