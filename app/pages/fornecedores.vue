@@ -32,10 +32,12 @@ if (isClient) {
 <template>
   <div>
     <!-- Loading enquanto carrega -->
-    <AppLoading 
-      v-if="isLoading"
-      message="Carregando fornecedores..."
-    />
+    <div v-if="isLoading" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
+      <div class="flex flex-col items-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+        <p class="text-lg font-medium text-muted-foreground">Carregando fornecedores...</p>
+      </div>
+    </div>
     
     <!-- Conteúdo principal -->
     <div v-else>

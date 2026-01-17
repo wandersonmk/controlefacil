@@ -32,11 +32,12 @@ if (isClient) {
 <template>
   <div>
     <!-- Sempre mostra loading até o client terminar de carregar -->
-    <AppLoading 
-      v-if="isLoading || !isClient" 
-      title="Carregando Clientes"
-      description="Preparando a área de gerenciamento de clientes..."
-    />
+    <div v-if="isLoading || !isClient" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
+      <div class="flex flex-col items-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+        <p class="text-lg font-medium text-muted-foreground">Carregando clientes...</p>
+      </div>
+    </div>
     <!-- Conteúdo só aparece após carregamento client-side -->
     <div v-else class="space-y-6">
       <ClientesManager />

@@ -41,11 +41,12 @@ if (isClient) {
 <template>
   <div>
     <!-- Loading animation -->
-    <AppLoading 
-      v-if="isLoading || !isClient" 
-      title="Carregando Mentor IA"
-      message="Preparando seu assistente..."
-    />
+    <div v-if="isLoading || !isClient" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
+      <div class="flex flex-col items-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+        <p class="text-lg font-medium text-muted-foreground">Carregando Mentor IA...</p>
+      </div>
+    </div>
     
     <!-- Conteúdo principal -->
     <div v-else class="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-6rem)] max-h-[calc(100vh-4rem)] md:max-h-[calc(100vh-6rem)]">

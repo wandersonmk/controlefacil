@@ -19,12 +19,15 @@ onMounted(async () => {
 
 <template>
   <div>
-    <AppLoading
-      v-if="isLoading"
-      title="Carregando Saídas"
-      description="Preparando a área de saídas..."
-    />
+    <!-- Loading enquanto carrega -->
+    <div v-if="isLoading" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
+      <div class="flex flex-col items-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+        <p class="text-lg font-medium text-muted-foreground">Carregando saídas...</p>
+      </div>
+    </div>
 
+    <!-- Conteúdo principal -->
     <div v-else>
       <SaidasManager />
     </div>

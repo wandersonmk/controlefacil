@@ -97,11 +97,12 @@ const formatarValor = (valor: number) => {
 <template>
   <div>
     <!-- Sempre mostra loading até o client terminar de carregar -->
-    <AppLoading 
-      v-if="isLoading || !isClient" 
-      title="Carregando Relatórios"
-      description="Preparando seus relatórios..."
-    />
+    <div v-if="isLoading || !isClient" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
+      <div class="flex flex-col items-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mb-4"></div>
+        <p class="text-lg font-medium text-muted-foreground">Carregando relatórios...</p>
+      </div>
+    </div>
     <!-- Conteúdo só aparece após carregamento client-side -->
     <div v-else class="space-y-6">
       <!-- Cards de Métricas Financeiras -->
