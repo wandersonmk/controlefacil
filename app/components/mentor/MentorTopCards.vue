@@ -12,17 +12,39 @@ onMounted(() => {
 const tokensDisponiveis = computed(() => usage.value?.tokensAvailable || 0)
 const consumoHoje = computed(() => usage.value?.tokensToday || 0)
 const consumoConversa = computed(() => usage.value?.tokensConversation || 0)
+
+// Verificar se tokens esgotados
+const tokensEsgotados = computed(() => tokensDisponiveis.value <= 0)
 </script>
 
 <template>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 mb-2">
     <!-- Card: Tokens Disponíveis -->
-    <div class="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 p-1.5 rounded-md border border-green-200 dark:border-green-800 shadow-sm">
+    <div 
+      :class="[
+        'p-1.5 rounded-md border shadow-sm transition-colors',
+        tokensEsgotados 
+          ? 'bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-950/30 dark:to-rose-950/30 border-red-200 dark:border-red-800' 
+          : 'bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-200 dark:border-green-800'
+      ]"
+    >
       <div class="flex items-start justify-between mb-1">
-        <span class="text-green-700 dark:text-green-400 text-[11px] font-medium leading-none">Tokens Disponíveis</span>
-        <span class="text-sm leading-none">🎁</span>
+        <span 
+          :class="[
+            'text-[11px] font-medium leading-none',
+            tokensEsgotados ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'
+          ]"
+        >
+          {{ tokensEsgotados ? 'Tokens Esgotados' : 'Tokens Disponíveis' }}
+        </span>
+        <span class="text-sm leading-none">{{ tokensEsgotados ? '⚠️' : '🎁' }}</span>
       </div>
-      <p class="text-lg font-bold text-green-700 dark:text-green-400 leading-none mb-1">
+      <p 
+        :class="[
+          'text-lg font-bold leading-none mb-1',
+          tokensEsgotados ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'
+        ]"
+      >
         {{ tokensDisponiveis.toLocaleString('pt-BR') }}
       </p>
       <p class="text-[9px] text-muted-foreground mb-1.5 leading-none">Renova todo mês</p>
