@@ -15,7 +15,9 @@ const emit = defineEmits<{
 const descricao = ref('')
 const valor = ref('')
 const valorFormatado = ref('')
-const data = ref(new Date().toISOString().split('T')[0])
+// Usar data local ao invés de UTC para evitar problema de timezone
+const hoje = new Date()
+const data = ref(`${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`)
 const categoria = ref('Vendas')
 const formaRecebimento = ref<'Pix' | 'Cartão' | 'Dinheiro' | 'Transferência' | 'Outro'>('Pix')
 const status = ref<'Confirmada' | 'Pendente'>('Confirmada')
@@ -28,21 +30,29 @@ const statusOpcoes = ['Confirmada', 'Pendente']
 
 // Preencher formulário se estiver editando
 watch(() => props.entrada, (nova) => {
+  console.log('📝 EntradaForm recebeu entrada:', nova)
   if (nova) {
     descricao.value = nova.descricao
-    valor.value = nova.valor.toString()
-    valorFormatado.value = formatarMoeda(nova.valor.toString())
+    // Corrigir formatação do valor - pode vir como string ou number
+    const valorNum = typeof nova.valor === 'string' ? parseFloat(nova.valor) : nova.valor
+    valor.value = valorNum.toString()
+    valorFormatado.value = (valorNum).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     data.value = nova.data.split('T')[0]
     categoria.value = nova.categoria
-    formaRecebimento.value = nova.formaRecebimento
+    // Suportar tanto formaRecebimento quanto forma_recebimento
+    const formaRec = (nova as any).formaRecebimento || (nova as any).forma_recebimento || 'Pix'
+    console.log('📝 Forma de recebimento:', formaRec)
+    formaRecebimento.value = formaRec
     status.value = nova.status
     observacoes.value = nova.observacoes || ''
+    console.log('✅ Formulário preenchido:', { descricao: descricao.value, valor: valor.value, formaRecebimento: formaRecebimento.value })
   } else {
     // Limpar
     descricao.value = ''
     valor.value = ''
     valorFormatado.value = ''
-    data.value = new Date().toISOString().split('T')[0]
+    const hoje = new Date()
+    data.value = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`
     categoria.value = 'Vendas'
     formaRecebimento.value = 'Pix'
     status.value = 'Confirmada'

@@ -25,10 +25,11 @@ const formasPagamento = ['Dinheiro', 'PIX', 'Cartão', 'Transferência', 'Boleto
 const statusOpcoes = ['Paga', 'Pendente', 'Vencida']
 
 // Form data
+const hoje = new Date()
 const form = ref({
   descricao: '',
   valor: 0,
-  data: new Date().toISOString().split('T')[0],
+  data: `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`,
   categoria: 'Outros',
   formaPagamento: 'Dinheiro',
   status: 'Pendente',
@@ -85,10 +86,11 @@ watch(
       }
       valorFormatado.value = formatarMoeda((saida.valor * 100).toString())
     } else {
+      const hoje = new Date()
       form.value = {
         descricao: '',
         valor: 0,
-        data: new Date().toISOString().split('T')[0],
+        data: `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`,
         categoria: 'Outros',
         formaPagamento: 'Dinheiro',
         status: 'Pendente',

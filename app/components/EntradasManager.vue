@@ -18,13 +18,18 @@ onMounted(async () => {
 // Calcular resumos
 const resumo = computed(() => {
   const now = new Date()
-  const hoje = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  // Pegar data UTC para evitar problemas de timezone
+  const hoje = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+  const amanha = new Date(hoje.getTime() + 24 * 60 * 60 * 1000)
   const semanaAtras = new Date(hoje.getTime() - 7 * 24 * 60 * 60 * 1000)
   const mesAtras = new Date(hoje.getTime() - 30 * 24 * 60 * 60 * 1000)
   const anoAtras = new Date(hoje.getTime() - 365 * 24 * 60 * 60 * 1000)
 
   const diario = entradas.value
-    .filter((e: any) => new Date(e.data) >= hoje && e.status === 'Confirmada')
+    .filter((e: any) => {
+      const dataEntrada = new Date(e.data)
+      return dataEntrada >= hoje && dataEntrada < amanha && e.status === 'Confirmada'
+    })
     .reduce((sum: number, e: any) => sum + Number(e.valor), 0)
 
   const semanal = entradas.value
@@ -49,13 +54,17 @@ const abrirModalNova = () => {
 }
 
 const abrirModalEditar = (entrada: any) => {
+  console.log('🔵 Abrindo modal de edição:', entrada)
   editingEntrada.value = entrada
   showModal.value = true
+  console.log('✅ Modal de edição aberto:', showModal.value)
 }
 
 const abrirModalExcluir = (entrada: any) => {
+  console.log('🔴 Abrindo modal de exclusão:', entrada)
   entradaToDelete.value = entrada
   showDeleteModal.value = true
+  console.log('✅ Modal de exclusão aberto:', showDeleteModal.value)
 }
 
 const confirmarExclusao = async () => {
@@ -218,7 +227,8 @@ const getIconeFormaPagamento = (forma: string) => {
             </p>
             <div class="flex gap-1 flex-shrink-0">
               <button
-                @click="abrirModalEditar(entrada)"
+                @click.stop="abrirModalEditar(entrada)"
+                type="button"
                 class="p-2 hover:bg-blue-500/10 text-blue-500 rounded-lg transition-colors"
                 title="Editar"
               >
@@ -227,7 +237,8 @@ const getIconeFormaPagamento = (forma: string) => {
                 </svg>
               </button>
               <button
-                @click="abrirModalExcluir(entrada)"
+                @click.stop="abrirModalExcluir(entrada)"
+                type="button"
                 class="p-2 hover:bg-red-500/10 text-red-500 rounded-lg transition-colors"
                 title="Excluir"
               >

@@ -13,6 +13,7 @@ export const useEntradas = () => {
     data: string
     categoria: string
     forma_recebimento: string
+    formaRecebimento?: string // Adicionar compatibilidade
     status: string
     observacoes?: string
     created_at: string
@@ -22,6 +23,12 @@ export const useEntradas = () => {
   const entradas = ref<Entrada[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
+
+  // Mapear dados do banco para o formato esperado
+  const mapearEntrada = (entradaDb: any) => ({
+    ...entradaDb,
+    formaRecebimento: entradaDb.forma_recebimento || entradaDb.formaRecebimento
+  })
 
   // Buscar entradas da empresa
   const fetchEntradas = async () => {
@@ -53,7 +60,7 @@ export const useEntradas = () => {
 
       if (fetchError) throw fetchError
 
-      entradas.value = data || []
+      entradas.value = (data || []).map(mapearEntrada)
     } catch (err: any) {
       console.error('Erro ao buscar entradas:', err)
       error.value = err.message

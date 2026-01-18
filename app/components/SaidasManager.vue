@@ -18,13 +18,18 @@ onMounted(async () => {
 // Calcular resumos
 const resumo = computed(() => {
   const now = new Date()
-  const hoje = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  // Pegar data UTC para evitar problemas de timezone
+  const hoje = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+  const amanha = new Date(hoje.getTime() + 24 * 60 * 60 * 1000)
   const semanaAtras = new Date(hoje.getTime() - 7 * 24 * 60 * 60 * 1000)
   const mesAtras = new Date(hoje.getTime() - 30 * 24 * 60 * 60 * 1000)
   const anoAtras = new Date(hoje.getTime() - 365 * 24 * 60 * 60 * 1000)
 
   const diario = saidas.value
-    .filter((s: any) => new Date(s.data) >= hoje && s.status === 'Paga')
+    .filter((s: any) => {
+      const dataSaida = new Date(s.data)
+      return dataSaida >= hoje && dataSaida < amanha && s.status === 'Paga'
+    })
     .reduce((sum: number, s: any) => sum + Number(s.valor), 0)
 
   const semanal = saidas.value
