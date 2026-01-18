@@ -39,9 +39,9 @@ const form = ref({
 
 const valorFormatado = ref('')
 
-// Mostrar campo funcionário apenas para categoria "Vale Funcionário"
+// Mostrar campo funcionário para "Vale Funcionário" e "Pagamento Funcionário"
 const mostrarCampoFuncionario = computed(() => {
-  return form.value.categoria === 'Vale Funcionário'
+  return form.value.categoria === 'Vale Funcionário' || form.value.categoria === 'Pagamento Funcionário'
 })
 
 // Formatar valor como moeda brasileira
