@@ -10,6 +10,16 @@ function setActiveTab(tab: 'login' | 'register') {
 
 <template>
   <div class="w-full max-w-sm mx-auto">
+    <!-- Mensagem de boas-vindas -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl font-bold mb-2">
+        Seja Bem-vindo à <span class="whitespace-nowrap bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">Precify</span>
+      </h1>
+      <p class="text-sm text-muted-foreground">
+        Se ainda não tem conta, clique em <span class="font-semibold text-foreground">Cadastrar</span>
+      </p>
+    </div>
+
     <!-- Navegação das abas -->
     <div class="flex bg-muted rounded-lg p-1 mb-6">
       <button
