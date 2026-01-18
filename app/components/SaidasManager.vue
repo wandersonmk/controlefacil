@@ -9,13 +9,51 @@ const showModal = ref(false)
 const showDeleteModal = ref(false)
 const editingSaida = ref<any | null>(null)
 const saidaToDelete = ref<any | null>(null)
+const filtroNome = ref('')
+const filtroDataInicio = ref('')
+const filtroDataFim = ref('')
 
 // Buscar saídas ao montar
 onMounted(async () => {
   await fetchSaidas()
 })
 
-// Calcular resumos
+// Filtrar saídas por nome e intervalo de datas
+const saidasFiltradas = computed(() => {
+  let resultado = saidas.value
+  
+  // Filtro por nome
+  if (filtroNome.value.trim()) {
+    const busca = filtroNome.value.toLowerCase().trim()
+    resultado = resultado.filter((s: any) => 
+      s.descricao?.toLowerCase().includes(busca)
+    )
+  }
+  
+  // Filtro por intervalo de datas
+  if (filtroDataInicio.value || filtroDataFim.value) {
+    resultado = resultado.filter((s: any) => {
+      // Extrair apenas a parte da data (YYYY-MM-DD) da string sem conversão de timezone
+      const dataSaida = s.data.split('T')[0].split(' ')[0]
+      
+      // Se tem data início, verifica se saída é >= data início
+      if (filtroDataInicio.value && dataSaida < filtroDataInicio.value) {
+        return false
+      }
+      
+      // Se tem data fim, verifica se saída é <= data fim
+      if (filtroDataFim.value && dataSaida > filtroDataFim.value) {
+        return false
+      }
+      
+      return true
+    })
+  }
+  
+  return resultado
+})
+
+// Calcular resumos (usa saídas filtradas)
 const resumo = computed(() => {
   const now = new Date()
   // Pegar data UTC para evitar problemas de timezone
@@ -25,22 +63,22 @@ const resumo = computed(() => {
   const mesAtras = new Date(hoje.getTime() - 30 * 24 * 60 * 60 * 1000)
   const anoAtras = new Date(hoje.getTime() - 365 * 24 * 60 * 60 * 1000)
 
-  const diario = saidas.value
+  const diario = saidasFiltradas.value
     .filter((s: any) => {
       const dataSaida = new Date(s.data)
       return dataSaida >= hoje && dataSaida < amanha && s.status === 'Paga'
     })
     .reduce((sum: number, s: any) => sum + Number(s.valor), 0)
 
-  const semanal = saidas.value
+  const semanal = saidasFiltradas.value
     .filter((s: any) => new Date(s.data) >= semanaAtras && s.status === 'Paga')
     .reduce((sum: number, s: any) => sum + Number(s.valor), 0)
 
-  const mensal = saidas.value
+  const mensal = saidasFiltradas.value
     .filter((s: any) => new Date(s.data) >= mesAtras && s.status === 'Paga')
     .reduce((sum: number, s: any) => sum + Number(s.valor), 0)
 
-  const anual = saidas.value
+  const anual = saidasFiltradas.value
     .filter((s: any) => new Date(s.data) >= anoAtras && s.status === 'Paga')
     .reduce((sum: number, s: any) => sum + Number(s.valor), 0)
 
@@ -71,6 +109,12 @@ const confirmarExclusao = async () => {
   }
 }
 
+const limparFiltros = () => {
+  filtroNome.value = ''
+  filtroDataInicio.value = ''
+  filtroDataFim.value = ''
+}
+
 const salvarSaida = async (dados: any) => {
   if (editingSaida.value) {
     // Editar
@@ -88,7 +132,10 @@ const formatarValor = (valor: number) => {
 }
 
 const formatarData = (data: string) => {
-  return new Date(data).toLocaleDateString('pt-BR')
+  // Extrair apenas a parte da data sem considerar timezone
+  const [datePart] = data.split('T')[0].split(' ')
+  const [ano, mes, dia] = datePart.split('-')
+  return `${dia}/${mes}/${ano}`
 }
 
 const getIconeCategoria = (categoria: string) => {
@@ -161,20 +208,73 @@ const getIconeCategoria = (categoria: string) => {
       </div>
     </div>
 
-    <!-- Header com botão -->
-    <div class="flex items-center justify-between">
-      <div>
-        <h2 class="text-2xl font-bold text-foreground">Saídas</h2>
-        <p class="text-sm text-muted-foreground">Gerencie suas despesas e pagamentos</p>
+    <!-- Header com filtros e botão -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
+        <!-- Campo de filtro por nome -->
+        <div class="relative flex-1 sm:flex-initial">
+          <input
+            v-model="filtroNome"
+            type="text"
+            placeholder="Buscar por nome..."
+            class="w-full sm:w-64 px-4 py-2.5 pl-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-sm placeholder:text-gray-400"
+          />
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </div>
+        <!-- Campo de filtro por data início -->
+        <div class="relative flex-1 sm:flex-initial">
+          <input
+            v-model="filtroDataInicio"
+            type="date"
+            placeholder="De"
+            class="w-full sm:w-40 px-4 py-2.5 pl-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-sm"
+          />
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <!-- Campo de filtro por data fim -->
+        <div class="relative flex-1 sm:flex-initial">
+          <input
+            v-model="filtroDataFim"
+            type="date"
+            placeholder="Até"
+            class="w-full sm:w-40 px-4 py-2.5 pl-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-sm"
+          />
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <!-- Botão Limpar Filtros -->
+        <button
+          @click="limparFiltros"
+          :disabled="!filtroNome && !filtroDataInicio && !filtroDataFim"
+          :class="[
+            'flex items-center justify-center gap-2 px-3 py-2.5 font-medium rounded-xl transition-colors',
+            filtroNome || filtroDataInicio || filtroDataFim
+              ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 cursor-pointer'
+              : 'bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50'
+          ]"
+          title="Limpar filtros"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          <span class="hidden sm:inline text-sm">Limpar</span>
+        </button>
       </div>
+      <!-- Botão Nova Saída -->
       <button
         @click="abrirModalNova"
-        class="flex items-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-colors shadow-lg hover:shadow-xl"
+        class="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-medium rounded-xl transition-colors shadow-lg hover:shadow-xl whitespace-nowrap"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
         <span class="hidden sm:inline">Nova Saída</span>
+        <span class="sm:hidden">Nova</span>
       </button>
     </div>
 
@@ -191,10 +291,17 @@ const getIconeCategoria = (categoria: string) => {
       <p class="text-sm text-muted-foreground mt-1">Clique em "Nova Saída" para começar</p>
     </div>
 
+    <!-- Sem resultados no filtro -->
+    <div v-else-if="saidasFiltradas.length === 0" class="text-center py-12 bg-muted/30 rounded-xl border border-border">
+      <span class="text-6xl mb-4 block">🔍</span>
+      <p class="text-lg font-medium text-muted-foreground">Nenhuma saída encontrada</p>
+      <p class="text-sm text-muted-foreground mt-1">Tente buscar por outro nome</p>
+    </div>
+
     <!-- Lista de Saídas -->
     <div v-else class="space-y-3">
       <div
-        v-for="saida in saidas"
+        v-for="saida in saidasFiltradas"
         :key="saida.id"
         class="bg-card border border-border rounded-xl p-4 hover:shadow-md transition-all duration-200"
       >
