@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { usage, fetchUsage } = useMentor()
+const { usage, fetchUsage, tokensCurrentSession } = useMentor()
 
 // Buscar uso ao montar componente (apenas no cliente)
 onMounted(() => {
@@ -11,7 +11,7 @@ onMounted(() => {
 // Valores reativos do usage
 const tokensDisponiveis = computed(() => usage.value?.tokensAvailable || 0)
 const consumoHoje = computed(() => usage.value?.tokensToday || 0)
-const consumoConversa = computed(() => usage.value?.tokensConversation || 0)
+const consumoConversa = computed(() => tokensCurrentSession.value) // Usa contador da sessão atual
 
 // Verificar se tokens esgotados
 const tokensEsgotados = computed(() => tokensDisponiveis.value <= 0)
@@ -57,10 +57,10 @@ const tokensEsgotados = computed(() => tokensDisponiveis.value <= 0)
       </NuxtLink>
     </div>
 
-    <!-- Card: Consumo nesta Conversa -->
+    <!-- Card: Consumo em tempo real -->
     <div class="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 p-1.5 rounded-md border border-blue-200 dark:border-blue-800 shadow-sm">
       <div class="flex items-center justify-between">
-        <span class="text-blue-700 dark:text-blue-400 text-[11px] font-medium leading-none">Consumo nesta Conversa</span>
+        <span class="text-blue-700 dark:text-blue-400 text-[11px] font-medium leading-none">Consumo em tempo real</span>
         <span class="text-sm leading-none">💬</span>
       </div>
       <p class="text-lg font-bold text-blue-700 dark:text-blue-400 leading-none mt-1">

@@ -7,11 +7,12 @@ const globalState = {
   messages: ref<MentorMessage[]>([]),
   usage: ref<MentorUsage | null>(null),
   isLoading: ref(false),
-  isSending: ref(false)
+  isSending: ref(false),
+  tokensCurrentSession: ref(0) // Tokens consumidos apenas na sessão atual
 }
 
 export const useMentor = () => {
-  const { conversationId, conversations, messages, usage, isLoading, isSending } = globalState
+  const { conversationId, conversations, messages, usage, isLoading, isSending, tokensCurrentSession } = globalState
 
   // Verificar se há tokens disponíveis
   const hasTokens = computed(() => {
@@ -178,6 +179,9 @@ export const useMentor = () => {
           conversationId.value = response.conversationId
         }
 
+        // Acumular tokens da sessão atual
+        tokensCurrentSession.value += response.tokensUsed || 0
+
         // Remover mensagens temporárias
         messages.value = messages.value.filter((m: MentorMessage) => !m.id.startsWith('temp-'))
         
@@ -226,10 +230,12 @@ export const useMentor = () => {
   const startNewConversation = () => {
     conversationId.value = null
     messages.value = []
+    tokensCurrentSession.value = 0 // Zera contador da sessão
   }
 
   // Selecionar conversa
   const selectConversation = async (convId: string) => {
+    tokensCurrentSession.value = 0 // Zera contador da sessão ao trocar de conversa
     await fetchMessages(convId)
   }
 
@@ -269,6 +275,7 @@ export const useMentor = () => {
     isLoading,
     isSending,
     hasTokens,
+    tokensCurrentSession,
     fetchUsage,
     fetchConversations,
     fetchMessages,
