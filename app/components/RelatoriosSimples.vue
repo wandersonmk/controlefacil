@@ -28,37 +28,74 @@
 
       <!-- Filtros -->
       <div class="p-6 bg-muted/30">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-foreground mb-2">Data Inicial</label>
-            <input
-              v-model="filtros.dataInicial"
-              type="date"
-              class="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-foreground mb-2">Data Final</label>
-            <input
-              v-model="filtros.dataFinal"
-              type="date"
-              class="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <div class="flex items-end">
-            <button
-              @click="aplicarFiltros"
-              class="w-full px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-sm font-medium"
-            >
-              Aplicar Filtros
-            </button>
-          </div>
-          <div class="flex items-end">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 flex-1">
+            <!-- Campo de filtro por descrição -->
+            <div class="relative flex-1 sm:flex-initial">
+              <input
+                v-model="filtros.descricao"
+                type="text"
+                placeholder="Buscar por descrição..."
+                class="w-full sm:w-64 px-4 py-2.5 pl-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm placeholder:text-gray-400"
+              />
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
+            <!-- Campo de filtro por data início -->
+            <div class="relative flex-1 sm:flex-initial">
+              <input
+                v-model="filtros.dataInicial"
+                type="date"
+                placeholder="De"
+                class="w-full sm:w-40 px-4 py-2.5 pl-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm"
+              />
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <!-- Campo de filtro por data fim -->
+            <div class="relative flex-1 sm:flex-initial">
+              <input
+                v-model="filtros.dataFinal"
+                type="date"
+                placeholder="Até"
+                class="w-full sm:w-40 px-4 py-2.5 pl-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm"
+              />
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <!-- Filtro por Tipo (Entrada/Saída) -->
+            <div class="relative flex-1 sm:flex-initial">
+              <select
+                v-model="filtros.tipo"
+                class="w-full sm:w-40 px-4 py-2.5 pl-10 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent transition-all text-sm appearance-none cursor-pointer"
+              >
+                <option value="">Todos</option>
+                <option value="entrada">Entradas</option>
+                <option value="saida">Saídas</option>
+              </select>
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+              </svg>
+            </div>
+            <!-- Botão Limpar Filtros -->
             <button
               @click="limparFiltros"
-              class="w-full px-4 py-2 bg-muted hover:bg-muted/80 text-foreground rounded-lg transition-colors text-sm font-medium border border-border"
+              :disabled="!filtros.descricao && !filtros.dataInicial && !filtros.dataFinal && !filtros.tipo"
+              :class="[
+                'flex items-center justify-center gap-2 px-3 py-2.5 font-medium rounded-xl transition-colors',
+                filtros.descricao || filtros.dataInicial || filtros.dataFinal || filtros.tipo
+                  ? 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 cursor-pointer'
+                  : 'bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed opacity-50'
+              ]"
+              title="Limpar filtros"
             >
-              Limpar Filtros
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+              <span class="hidden sm:inline text-sm">Limpar</span>
             </button>
           </div>
         </div>
@@ -138,40 +175,76 @@ const { saidas: saidasDB, fetchSaidas } = useSaidas()
 
 // Filtros
 const filtros = ref({
+  descricao: '',
   dataInicial: '',
-  dataFinal: ''
+  dataFinal: '',
+  tipo: '' // 'entrada' ou 'saida' ou '' para ambos
 })
 
 // Entradas e saídas filtradas
 const entradas = computed(() => {
+  // Se tipo for 'saida', não mostrar entradas
+  if (filtros.value.tipo === 'saida') return []
+  
   let dados = entradasDB.value || []
   
-  if (filtros.value.dataInicial) {
-    const dataInicial = new Date(filtros.value.dataInicial)
-    dados = dados.filter((e: any) => new Date(e.data) >= dataInicial)
+  // Filtro por descrição
+  if (filtros.value.descricao.trim()) {
+    const busca = filtros.value.descricao.toLowerCase().trim()
+    dados = dados.filter((e: any) => 
+      e.descricao?.toLowerCase().includes(busca)
+    )
   }
   
-  if (filtros.value.dataFinal) {
-    const dataFinal = new Date(filtros.value.dataFinal)
-    dataFinal.setHours(23, 59, 59, 999)
-    dados = dados.filter((e: any) => new Date(e.data) <= dataFinal)
+  // Filtro por intervalo de datas
+  if (filtros.value.dataInicial || filtros.value.dataFinal) {
+    dados = dados.filter((e: any) => {
+      const dataEntrada = e.data.split('T')[0].split(' ')[0]
+      
+      if (filtros.value.dataInicial && dataEntrada < filtros.value.dataInicial) {
+        return false
+      }
+      
+      if (filtros.value.dataFinal && dataEntrada > filtros.value.dataFinal) {
+        return false
+      }
+      
+      return true
+    })
   }
   
   return dados
 })
 
 const saidas = computed(() => {
+  // Se tipo for 'entrada', não mostrar saídas
+  if (filtros.value.tipo === 'entrada') return []
+  
   let dados = saidasDB.value || []
   
-  if (filtros.value.dataInicial) {
-    const dataInicial = new Date(filtros.value.dataInicial)
-    dados = dados.filter((s: any) => new Date(s.data) >= dataInicial)
+  // Filtro por descrição
+  if (filtros.value.descricao.trim()) {
+    const busca = filtros.value.descricao.toLowerCase().trim()
+    dados = dados.filter((s: any) => 
+      s.descricao?.toLowerCase().includes(busca)
+    )
   }
   
-  if (filtros.value.dataFinal) {
-    const dataFinal = new Date(filtros.value.dataFinal)
-    dataFinal.setHours(23, 59, 59, 999)
-    dados = dados.filter((s: any) => new Date(s.data) <= dataFinal)
+  // Filtro por intervalo de datas
+  if (filtros.value.dataInicial || filtros.value.dataFinal) {
+    dados = dados.filter((s: any) => {
+      const dataSaida = s.data.split('T')[0].split(' ')[0]
+      
+      if (filtros.value.dataInicial && dataSaida < filtros.value.dataInicial) {
+        return false
+      }
+      
+      if (filtros.value.dataFinal && dataSaida > filtros.value.dataFinal) {
+        return false
+      }
+      
+      return true
+    })
   }
   
   return dados
@@ -186,22 +259,16 @@ const formatarValor = (valor: number) => {
 }
 
 const formatarData = (data: string) => {
-  return new Date(data).toLocaleDateString('pt-BR')
-}
-
-const aplicarFiltros = () => {
-  // Os filtros são aplicados automaticamente via computed
-  console.log('Filtros aplicados:', {
-    dataInicial: filtros.value.dataInicial,
-    dataFinal: filtros.value.dataFinal,
-    totalEntradas: entradas.value.length,
-    totalSaidas: saidas.value.length
-  })
+  const [datePart] = data.split('T')[0].split(' ')
+  const [ano, mes, dia] = datePart.split('-')
+  return `${dia}/${mes}/${ano}`
 }
 
 const limparFiltros = () => {
+  filtros.value.descricao = ''
   filtros.value.dataInicial = ''
   filtros.value.dataFinal = ''
+  filtros.value.tipo = ''
 }
 
 const exportarPDF = () => {
