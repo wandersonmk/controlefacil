@@ -103,7 +103,7 @@
     </div>
 
     <!-- Detalhamento de Entradas -->
-    <div v-if="filtros.tipo !== 'saida'" class="bg-card text-card-foreground rounded-lg border border-border shadow-sm">
+    <div v-if="filtros.tipo !== 'saida' && entradas.length > 0" class="bg-card text-card-foreground rounded-lg border border-border shadow-sm">
       <div class="p-4 md:p-6 border-b border-border">
         <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-green-500"></span>
@@ -134,7 +134,7 @@
     </div>
 
     <!-- Detalhamento de Saídas -->
-    <div v-if="filtros.tipo !== 'entrada'" class="bg-card text-card-foreground rounded-lg border border-border shadow-sm">
+    <div v-if="filtros.tipo !== 'entrada' && saidas.length > 0" class="bg-card text-card-foreground rounded-lg border border-border shadow-sm">
       <div class="p-4 md:p-6 border-b border-border">
         <h3 class="text-lg font-semibold text-foreground flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-red-500"></span>
