@@ -91,7 +91,7 @@ export default defineEventHandler(async (event) => {
     // Verificar saldo de tokens antes de processar
     const { data: tokenBalance, error: tokenBalanceError } = await supabase
       .from('user_token_balance')
-      .select('*')
+      .select('available_tokens, total_tokens, used_tokens, plan_type')
       .eq('user_id', user.id)
       .single()
 
@@ -106,7 +106,7 @@ export default defineEventHandler(async (event) => {
           used_tokens: 0,
           plan_type: 'free'
         })
-        .select('*')
+        .select('available_tokens, total_tokens, used_tokens, plan_type')
         .single()
 
       if (createBalanceError) {
@@ -120,15 +120,14 @@ export default defineEventHandler(async (event) => {
       effectiveTokenBalance = newBalance
     }
 
-    const availableTokens = Math.max(
-      0,
-      (effectiveTokenBalance?.total_tokens ?? 0) - (effectiveTokenBalance?.used_tokens ?? 0)
-    )
+    // Bloquear completamente se tokens esgotados
+    // available_tokens é calculado pelo banco e NUNCA fica negativo (GREATEST)
+    const availableTokens = effectiveTokenBalance?.available_tokens ?? 0
 
     if (availableTokens <= 0) {
       throw createError({
         statusCode: 403,
-        message: 'Tokens insuficientes. Aguarde a renovação mensal ou adquira tokens extras.'
+        message: 'Tokens esgotados. Aguarde a renovação mensal ou adquira tokens extras.'
       })
     }
 
@@ -251,17 +250,23 @@ export default defineEventHandler(async (event) => {
     }
 
     // Atualizar saldo de tokens do usuário (descontar tokens usados)
+    // Garantir que used_tokens nunca ultrapasse total_tokens
     const { data: userTokenBalance } = await supabase
       .from('user_token_balance')
-      .select('*')
+      .select('total_tokens, used_tokens')
       .eq('user_id', user.id)
       .single()
 
     if (userTokenBalance) {
+      const newUsedTokens = Math.min(
+        userTokenBalance.total_tokens,
+        userTokenBalance.used_tokens + tokensUsed
+      )
+      
       await supabase
         .from('user_token_balance')
         .update({
-          used_tokens: userTokenBalance.used_tokens + tokensUsed
+          used_tokens: newUsedTokens
         })
         .eq('user_id', user.id)
     } else {
@@ -271,7 +276,7 @@ export default defineEventHandler(async (event) => {
         .insert({
           user_id: user.id,
           total_tokens: 10000,
-          used_tokens: tokensUsed,
+          used_tokens: Math.min(10000, tokensUsed),
           plan_type: 'free'
         })
     }
