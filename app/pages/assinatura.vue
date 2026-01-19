@@ -14,18 +14,18 @@ const {
   fetchSubscriptionStatus
 } = useSubscription()
 
-// Mapeamento de planos do banco para nossos IDs
-const planMap: Record<string, 'mensal' | 'semestral' | 'anual'> = {
-  'basic': 'mensal',
-  'pro': 'semestral',
-  'enterprise': 'anual',
-  'free': 'mensal'
+// Mapeamento de períodos do banco para nossos IDs (usa subscription_period ao invés de subscription_plan)
+const periodMap: Record<string, 'mensal' | 'semestral' | 'anual'> = {
+  '1month': 'mensal',
+  '6months': 'semestral',
+  '12months': 'anual',
+  'trial': 'mensal'
 }
 
 // Computed para compatibilidade com o template
 const planoAtual = computed(() => {
-  const dbPlan = subscriptionStatus.value?.subscriptionPlan
-  return dbPlan ? (planMap[dbPlan] || null) : null
+  const dbPeriod = subscriptionStatus.value?.subscriptionPeriod
+  return dbPeriod ? (periodMap[dbPeriod] || null) : null
 })
 const hasActiveSubscription = computed(() => isPremium.value || isTrialActive.value)
 const statusAssinatura = computed(() => {
@@ -35,8 +35,8 @@ const statusAssinatura = computed(() => {
 })
 // Usar subscription_renews_at do banco de dados
 const dataProximaRenovacao = computed(() => {
-  // Primeiro tenta pegar do subscriptionPeriod, se não tiver usa trial_ends_at
-  return subscriptionStatus.value?.subscriptionPeriod || subscriptionStatus.value?.trialEndsAt || null
+  // Primeiro tenta pegar subscriptionRenewsAt, se não tiver usa trial_ends_at
+  return subscriptionStatus.value?.subscriptionRenewsAt || subscriptionStatus.value?.trialEndsAt || null
 })
 
 // Calcular dias restantes até a renovação

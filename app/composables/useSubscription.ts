@@ -4,6 +4,7 @@ export const useSubscription = () => {
     subscriptionStatus: string
     subscriptionPlan: string
     subscriptionPeriod: string | null
+    subscriptionRenewsAt: string | null
     trialEndsAt: string | null
     daysRemaining: number
     empresaNome: string
@@ -31,6 +32,7 @@ export const useSubscription = () => {
         subscriptionStatus: string
         subscriptionPlan: string
         subscriptionPeriod: string | null
+        subscriptionRenewsAt: string | null
         trialEndsAt: string
         daysRemaining: number
         empresaNome: string
@@ -51,6 +53,7 @@ export const useSubscription = () => {
           subscriptionStatus: response.subscriptionStatus,
           subscriptionPlan: response.subscriptionPlan,
           subscriptionPeriod: response.subscriptionPeriod,
+          subscriptionRenewsAt: response.subscriptionRenewsAt,
           trialEndsAt: response.trialEndsAt,
           daysRemaining: response.daysRemaining,
           empresaNome: response.empresaNome,
