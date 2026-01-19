@@ -52,7 +52,7 @@
       <div class="relative bg-gradient-to-br from-emerald-50/50 via-green-50/30 to-teal-50/50 dark:from-emerald-950/20 dark:via-green-950/15 dark:to-teal-950/20 text-card-foreground rounded-lg border border-emerald-200/50 dark:border-emerald-800/30 shadow-sm hover:shadow-md transition-shadow duration-300 p-6 overflow-hidden">
     <!-- Overlay sutil para profundidade -->
     <div class="absolute inset-0 bg-gradient-to-br from-transparent via-emerald-100/10 to-transparent dark:via-emerald-900/5 pointer-events-none"></div>
-    <h3 class="relative text-lg font-semibold text-gray-900 dark:text-foreground mb-4">Vendas dos Últimos Meses</h3>
+    <h3 class="relative text-lg font-semibold text-gray-900 dark:text-foreground mb-4">Entradas e Saídas dos Últimos Meses</h3>
         <div class="relative h-64 z-10">
           <canvas ref="lineChartRef"></canvas>
         </div>
@@ -260,7 +260,8 @@ async function createLineChart() {
   const supabase = useSupabaseClient()
   const now = new Date()
   const labels = []
-  const data = []
+  const dataEntradas = []
+  const dataSaidas = []
   
   try {
     // Buscar empresa_id do usuário
@@ -292,8 +293,19 @@ async function createLineChart() {
         .gte('data', firstDay.toISOString())
         .lte('data', lastDay.toISOString())
       
-      const totalMes = entradasData?.reduce((sum, e) => sum + Number(e.valor), 0) || 0
-      data.push(totalMes)
+      const totalEntradas = entradasData?.reduce((sum, e) => sum + Number(e.valor), 0) || 0
+      dataEntradas.push(totalEntradas)
+
+      // Buscar saídas do mês
+      const { data: saidasData } = await supabase
+        .from('saidas')
+        .select('valor')
+        .eq('empresa_id', userData.empresa_id)
+        .gte('data', firstDay.toISOString())
+        .lte('data', lastDay.toISOString())
+      
+      const totalSaidas = saidasData?.reduce((sum, s) => sum + Number(s.valor), 0) || 0
+      dataSaidas.push(totalSaidas)
     }
   } catch (err) {
     console.error('Erro ao buscar dados do gráfico:', err)
@@ -302,7 +314,8 @@ async function createLineChart() {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
       const label = d.toLocaleString('pt-BR', { month: 'short' })
       labels.push(label.charAt(0).toUpperCase() + label.slice(1))
-      data.push(0)
+      dataEntradas.push(0)
+      dataSaidas.push(0)
     }
   }
 
@@ -321,22 +334,40 @@ async function createLineChart() {
     type: 'line',
     data: {
       labels,
-      datasets: [{
-        label: 'Vendas Mensais',
-        data,
-        borderColor: '#10B981',
-        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#10B981',
-        pointBorderColor: '#FFFFFF',
-        pointBorderWidth: 2,
-        pointRadius: 5,
-        pointHoverRadius: 7,
-        pointHoverBackgroundColor: '#059669',
-        pointHoverBorderColor: '#FFFFFF'
-      }]
+      datasets: [
+        {
+          label: 'Entradas',
+          data: dataEntradas,
+          borderColor: '#10B981',
+          backgroundColor: 'rgba(16, 185, 129, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#10B981',
+          pointBorderColor: '#FFFFFF',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointHoverBackgroundColor: '#059669',
+          pointHoverBorderColor: '#FFFFFF'
+        },
+        {
+          label: 'Saídas',
+          data: dataSaidas,
+          borderColor: '#EF4444',
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#EF4444',
+          pointBorderColor: '#FFFFFF',
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointHoverBackgroundColor: '#DC2626',
+          pointHoverBorderColor: '#FFFFFF'
+        }
+      ]
     },
     options: {
       responsive: true,
@@ -359,7 +390,8 @@ async function createLineChart() {
           borderWidth: 1,
           callbacks: {
             label: function(context) {
-              return 'Vendas: R$ ' + context.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
+              const label = context.dataset.label || ''
+              return label + ': R$ ' + context.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 })
             }
           }
         }
