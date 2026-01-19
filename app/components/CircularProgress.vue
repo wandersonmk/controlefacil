@@ -2,7 +2,7 @@
   <div class="relative bg-gradient-to-br from-purple-50/50 via-blue-50/30 to-cyan-50/50 dark:from-purple-950/20 dark:via-blue-950/15 dark:to-cyan-950/20 text-card-foreground rounded-lg border border-purple-200/50 dark:border-purple-800/30 shadow-sm hover:shadow-md transition-shadow duration-300 p-6 overflow-hidden">
     <!-- Overlay sutil para profundidade -->
     <div class="absolute inset-0 bg-gradient-to-br from-transparent via-purple-100/10 to-transparent dark:via-purple-900/5 pointer-events-none"></div>
-    <h3 class="relative text-lg font-semibold text-foreground mb-6">Visão geral de clientes</h3>
+    <h3 class="relative text-lg font-semibold text-gray-900 dark:text-foreground mb-6">Visão geral de clientes</h3>
 
     <!-- Gráfico Circular Principal -->
     <div class="relative flex flex-col items-center mb-8">
@@ -48,7 +48,7 @@
         <!-- Texto central -->
         <div class="absolute inset-0 flex flex-col items-center justify-center">
           <div class="text-4xl font-bold text-foreground">{{ displayTotal }}</div>
-          <div class="text-[10px] text-gray-400 uppercase tracking-wide font-medium">CLIENTES TOTAIS</div>
+          <div class="text-[10px] text-gray-600 dark:text-gray-400 uppercase tracking-wide font-medium">CLIENTES TOTAIS</div>
         </div>
       </div>
     </div>
@@ -56,7 +56,7 @@
     <!-- Barra de Progresso Mensal -->
     <div class="relative">
       <div class="flex justify-between text-sm mb-2">
-        <span class="text-gray-400 uppercase tracking-wide">CLIENTES</span>
+        <span class="text-gray-600 dark:text-gray-400 uppercase tracking-wide">CLIENTES</span>
         <span class="text-foreground font-medium">{{ displayTotal }}</span>
       </div>
       <div class="relative h-3 bg-muted rounded-full overflow-hidden">
@@ -70,7 +70,7 @@
           :style="{ left: `calc(${monthlyPercentage}% - 8px)` }"
         ></div>
       </div>
-      <div class="flex justify-center text-xs text-gray-400 mt-2">
+      <div class="flex justify-center text-xs text-gray-600 dark:text-gray-400 mt-2">
         <span>Clientes atendidos em todo período</span>
       </div>
     </div>

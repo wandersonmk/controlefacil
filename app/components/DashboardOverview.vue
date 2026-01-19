@@ -52,7 +52,7 @@
       <div class="relative bg-gradient-to-br from-emerald-50/50 via-green-50/30 to-teal-50/50 dark:from-emerald-950/20 dark:via-green-950/15 dark:to-teal-950/20 text-card-foreground rounded-lg border border-emerald-200/50 dark:border-emerald-800/30 shadow-sm hover:shadow-md transition-shadow duration-300 p-6 overflow-hidden">
     <!-- Overlay sutil para profundidade -->
     <div class="absolute inset-0 bg-gradient-to-br from-transparent via-emerald-100/10 to-transparent dark:via-emerald-900/5 pointer-events-none"></div>
-    <h3 class="relative text-lg font-semibold text-foreground mb-4">Vendas dos Últimos Meses</h3>
+    <h3 class="relative text-lg font-semibold text-gray-900 dark:text-foreground mb-4">Vendas dos Últimos Meses</h3>
         <div class="relative h-64 z-10">
           <canvas ref="lineChartRef"></canvas>
         </div>
@@ -66,6 +66,7 @@
 import { Chart, registerables } from 'chart.js'
 Chart.register(...registerables)
 const lineChartRef = ref<HTMLCanvasElement | null>(null)
+let chartInstance: Chart | null = null
 
 const metrics = ref({
   produtosEstoque: 0,
@@ -222,6 +223,31 @@ onMounted(() => {
     fetchEntradasMes()
     fetchSaidasMes()
   })
+
+  // Observar mudanças no tema
+  if (process.client) {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          // Recriar o gráfico quando o tema mudar
+          createLineChart()
+        }
+      })
+    })
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    })
+
+    // Limpar observador ao desmontar
+    onUnmounted(() => {
+      observer.disconnect()
+      if (chartInstance) {
+        chartInstance.destroy()
+      }
+    })
+  }
 })
 
 
@@ -283,7 +309,15 @@ async function createLineChart() {
   const ctx = lineChartRef.value.getContext('2d')
   if (!ctx) return
 
-  new Chart(ctx, {
+  // Detectar modo escuro
+  const isDark = document.documentElement.classList.contains('dark')
+
+  // Destruir gráfico anterior se existir
+  if (chartInstance) {
+    chartInstance.destroy()
+  }
+
+  chartInstance = new Chart(ctx, {
     type: 'line',
     data: {
       labels,
@@ -310,7 +344,7 @@ async function createLineChart() {
       plugins: {
         legend: {
           labels: {
-            color: '#F3F4F6',
+            color: isDark ? '#F3F4F6' : '#1F2937',
             font: {
               size: 12,
               weight: 'bold'
@@ -318,10 +352,10 @@ async function createLineChart() {
           }
         },
         tooltip: {
-          backgroundColor: '#1F2937',
-          titleColor: '#F3F4F6',
-          bodyColor: '#F3F4F6',
-          borderColor: '#374151',
+          backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
+          titleColor: isDark ? '#F3F4F6' : '#1F2937',
+          bodyColor: isDark ? '#F3F4F6' : '#1F2937',
+          borderColor: isDark ? '#374151' : '#E5E7EB',
           borderWidth: 1,
           callbacks: {
             label: function(context) {
@@ -333,18 +367,18 @@ async function createLineChart() {
       scales: {
         x: {
           ticks: {
-            color: '#9CA3AF',
+            color: isDark ? '#E5E7EB' : '#374151',
             font: {
               size: 11
             }
           },
           grid: {
-            color: '#374151'
+            color: isDark ? '#4B5563' : '#E5E7EB'
           }
         },
         y: {
           ticks: {
-            color: '#9CA3AF',
+            color: isDark ? '#E5E7EB' : '#374151',
             font: {
               size: 11
             },
@@ -353,7 +387,7 @@ async function createLineChart() {
             }
           },
           grid: {
-            color: '#374151'
+            color: isDark ? '#4B5563' : '#E5E7EB'
           }
         }
       }
