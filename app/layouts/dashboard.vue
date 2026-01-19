@@ -22,13 +22,13 @@
               <!-- Título -->
               <div>
                 <h1 class="text-2xl font-bold text-foreground">{{ pageTitle }}</h1>
-                <p class="text-sm text-muted-foreground">{{ pageDescription }}</p>
+                <p class="hidden lg:block text-sm text-muted-foreground">{{ pageDescription }}</p>
               </div>
             </div>
           
             <!-- Área de sair -->
             <div class="flex items-center space-x-3 relative">
-              <!-- Info Plano -->
+              <!-- Info Plano Desktop -->
               <NuxtLink
                 to="/assinatura"
                 class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all"
@@ -37,6 +37,19 @@
                 <div class="text-left">
                   <div class="text-xs font-semibold text-blue-700 dark:text-blue-400 leading-tight">
                     <span class="font-bold">{{ planBadgeText }}</span>
+                  </div>
+                </div>
+              </NuxtLink>
+
+              <!-- Info Plano Mobile (compacto) -->
+              <NuxtLink
+                to="/assinatura"
+                class="flex lg:hidden items-center gap-1.5 px-2 py-1.5 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all"
+              >
+                <span class="text-sm">🎁</span>
+                <div class="text-left">
+                  <div class="text-[10px] font-bold text-blue-700 dark:text-blue-400 leading-tight">
+                    {{ planBadgeText }}
                   </div>
                 </div>
               </NuxtLink>
