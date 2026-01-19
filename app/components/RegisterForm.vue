@@ -151,9 +151,9 @@ async function handleRegister() {
 </script>
 
 <template>
-  <div class="w-full max-w-sm rounded-xl border border-border bg-secondary p-6 shadow">
+  <div class="w-full rounded-xl border border-border bg-secondary p-6 lg:p-8 shadow">
     <div class="space-y-1">
-      <h2 class="text-lg font-semibold">Criar nova conta</h2>
+      <h2 class="text-xl font-semibold">Criar nova conta</h2>
       <p class="text-sm text-muted-foreground">Preencha os dados para se cadastrar</p>
     </div>
 

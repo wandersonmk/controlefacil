@@ -7,7 +7,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-0px)] w-full flex items-center justify-center p-4 relative overflow-hidden bg-background dark:bg-background">
+  <div class="min-h-[calc(100vh-0px)] w-full flex items-center justify-center p-4 lg:p-8 relative overflow-hidden bg-background dark:bg-background">
     <!-- Background gradiente sutil -->
     <div class="absolute inset-0 bg-gradient-to-br from-muted/30 via-background to-muted/20 dark:from-black/50 dark:via-background dark:to-black/40"></div>
     <div class="absolute inset-0 bg-gradient-to-tl from-primary/5 via-background to-purple-950/10 dark:from-primary/8 dark:via-black dark:to-purple-950/15"></div>
@@ -20,7 +20,7 @@ definePageMeta({
     <div class="absolute bottom-40 left-20 w-80 h-80 bg-gradient-to-br from-primary/8 to-muted/20 dark:from-purple-950/12 dark:to-black/75 rounded-full blur-3xl animate-pulse" style="animation-delay: 1.5s;"></div>
     
     <!-- Conteúdo -->
-    <div class="relative z-10">
+    <div class="relative z-10 w-full max-w-7xl">
       <AuthTabs />
     </div>
   </div>

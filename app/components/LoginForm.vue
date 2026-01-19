@@ -76,11 +76,11 @@ async function handleLogin() {
 </script>
 
 <template>
-  <div class="w-full max-w-sm">
+  <div class="w-full">
     <!-- Card principal -->
-    <div class="rounded-xl border border-border/50 bg-secondary p-6 shadow-lg backdrop-blur-sm">
+    <div class="rounded-xl border border-border/50 bg-secondary p-6 lg:p-8 shadow-lg backdrop-blur-sm">
     <div class="space-y-1">
-      <h2 class="text-lg font-semibold">Faça login na plataforma</h2>
+      <h2 class="text-xl font-semibold">Faça login na plataforma</h2>
       <p class="text-sm text-muted-foreground">Acesse sua conta com email e senha</p>
     </div>
 

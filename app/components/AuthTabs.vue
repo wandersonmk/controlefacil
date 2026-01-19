@@ -9,7 +9,7 @@ function setActiveTab(tab: 'login' | 'register') {
 </script>
 
 <template>
-  <div class="w-full max-w-sm mx-auto">
+  <div class="w-full max-w-md lg:max-w-[450px] mx-auto">
     <!-- Mensagem de boas-vindas -->
     <div class="text-center mb-8">
       <h1 class="text-2xl font-bold mb-1">
