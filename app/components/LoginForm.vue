@@ -78,7 +78,13 @@ async function handleLogin() {
 <template>
   <div class="w-full">
     <!-- Card principal -->
-    <div class="rounded-xl border border-border/50 bg-secondary p-6 lg:p-8 shadow-lg backdrop-blur-sm">
+    <div class="relative rounded-xl bg-secondary p-6 lg:p-8 shadow-lg backdrop-blur-sm overflow-hidden">
+      <!-- Borda animada com gradiente -->
+      <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500 via-purple-600 via-pink-600 to-orange-500 opacity-75 blur-sm animate-gradient bg-[length:200%_auto]"></div>
+      <div class="absolute inset-[1px] rounded-xl bg-secondary"></div>
+      
+      <!-- Conteúdo -->
+      <div class="relative z-10">
     <div class="space-y-1">
       <h2 class="text-xl font-semibold">Faça login na plataforma</h2>
       <p class="text-sm text-muted-foreground">Acesse sua conta com email e senha</p>
@@ -127,6 +133,7 @@ async function handleLogin() {
         <span v-else>Entrar</span>
       </AppButton>
     </form>
+    </div>
     </div>
   </div>
 </template>

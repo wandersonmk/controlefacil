@@ -151,13 +151,20 @@ async function handleRegister() {
 </script>
 
 <template>
-  <div class="w-full rounded-xl border border-border bg-secondary p-6 lg:p-8 shadow">
-    <div class="space-y-1">
-      <h2 class="text-xl font-semibold">Criar nova conta</h2>
-      <p class="text-sm text-muted-foreground">Preencha os dados para se cadastrar</p>
-    </div>
+  <div class="w-full">
+    <div class="relative rounded-xl bg-secondary p-6 lg:p-8 shadow overflow-hidden">
+      <!-- Borda animada com gradiente -->
+      <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500 via-purple-600 via-pink-600 to-orange-500 opacity-75 blur-sm animate-gradient bg-[length:200%_auto]"></div>
+      <div class="absolute inset-[1px] rounded-xl bg-secondary"></div>
+      
+      <!-- Conteúdo -->
+      <div class="relative z-10">
+        <div class="space-y-1">
+          <h2 class="text-xl font-semibold">Criar nova conta</h2>
+          <p class="text-sm text-muted-foreground">Preencha os dados para se cadastrar</p>
+        </div>
 
-    <form @submit.prevent="handleRegister" class="mt-6 space-y-3">
+        <form @submit.prevent="handleRegister" class="mt-6 space-y-3">
       <AppInput
         v-model="name"
         type="text"
@@ -251,7 +258,9 @@ async function handleRegister() {
         <span v-if="isLoading">Criando conta...</span>
         <span v-else>Criar conta</span>
       </AppButton>
-    </form>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
