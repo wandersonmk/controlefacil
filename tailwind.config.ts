@@ -60,7 +60,7 @@ const config: Partial<Config> = {
         white: '#FFFFFF'
       },
       animation: {
-        'gradient': 'gradient 8s linear infinite',
+        'gradient': 'gradient 4s linear infinite',
       },
       keyframes: {
         gradient: {
