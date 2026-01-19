@@ -12,9 +12,12 @@ function setActiveTab(tab: 'login' | 'register') {
   <div class="w-full max-w-sm mx-auto">
     <!-- Mensagem de boas-vindas -->
     <div class="text-center mb-8">
-      <h1 class="text-3xl font-bold mb-2">
-        Seja Bem-vindo à <span class="whitespace-nowrap bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">Precify</span>
+      <h1 class="text-2xl font-bold mb-1">
+        Seja Bem-vindo à
       </h1>
+      <h2 class="text-4xl font-bold mb-3 bg-gradient-to-r from-blue-500 via-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
+        PRECIFY
+      </h2>
       <p class="text-sm text-muted-foreground">
         Se ainda não tem conta, clique em <span class="font-semibold text-foreground">Cadastrar</span>
       </p>

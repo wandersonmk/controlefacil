@@ -11,8 +11,8 @@
               </svg>
             </div>
             <div class="hidden sm:block">
-              <h1 class="text-xl font-semibold text-foreground">Precify</h1>
-              <p class="text-xs text-muted-foreground">Gestão de Clientes</p>
+              <h1 class="text-xl font-bold bg-gradient-to-r from-blue-500 via-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">PRECIFY</h1>
+              <p class="text-xs text-muted-foreground font-medium">Gestão de Clientes</p>
             </div>
           </div>
         </div>
