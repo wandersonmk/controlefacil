@@ -51,7 +51,7 @@ definePageMeta({
         <!-- Botão Principal com Gradiente Animado -->
         <div class="flex justify-center">
           <a
-            href="https://www.skool.com/precify-club-2957/about?ref=c2a877fe240e4005b01faaf10cc62e2f"
+            href="https://fulltimeacademy.klubs.co"
             target="_blank"
             rel="noopener noreferrer"
             class="group relative inline-flex items-center justify-center gap-3 px-8 py-4 text-lg font-bold text-white rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl"
