@@ -46,6 +46,20 @@ export default defineNuxtConfig({
     cssPath: resolvePath(__dirname, 'assets/css/tailwind.css')
   },
   css: ['@fortawesome/fontawesome-svg-core/styles.css'],
+  app: {
+    head: {
+      script: [
+        {
+          src: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',
+          defer: true
+        },
+        {
+          src: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.3/jspdf.plugin.autotable.min.js',
+          defer: true
+        }
+      ]
+    }
+  },
   runtimeConfig: {
     openaiApiKey: process.env.NUXT_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
     supabaseServiceRoleKey: process.env.NUXT_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY,

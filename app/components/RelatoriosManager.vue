@@ -12,7 +12,7 @@
       <div class="flex items-center space-x-2">
         <button
           @click="exportToPDF"
-          class="flex items-center space-x-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
+          class="flex items-center space-x-2 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm hover:shadow"
           title="Exportar para PDF"
         >
           <Icon icon="file-pdf" class-name="w-4 h-4" fallback="" />
@@ -20,7 +20,7 @@
         </button>
         <button
           @click="exportToExcel"
-          class="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium"
+          class="flex items-center space-x-2 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-lg transition-all duration-200 text-sm font-medium shadow-sm hover:shadow"
           title="Exportar para Excel"
         >
           <Icon icon="file-excel" class-name="w-4 h-4" fallback="" />
@@ -512,36 +512,35 @@ async function exportToPDF() {
       import('jspdf-autotable')
     ])
     
-    // Criar documento PDF em formato A4 paisagem
-    const doc = new jsPDF('landscape', 'mm', 'a4')
+    // Criar documento PDF em formato A4 retrato (portrait)
+    const doc = new jsPDF('portrait', 'mm', 'a4')
     
     // Configurar fonte para suporte UTF-8
     doc.setFont('helvetica', 'normal')
     
-    // Cores do tema
+    // Dimensões da página
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const margin = 15
+    
+    // Cores do tema (mais sutis e profissionais)
     const primaryColor: [number, number, number] = [79, 70, 229] // Indigo-600
-    const textColor: [number, number, number] = [17, 24, 39] // Gray-900
-    const lightGray: [number, number, number] = [243, 244, 246] // Gray-100
+    const textColor: [number, number, number] = [30, 30, 30] // Quase preto
+    const lightGray: [number, number, number] = [248, 250, 252] // Gray-50
     
     // Header do documento
     doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2])
-    doc.rect(0, 0, 297, 40, 'F')
+    doc.rect(0, 0, pageWidth, 35, 'F')
     
     // Logo/Título
     doc.setTextColor(255, 255, 255)
-    doc.setFontSize(24)
+    doc.setFontSize(20)
     doc.setFont('helvetica', 'bold')
-    doc.text('Precify', 20, 20)
+    doc.text('Precify', margin, 15)
     
-    doc.setFontSize(14)
+    doc.setFontSize(12)
     doc.setFont('helvetica', 'normal')
-    doc.text('Sistema de Controle', 20, 30)
-    
-    // Informações do relatório
-    doc.setTextColor(textColor[0], textColor[1], textColor[2])
-    doc.setFontSize(18)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Relatórios de Tickets', 20, 55)
+    doc.text('Relatórios de Movimentação', margin, 25)
     
     // Data de geração
     const agora = new Date()
@@ -553,120 +552,122 @@ async function exportToPDF() {
       minute: '2-digit'
     })
     
-    doc.setFontSize(10)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(107, 114, 128)
-    doc.text(`Gerado em: ${dataFormatada}`, 20, 65)
-    doc.text(`Total de registros: ${relatoriosFiltrados.value.length}`, 20, 72)
+    doc.setFontSize(9)
+    doc.setTextColor(textColor[0], textColor[1], textColor[2])
+    let yPos = 45
+    doc.text(`Gerado em: ${dataFormatada}`, margin, yPos)
+    yPos += 5
+    doc.text(`Total de registros: ${relatoriosFiltrados.value.length}`, margin, yPos)
+    yPos += 8
     
     // Mostrar filtros aplicados se houver
-    let yPosicaoAtual = 72
     if (filtrosAplicados.value) {
-      yPosicaoAtual += 10
       doc.setFontSize(10)
       doc.setFont('helvetica', 'bold')
-      doc.setTextColor(79, 70, 229) // Cor primária
-      doc.text('Filtros Aplicados:', 20, yPosicaoAtual)
+      doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2])
+      doc.text('Filtros Aplicados:', margin, yPos)
+      yPos += 6
       
+      doc.setFontSize(9)
       doc.setFont('helvetica', 'normal')
-      doc.setTextColor(107, 114, 128)
-      yPosicaoAtual += 7
+      doc.setTextColor(80, 80, 80)
       
       if (filtros.value.dataInicial && filtros.value.dataFinal) {
         const dataIni = formatarDataFiltro(filtros.value.dataInicial)
         const dataFim = formatarDataFiltro(filtros.value.dataFinal)
-        doc.text(`• Período: ${dataIni} até ${dataFim}`, 20, yPosicaoAtual)
-        yPosicaoAtual += 7
+        doc.text(`• Período: ${dataIni} até ${dataFim}`, margin + 2, yPos)
+        yPos += 5
       } else if (filtros.value.dataInicial) {
         const dataIni = formatarDataFiltro(filtros.value.dataInicial)
-        doc.text(`• Data inicial: ${dataIni}`, 20, yPosicaoAtual)
-        yPosicaoAtual += 7
+        doc.text(`• Data inicial: ${dataIni}`, margin + 2, yPos)
+        yPos += 5
       } else if (filtros.value.dataFinal) {
         const dataFim = formatarDataFiltro(filtros.value.dataFinal)
-        doc.text(`• Data final: ${dataFim}`, 20, yPosicaoAtual)
-        yPosicaoAtual += 7
+        doc.text(`• Data final: ${dataFim}`, margin + 2, yPos)
+        yPos += 5
       }
       
-      if (filtros.value.empresa) {
-        doc.text(`• Empresa: ${filtros.value.empresa}`, 20, yPosicaoAtual)
-        yPosicaoAtual += 7
+      if (filtros.value.produto) {
+        doc.text(`• Produto: ${filtros.value.produto}`, margin + 2, yPos)
+        yPos += 5
       }
       
-      if (filtros.value.lojaOuCnpj) {
-        doc.text(`• Loja/CNPJ: ${filtros.value.lojaOuCnpj}`, 20, yPosicaoAtual)
-        yPosicaoAtual += 7
+      if (filtros.value.tipo) {
+        doc.text(`• Tipo: ${filtros.value.tipo}`, margin + 2, yPos)
+        yPos += 5
       }
+      
+      yPos += 5
     }
     
-    // Ajustar posição Y da tabela baseado nos filtros
-    const startYTabela = yPosicaoAtual + 15
-    
     // Preparar dados para a tabela
-    const tableData = relatoriosFiltrados.value.map((relatorio, index) => [
-      (index + 1).toString(),
-      relatorio.nome_pessoa,
-      relatorio.telefone,
-      relatorio.nome_loja,
-      relatorio.cnpj,
-      `${relatorio.data_abertura_chamado} ${relatorio.hora_abertura_chamado}`,
-      relatorio.motivo_chamado,
-      relatorio.nome_empresa
-    ])
+    const tableData = relatoriosFiltrados.value.map((relatorio, index) => {
+      // Determinar a cor baseado no tipo
+      const tipo = relatorio.tipo || 'Desconhecido'
+      
+      return [
+        (index + 1).toString(),
+        relatorio.produto_nome || '-',
+        tipo,
+        relatorio.quantidade ? relatorio.quantidade.toString() : '-',
+        relatorio.data_formatada || relatorio.data || '-',
+        relatorio.observacao ? (relatorio.observacao.length > 40 ? relatorio.observacao.substring(0, 37) + '...' : relatorio.observacao) : '-'
+      ]
+    })
     
     // Configurar tabela
     autoTable(doc, {
-      head: [['#', 'Nome', 'Telefone', 'Loja', 'CNPJ', 'Data/Hora', 'Motivo', 'Empresa']],
+      head: [['#', 'Produto', 'Tipo', 'Qtd', 'Data', 'Observação']],
       body: tableData,
-      startY: startYTabela,
-      theme: 'grid',
+      startY: yPos,
+      theme: 'striped',
       styles: {
         font: 'helvetica',
         fontSize: 8,
-        cellPadding: 3,
+        cellPadding: { top: 3, right: 2, bottom: 3, left: 2 },
         textColor: textColor,
-        lineColor: [209, 213, 219],
-        lineWidth: 0.5
+        lineColor: [220, 220, 220],
+        lineWidth: 0.1
       },
       headStyles: {
         fillColor: primaryColor,
         textColor: [255, 255, 255],
         fontStyle: 'bold',
-        fontSize: 9
+        fontSize: 9,
+        halign: 'center'
       },
       alternateRowStyles: {
         fillColor: lightGray
       },
       columnStyles: {
         0: { cellWidth: 10, halign: 'center' }, // #
-        1: { cellWidth: 35 }, // Nome
-        2: { cellWidth: 30 }, // Telefone
-        3: { cellWidth: 35 }, // Loja
-        4: { cellWidth: 35 }, // CNPJ
-        5: { cellWidth: 35 }, // Data/Hora
-        6: { cellWidth: 60 }, // Motivo
-        7: { cellWidth: 20 } // Empresa
+        1: { cellWidth: 50 }, // Produto
+        2: { cellWidth: 25, halign: 'center' }, // Tipo
+        3: { cellWidth: 15, halign: 'center' }, // Qtd
+        4: { cellWidth: 25, halign: 'center' }, // Data
+        5: { cellWidth: 55 } // Observação
       },
-      margin: { left: 15, right: 15 }
+      margin: { left: margin, right: margin },
+      didDrawPage: (data) => {
+        // Footer em cada página
+        const pageNumber = data.pageNumber
+        const totalPages = doc.getNumberOfPages()
+        
+        // Linha do footer
+        doc.setDrawColor(220, 220, 220)
+        doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15)
+        
+        // Texto do footer
+        doc.setFontSize(8)
+        doc.setTextColor(120, 120, 120)
+        doc.setFont('helvetica', 'normal')
+        doc.text('Precify - Sistema de Controle', margin, pageHeight - 10)
+        doc.text(`Página ${pageNumber} de ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' })
+      }
     })
     
-    // Footer
-    const pageCount = doc.getNumberOfPages()
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i)
-      
-      // Linha do footer
-      doc.setDrawColor(209, 213, 219)
-      doc.line(15, 200, 282, 200)
-      
-      // Texto do footer
-      doc.setFontSize(8)
-      doc.setTextColor(107, 114, 128)
-      doc.text('Precify - Sistema de Controle', 15, 208)
-      doc.text(`Página ${i} de ${pageCount}`, 282, 208, { align: 'right' })
-    }
-    
     // Salvar o arquivo
-    const nomeArquivo = `relatorios_tickets_${agora.toISOString().split('T')[0]}.pdf`
+    const nomeArquivo = `relatorio_movimentacao_${agora.toISOString().split('T')[0]}.pdf`
     doc.save(nomeArquivo)
     
     console.log('PDF de relatórios exportado com sucesso!')

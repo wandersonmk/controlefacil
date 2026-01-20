@@ -15,7 +15,23 @@
       </div>
       
       <!-- Botões de ação -->
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center gap-2">
+        <button
+          @click="exportarPDF"
+          class="flex items-center gap-2 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800 rounded-lg transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow"
+          title="Exportar para PDF"
+        >
+          <Icon icon="file-pdf" class-name="w-4 h-4" fallback="" />
+          <span class="hidden sm:inline">PDF</span>
+        </button>
+        <button
+          @click="exportarExcel"
+          class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/30 dark:hover:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-lg transition-all duration-200 text-xs sm:text-sm font-medium shadow-sm hover:shadow"
+          title="Exportar para Excel"
+        >
+          <Icon icon="file-excel" class-name="w-4 h-4" fallback="" />
+          <span class="hidden sm:inline">Excel</span>
+        </button>
         <button
           @click="abrirModalNovoProduto"
           class="flex items-center justify-center space-x-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
@@ -755,6 +771,191 @@ async function confirmarAjusteEstoque() {
     } catch (err) {
       console.error('Erro ao ajustar estoque:', err)
     }
+  }
+}
+
+// Funções de exportação
+const formatarValor = (valor: number) => {
+  return valor.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })
+}
+
+const exportarPDF = async () => {
+  try {
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import('jspdf'),
+      import('jspdf-autotable')
+    ])
+
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    })
+
+    const pageWidth = doc.internal.pageSize.getWidth()
+    const pageHeight = doc.internal.pageSize.getHeight()
+    const margin = 15
+
+    // Cabeçalho
+    doc.setFillColor(79, 70, 229)
+    doc.rect(0, 0, pageWidth, 35, 'F')
+
+    doc.setTextColor(255, 255, 255)
+    doc.setFontSize(20)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Precify', margin, 15)
+
+    doc.setFontSize(12)
+    doc.setFont('helvetica', 'normal')
+    doc.text('Relatório de Estoque', margin, 25)
+
+    // Data de geração
+    const dataGeracao = new Date().toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
+    doc.setFontSize(9)
+    doc.setTextColor(30, 30, 30)
+    let yPos = 45
+    doc.text(`Gerado em: ${dataGeracao}`, margin, yPos)
+    yPos += 5
+    doc.text(`Total de produtos: ${produtosFiltrados.value.length}`, margin, yPos)
+    yPos += 10
+
+    // Preparar dados
+    const tableData = produtosFiltrados.value.map((p, index) => {
+      let status = 'Normal'
+      if (p.quantidade === 0) status = 'Esgotado'
+      else if (p.quantidade <= p.quantidade_minima) status = 'Baixo'
+
+      return [
+        (index + 1).toString(),
+        p.nome || '-',
+        p.categoria || '-',
+        p.quantidade.toString(),
+        p.unidade_medida || 'UN',
+        `R$ ${formatarValor(p.preco_venda)}`,
+        status
+      ]
+    })
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [['#', 'Produto', 'Categoria', 'Qtd', 'Un', 'Preço', 'Status']],
+      body: tableData,
+      theme: 'striped',
+      headStyles: {
+        fillColor: [79, 70, 229],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        fontSize: 9,
+        halign: 'left'
+      },
+      bodyStyles: {
+        fontSize: 8,
+        textColor: [60, 60, 60],
+        halign: 'left'
+      },
+      columnStyles: {
+        0: { cellWidth: 10, halign: 'center' },
+        1: { cellWidth: 50 },
+        2: { cellWidth: 35 },
+        3: { cellWidth: 15, halign: 'center' },
+        4: { cellWidth: 15, halign: 'center' },
+        5: { cellWidth: 30, halign: 'right' },
+        6: { cellWidth: 25, halign: 'center' }
+      },
+      margin: { left: margin, right: margin + 5 },
+      didDrawPage: (data: any) => {
+        doc.setFontSize(8)
+        doc.setTextColor(150, 150, 150)
+        const pageNumber = (doc as any).internal.getCurrentPageInfo().pageNumber
+        doc.text(
+          `Página ${pageNumber}`,
+          pageWidth / 2,
+          pageHeight - 10,
+          { align: 'center' }
+        )
+      }
+    })
+
+    const nomeArquivo = `estoque_${new Date().toISOString().split('T')[0]}.pdf`
+    doc.save(nomeArquivo)
+
+    console.log('PDF exportado com sucesso!')
+  } catch (error) {
+    console.error('Erro ao exportar PDF:', error)
+    alert('Erro ao gerar o arquivo PDF. Tente novamente.')
+  }
+}
+
+const exportarExcel = async () => {
+  try {
+    const XLSX = await import('xlsx')
+
+    const dataGeracao = new Date().toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+
+    const dadosCompletos: any[][] = [
+      ['Relatório de Estoque'],
+      [`Gerado em: ${dataGeracao}`],
+      [`Total de produtos: ${produtosFiltrados.value.length}`],
+      [],
+      ['#', 'Produto', 'Categoria', 'Quantidade', 'Unidade', 'Preço Custo', 'Preço Venda', 'Status']
+    ]
+
+    produtosFiltrados.value.forEach((p, index) => {
+      let status = 'Normal'
+      if (p.quantidade === 0) status = 'Esgotado'
+      else if (p.quantidade <= p.quantidade_minima) status = 'Baixo'
+
+      dadosCompletos.push([
+        index + 1,
+        p.nome || '-',
+        p.categoria || '-',
+        p.quantidade,
+        p.unidade_medida || 'UN',
+        p.preco_custo || 0,
+        p.preco_venda || 0,
+        status
+      ])
+    })
+
+    const workbook = XLSX.utils.book_new()
+    const worksheet = XLSX.utils.aoa_to_sheet(dadosCompletos)
+
+    worksheet['!cols'] = [
+      { wch: 5 },
+      { wch: 35 },
+      { wch: 20 },
+      { wch: 12 },
+      { wch: 10 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 12 }
+    ]
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Estoque')
+
+    const nomeArquivo = `estoque_${new Date().toISOString().split('T')[0]}.xlsx`
+    XLSX.writeFile(workbook, nomeArquivo)
+
+    console.log('Excel exportado com sucesso!')
+  } catch (error) {
+    console.error('Erro ao exportar Excel:', error)
+    alert('Erro ao gerar o arquivo Excel. Tente novamente.')
   }
 }
 </script>

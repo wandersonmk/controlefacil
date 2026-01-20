@@ -162,11 +162,11 @@
                 v-model="nomeProduto"
                 type="text"
                 placeholder="Ex: Açaí 300ml"
-                class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
               />
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <div>
                 <label class="block text-xs font-medium text-foreground mb-1.5">Custo Total da Compra (R$) <span class="text-red-500">*</span></label>
                 <input
@@ -174,7 +174,7 @@
                   type="text"
                   placeholder="R$ 0,00"
                   @input="formatarMoeda($event, 'custoItemBase')"
-                  class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                  class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
                 />
                 <p class="text-[10px] text-muted-foreground mt-0.5">Ex: R$ 115,00</p>
               </div>
@@ -188,12 +188,12 @@
                     :placeholder="placeholderQuantidadeTotal"
                     @input="formatarQuantidade($event, 'total')"
                     @blur="atualizarQuantidadeTotal"
-                    class="w-full px-3 py-2 pr-16 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                    class="w-full px-3 py-2.5 sm:py-2 pr-16 sm:pr-14 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
                   />
                   <select
                     v-model="unidadeMedidaTotal"
                     @change="atualizarUnidadesEFormatos"
-                    class="select-unit absolute right-0 top-0 h-full w-16 px-1 bg-[var(--select-bg)] hover:bg-[var(--select-hover)] rounded-r-lg text-foreground text-xs font-semibold text-center focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-all duration-200"
+                    class="select-unit absolute right-0 top-0 h-full w-16 sm:w-14 px-1 bg-[var(--select-bg)] hover:bg-[var(--select-hover)] rounded-r-lg text-foreground text-sm sm:text-xs font-semibold text-center focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-all duration-200"
                   >
                     <option value="un">Un</option>
                     <option value="kg">Kg</option>
@@ -207,7 +207,7 @@
                 <p class="text-[10px] text-muted-foreground mt-0.5">{{ exemploQuantidadeTotal }}</p>
               </div>
 
-              <div>
+              <div class="sm:col-span-2 lg:col-span-1">
                 <label class="block text-xs font-medium text-foreground mb-1.5">Quantidade por Porção <span class="text-red-500">*</span></label>
                 <div class="relative">
                   <input
@@ -216,12 +216,12 @@
                     :placeholder="placeholderQuantidadePorcao"
                     @input="formatarQuantidade($event, 'porcao')"
                     @blur="atualizarQuantidadePorcao"
-                    class="w-full px-3 py-2 pr-16 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                    class="w-full px-3 py-2.5 sm:py-2 pr-16 sm:pr-14 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
                   />
                   <select
                     v-model="unidadeMedidaPorcao"
                     @change="atualizarFormatoPorcao"
-                    class="select-unit absolute right-0 top-0 h-full w-16 px-1 bg-[var(--select-bg)] hover:bg-[var(--select-hover)] rounded-r-lg text-foreground text-xs font-semibold text-center focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-all duration-200"
+                    class="select-unit absolute right-0 top-0 h-full w-16 sm:w-14 px-1 bg-[var(--select-bg)] hover:bg-[var(--select-hover)] rounded-r-lg text-foreground text-sm sm:text-xs font-semibold text-center focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-all duration-200"
                   >
                     <option value="un">Un</option>
                     <option value="kg">Kg</option>
@@ -276,18 +276,18 @@
             <table class="w-full text-xs">
               <thead>
                 <tr class="border-b border-border/50">
-                  <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase w-48 min-w-48">Ingrediente</th>
-                  <th class="text-left py-2 px-1 font-semibold text-muted-foreground uppercase">Custo/Produto</th>
-                  <th class="text-left py-2 px-1 font-semibold text-muted-foreground uppercase">Qtd. Total</th>
-                  <th class="text-left py-2 px-1 font-semibold text-muted-foreground uppercase">Un.</th>
+                  <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase w-40 min-w-40">Ingrediente</th>
+                  <th class="text-left py-2 px-1 font-semibold text-muted-foreground uppercase text-[10px]">Custo/Prod.</th>
+                  <th class="text-left py-2 px-1 font-semibold text-muted-foreground uppercase text-[10px]">Qtd. Total</th>
+                  <th class="text-left py-2 px-1 font-semibold text-muted-foreground uppercase text-[10px]">Un.</th>
                   <th
-                    class="text-right py-2 px-2 font-semibold text-muted-foreground uppercase"
-                    title="Mostra o custo unitário (g/ml/un/cm) após você informar a Qtd./Porção."
+                    class="text-right py-2 px-1 font-semibold text-muted-foreground uppercase text-[10px]"
+                    title="Mostra o custo unitário (g/ml/un/cm) após você informar a Qtd. Usada."
                   >
-                    Custo/Unid.
+                    Custo/Un.
                   </th>
-                  <th class="text-left py-2 px-2 font-semibold text-muted-foreground uppercase">Qtd./Porção</th>
-                  <th class="text-right py-2 px-2 font-semibold text-muted-foreground uppercase">Custo/Porção</th>
+                  <th class="text-left py-2 px-1 font-semibold text-muted-foreground uppercase text-[10px]">Qtd. Usada</th>
+                  <th class="text-right py-2 px-1 font-semibold text-muted-foreground uppercase text-[10px]">Custo Final</th>
                   <th class="w-8"></th>
                 </tr>
               </thead>
@@ -446,11 +446,11 @@
               <!-- Informações Compactas -->
               <div class="grid grid-cols-2 gap-3">
                 <div class="p-2 bg-muted/30 rounded">
-                  <span class="text-[10px] text-muted-foreground block">Qtd./Porção</span>
+                  <span class="text-[10px] text-muted-foreground block">Qtd. Usada</span>
                   <span class="text-sm font-semibold text-foreground">{{ ingrediente.quantidadePorPorcao || '—' }}</span>
                 </div>
                 <div class="p-2 bg-primary/10 rounded">
-                  <span class="text-[10px] text-muted-foreground block">Custo/Porção</span>
+                  <span class="text-[10px] text-muted-foreground block">Custo Final</span>
                   <span class="text-sm font-bold text-primary">{{ formatarValor(calcularCustoPorPorcaoIngrediente(ingrediente)) }}</span>
                 </div>
               </div>
@@ -475,7 +475,7 @@
           </div>
 
           <!-- Custos Variáveis Adicionais -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4 pt-4 border-t border-border/30">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4 pt-4 border-t border-border/30">
             <div>
               <label class="block text-xs font-medium text-foreground mb-1.5">Embalagem (R$)</label>
               <input
@@ -483,7 +483,7 @@
                 type="text"
                 placeholder="R$ 0,00"
                 @input="formatarMoeda($event, 'custoEmbalagem')"
-                class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
               />
               <p class="text-[10px] text-muted-foreground mt-0.5">Copo, pote, sacola, etc.</p>
             </div>
@@ -495,12 +495,12 @@
                 type="text"
                 placeholder="R$ 0,00"
                 @input="formatarMoeda($event, 'outrosCustosVariaveis')"
-                class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
               />
               <p class="text-[10px] text-muted-foreground mt-0.5">Materiais extras, etc.</p>
             </div>
 
-            <div>
+            <div class="sm:col-span-2 lg:col-span-1">
               <label class="block text-xs font-medium text-foreground mb-1.5">Taxa de Plataformas (%)</label>
               <input
                 v-model.number="taxaPlataforma"
@@ -509,7 +509,7 @@
                 max="100"
                 step="0.1"
                 placeholder="0"
-                class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
               />
               <p class="text-[10px] text-muted-foreground mt-0.5">iFood, Rappi, etc.</p>
             </div>
@@ -538,7 +538,7 @@
           </div>
 
           <div v-if="incluirCustosFixos" class="space-y-3">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-medium text-foreground mb-1.5">Aluguel (R$)</label>
                 <input
@@ -546,7 +546,7 @@
                   type="text"
                   placeholder="R$ 0,00"
                   @input="formatarMoeda($event, 'custoAluguel')"
-                  class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                  class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
                 />
               </div>
 
@@ -557,7 +557,7 @@
                   type="text"
                   placeholder="R$ 0,00"
                   @input="formatarMoeda($event, 'custoAgua')"
-                  class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                  class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
                 />
               </div>
 
@@ -568,7 +568,7 @@
                   type="text"
                   placeholder="R$ 0,00"
                   @input="formatarMoeda($event, 'custoEnergia')"
-                  class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                  class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
                 />
               </div>
 
@@ -579,7 +579,7 @@
                   type="text"
                   placeholder="R$ 0,00"
                   @input="formatarMoeda($event, 'custoMaoDeObra')"
-                  class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                  class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
                 />
               </div>
 
@@ -590,7 +590,7 @@
                   type="text"
                   placeholder="R$ 0,00"
                   @input="formatarMoeda($event, 'outrosCustosFixos')"
-                  class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                  class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
                 />
               </div>
 
@@ -600,7 +600,7 @@
                   v-model.number="vendasEstimadas"
                   type="number"
                   placeholder="0"
-                  class="w-full px-3 py-2 bg-background border border-input rounded-lg text-foreground text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
+                  class="w-full px-3 py-2.5 sm:py-2 bg-background border border-input rounded-lg text-foreground text-sm sm:text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all duration-200 hover:border-primary/50"
                 />
                 <p class="text-[10px] text-muted-foreground mt-0.5">Quantidade de vendas por mês</p>
               </div>
