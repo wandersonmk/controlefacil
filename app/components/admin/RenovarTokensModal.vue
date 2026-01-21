@@ -3,15 +3,19 @@ interface Props {
   show: boolean
   clienteNome: string
   clienteId: string
+  availableTokens?: number
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  availableTokens: 0
+})
 
 const emit = defineEmits<{
   'close': []
-  'confirm': [totalTokens: number]
+  'confirm': [data: { totalTokens: number, action: 'add' | 'remove' }]
 }>()
 
+const action = ref<'add' | 'remove'>('add')
 const totalTokens = ref(10000)
 
 const tokenOptions = [
@@ -23,8 +27,23 @@ const tokenOptions = [
   { value: 500000, label: '500.000 tokens' }
 ]
 
+const canRemove = computed(() => {
+  if (action.value === 'remove') {
+    return totalTokens.value <= props.availableTokens
+  }
+  return true
+})
+
+const errorMessage = computed(() => {
+  if (action.value === 'remove' && totalTokens.value > props.availableTokens) {
+    return `Não é possível remover mais tokens do que o disponível (${props.availableTokens.toLocaleString('pt-BR')} tokens)`
+  }
+  return ''
+})
+
 const handleConfirm = () => {
-  emit('confirm', totalTokens.value)
+  if (!canRemove.value) return
+  emit('confirm', { totalTokens: totalTokens.value, action: action.value })
 }
 </script>
 
@@ -36,7 +55,7 @@ const handleConfirm = () => {
   >
     <div class="bg-card border border-border rounded-xl p-6 max-w-md w-full shadow-2xl">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-semibold text-foreground">Renovar Tokens</h3>
+        <h3 class="text-lg font-semibold text-foreground">Gerenciar Tokens</h3>
         <button
           @click="emit('close')"
           class="text-muted-foreground hover:text-foreground transition-colors"
@@ -45,11 +64,45 @@ const handleConfirm = () => {
         </button>
       </div>
       
-      <p class="text-sm text-muted-foreground mb-6">
-        Renovando tokens de <strong class="text-foreground">{{ clienteNome }}</strong>
+      <p class="text-sm text-muted-foreground mb-2">
+        Gerenciando tokens de <strong class="text-foreground">{{ clienteNome }}</strong>
+      </p>
+      
+      <p class="text-xs text-muted-foreground mb-6">
+        Saldo disponível: <strong class="text-foreground">{{ availableTokens.toLocaleString('pt-BR') }} tokens</strong>
       </p>
       
       <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-2">
+            Ação
+          </label>
+          <div class="flex gap-2">
+            <button
+              @click="action = 'add'"
+              :class="[
+                'flex-1 px-4 py-2 rounded-lg transition-colors font-medium',
+                action === 'add' 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              ]"
+            >
+              ➕ Adicionar
+            </button>
+            <button
+              @click="action = 'remove'"
+              :class="[
+                'flex-1 px-4 py-2 rounded-lg transition-colors font-medium',
+                action === 'remove' 
+                  ? 'bg-red-600 text-white' 
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              ]"
+            >
+              ➖ Remover
+            </button>
+          </div>
+        </div>
+
         <div>
           <label class="block text-sm font-medium text-foreground mb-2">
             Quantidade de Tokens
@@ -64,10 +117,33 @@ const handleConfirm = () => {
           </select>
         </div>
         
-        <div class="bg-muted/50 border border-border rounded-lg p-4">
-          <p class="text-xs text-muted-foreground mb-1">Aviso:</p>
-          <p class="text-sm text-foreground">
-            Isso irá <strong>adicionar</strong> os tokens ao saldo atual do cliente.
+        <div 
+          v-if="errorMessage" 
+          class="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4"
+        >
+          <p class="text-xs text-red-700 dark:text-red-400 mb-1">⚠️ Erro:</p>
+          <p class="text-sm text-red-700 dark:text-red-400">
+            {{ errorMessage }}
+          </p>
+        </div>
+        
+        <div 
+          v-else
+          :class="[
+            'border rounded-lg p-4',
+            action === 'add' 
+              ? 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800' 
+              : 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800'
+          ]"
+        >
+          <p class="text-xs mb-1" :class="action === 'add' ? 'text-blue-700 dark:text-blue-400' : 'text-orange-700 dark:text-orange-400'">Aviso:</p>
+          <p class="text-sm" :class="action === 'add' ? 'text-blue-700 dark:text-blue-400' : 'text-orange-700 dark:text-orange-400'">
+            <template v-if="action === 'add'">
+              Isso irá <strong>adicionar {{ totalTokens.toLocaleString('pt-BR') }} tokens</strong> ao saldo atual do cliente.
+            </template>
+            <template v-else>
+              Isso irá <strong>remover {{ totalTokens.toLocaleString('pt-BR') }} tokens</strong> do saldo atual do cliente.
+            </template>
           </p>
         </div>
       </div>
@@ -81,9 +157,17 @@ const handleConfirm = () => {
         </button>
         <button
           @click="handleConfirm"
-          class="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+          :disabled="!canRemove"
+          :class="[
+            'flex-1 px-4 py-2 rounded-lg transition-colors font-medium',
+            canRemove
+              ? action === 'add'
+                ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                : 'bg-red-600 text-white hover:bg-red-700'
+              : 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
+          ]"
         >
-          Confirmar
+          {{ action === 'add' ? 'Adicionar Tokens' : 'Remover Tokens' }}
         </button>
       </div>
     </div>

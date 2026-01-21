@@ -13,6 +13,7 @@ const {
   desativarCliente,
   renovarAssinatura,
   renovarTokens,
+  removerTokens,
   excluirCliente,
   editarCliente
 } = useAdminClientes()
@@ -24,7 +25,7 @@ const showRenovarModal = ref(false)
 const showTokensModal = ref(false)
 const showExcluirModal = ref(false)
 const showEditarModal = ref(false)
-const selectedCliente = ref<{ id: string, nome: string } | null>(null)
+const selectedCliente = ref<{ id: string, nome: string, availableTokens?: number } | null>(null)
 const clienteParaEditar = ref<any>(null)
 
 // Filtros
@@ -77,8 +78,30 @@ const handleRenovar = (clienteId: string) => {
 const handleRenovarTokens = (clienteId: string) => {
   const cliente = clientes.value.find(c => c.id === clienteId)
   if (cliente) {
-    selectedCliente.value = { id: cliente.id, nome: cliente.nome }
+    selectedCliente.value = { 
+      id: cliente.id, 
+      nome: cliente.nome,
+      availableTokens: cliente.available_tokens 
+    }
     showTokensModal.value = true
+  }
+}
+
+const confirmRenovarTokens = async (data: { totalTokens: number, action: 'add' | 'remove' }) => {
+  if (selectedCliente.value) {
+    try {
+      if (data.action === 'add') {
+        await renovarTokens(selectedCliente.value.id, data.totalTokens)
+        if (toast?.success) toast.success(`${data.totalTokens.toLocaleString('pt-BR')} tokens adicionados com sucesso`)
+      } else {
+        await removerTokens(selectedCliente.value.id, data.totalTokens)
+        if (toast?.success) toast.success(`${data.totalTokens.toLocaleString('pt-BR')} tokens removidos com sucesso`)
+      }
+      showTokensModal.value = false
+      selectedCliente.value = null
+    } catch (err: any) {
+      if (toast?.error) toast.error(err.message || 'Erro ao gerenciar tokens')
+    }
   }
 }
 
@@ -91,15 +114,6 @@ const confirmRenovarAssinatura = async (plan: string, period: string) => {
     )
     if (toast?.success) toast.success('Assinatura renovada com sucesso')
     showRenovarModal.value = false
-    selectedCliente.value = null
-  }
-}
-
-const confirmRenovarTokens = async (totalTokens: number) => {
-  if (selectedCliente.value) {
-    await renovarTokens(selectedCliente.value.id, totalTokens)
-    if (toast?.success) toast.success('Tokens renovados com sucesso')
-    showTokensModal.value = false
     selectedCliente.value = null
   }
 }
@@ -213,11 +227,11 @@ const confirmExcluir = async () => {
         />
         
         <AdminStatsCard
-          title="Clientes Pro"
-          :value="stats.clientesPro"
-          emoji="💎"
+          title="Fornecedores Parceiros"
+          :value="7"
+          emoji="🤝"
           color="purple"
-          subtitle="Plano profissional"
+          subtitle="Parcerias ativas"
         />
         
         <AdminStatsCard
@@ -306,6 +320,7 @@ const confirmExcluir = async () => {
         :show="showTokensModal"
         :cliente-nome="selectedCliente?.nome || ''"
         :cliente-id="selectedCliente?.id || ''"
+        :available-tokens="selectedCliente?.availableTokens || 0"
         @close="showTokensModal = false"
         @confirm="confirmRenovarTokens"
       />

@@ -206,6 +206,35 @@ export const useAdminClientes = () => {
     }
   }
 
+  // Remove tokens do cliente
+  const removerTokens = async (clienteId: string, tokensToRemove: number) => {
+    try {
+      const response = await $fetch<{ 
+        success: boolean, 
+        message?: string,
+        newTotalTokens?: number,
+        availableTokens?: number 
+      }>('/api/admin/remover-tokens', {
+        method: 'POST',
+        body: { clienteId, tokensToRemove }
+      })
+
+      if (!response.success) {
+        throw new Error(response.message || 'Erro ao remover tokens')
+      }
+
+      // Atualiza localmente - SUBTRAI do total
+      const cliente = clientes.value.find(c => c.id === clienteId)
+      if (cliente && response.newTotalTokens !== undefined && response.availableTokens !== undefined) {
+        cliente.total_tokens = response.newTotalTokens
+        cliente.available_tokens = response.availableTokens
+      }
+    } catch (err: any) {
+      console.error('Erro ao remover tokens:', err)
+      throw err
+    }
+  }
+
   // Exclui cliente permanentemente
   const excluirCliente = async (clienteId: string) => {
     try {
@@ -350,6 +379,7 @@ export const useAdminClientes = () => {
     desativarCliente,
     renovarAssinatura,
     renovarTokens,
+    removerTokens,
     excluirCliente,
     editarCliente,
     isVencido,
