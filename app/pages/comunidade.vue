@@ -17,12 +17,12 @@ definePageMeta({
 
       <!-- Título -->
       <h1 class="text-4xl md:text-5xl font-bold text-foreground">
-        Junte-se à Nossa Comunidade
+        Junte-se à Fulltime Academy
       </h1>
 
       <!-- Descrição -->
       <p class="text-xl text-muted-foreground max-w-lg mx-auto">
-        Conecte-se com outros empreendedores, compartilhe experiências, encontre fornecedores de vários estados e aprenda em um ambiente colaborativo exclusivo.
+        Nossa comunidade exclusiva no Telegram onde você se conecta com outros empreendedores, compartilha experiências, encontra fornecedores de vários estados e aprende em um ambiente colaborativo.
       </p>
 
       <!-- Features -->
@@ -51,7 +51,7 @@ definePageMeta({
         <!-- Botão Principal com Gradiente Animado -->
         <div class="flex justify-center">
           <a
-            href="https://fulltimeacademy.klubs.co"
+            href="https://t.me/fulltimeAcademy"
             target="_blank"
             rel="noopener noreferrer"
             class="group relative inline-flex items-center justify-center gap-3 px-8 py-4 text-lg font-bold text-white rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl"
@@ -65,7 +65,7 @@ definePageMeta({
             <!-- Conteúdo do Botão -->
             <span class="relative flex items-center gap-3">
               <span class="text-2xl">🚀</span>
-              <span>Entrar na Comunidade</span>
+              <span>Entrar no Telegram</span>
               <span class="text-2xl group-hover:translate-x-1 transition-transform">→</span>
             </span>
           </a>
