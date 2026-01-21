@@ -23,12 +23,11 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Reativa a empresa
+    // Reativa a empresa (apenas muda ativo para true, sem alterar plano ou datas)
     const { error: empresaError } = await supabase
       .from('empresas')
       .update({ 
         ativo: true,
-        subscription_status: 'active',
         updated_at: new Date().toISOString()
       })
       .eq('id', clienteId)

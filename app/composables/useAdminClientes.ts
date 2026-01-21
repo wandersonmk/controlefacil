@@ -131,11 +131,11 @@ export const useAdminClientes = () => {
         throw new Error('Erro ao reativar cliente')
       }
 
-      // Atualiza localmente
+      // Atualiza localmente - apenas muda ativo para true (mantém subscription_status original)
       const cliente = clientes.value.find(c => c.id === clienteId)
       if (cliente) {
         cliente.ativo = true
-        cliente.subscription_status = 'active'
+        // NÃO altera subscription_status - mantém o estado original (trial, expired, etc.)
       }
     } catch (err: any) {
       console.error('Erro ao reativar cliente:', err)

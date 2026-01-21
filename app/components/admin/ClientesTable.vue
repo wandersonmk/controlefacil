@@ -84,13 +84,6 @@ const formatWhatsAppUrl = (whatsapp: string | null): string => {
               <div>
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-medium text-foreground">{{ cliente.nome }}</span>
-                  <span 
-                    v-if="cliente.role === 'superAdmin'"
-                    class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-sm"
-                    title="Super Administrador"
-                  >
-                    👑 SUPER ADMIN
-                  </span>
                 </div>
                 <div class="text-xs text-muted-foreground">{{ cliente.email }}</div>
                 <div v-if="cliente.whatsapp" class="text-xs text-muted-foreground flex items-center gap-1 mt-1">
@@ -178,56 +171,72 @@ const formatWhatsAppUrl = (whatsapp: string | null): string => {
             
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <div class="flex items-center justify-end gap-2">
-                <button
-                  @click="emit('editar', cliente.id)"
-                  class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-                  title="Editar Cliente"
-                >
-                  <Icon icon="edit" class-name="w-5 h-5" fallback="✏️" />
-                </button>
+                <!-- Botões para clientes ATIVOS -->
+                <template v-if="cliente.ativo && cliente.role !== 'superAdmin'">
+                  <button
+                    @click="emit('editar', cliente.id)"
+                    class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                    title="Editar Cliente"
+                  >
+                    <Icon icon="edit" class-name="w-5 h-5" fallback="✏️" />
+                  </button>
+                  
+                  <button
+                    @click="emit('renovar-tokens', cliente.id)"
+                    class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
+                    title="Renovar Tokens"
+                  >
+                    <Icon icon="sync" class-name="w-5 h-5" fallback="🔄" />
+                  </button>
+                  
+                  <button
+                    @click="emit('renovar', cliente.id)"
+                    class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors"
+                    title="Renovar Assinatura"
+                  >
+                    <Icon icon="calendar" class-name="w-5 h-5" fallback="📅" />
+                  </button>
+                  
+                  <button
+                    @click="emit('desativar', cliente.id)"
+                    class="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300 transition-colors"
+                    title="Desativar Cliente"
+                  >
+                    <Icon icon="times-circle" class-name="w-5 h-5" fallback="⏸️" />
+                  </button>
+                  
+                  <button
+                    @click="emit('excluir', cliente.id)"
+                    class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                    title="Excluir Cliente"
+                  >
+                    <Icon icon="trash" class-name="w-5 h-5" fallback="🗑️" />
+                  </button>
+                </template>
                 
-                <button
-                  @click="emit('renovar-tokens', cliente.id)"
-                  class="text-purple-600 hover:text-purple-900 dark:text-purple-400 dark:hover:text-purple-300 transition-colors"
-                  title="Renovar Tokens"
-                >
-                  <Icon icon="sync" class-name="w-5 h-5" fallback="🔄" />
-                </button>
+                <!-- Botões para clientes DESATIVADOS (apenas reativar e excluir) -->
+                <template v-if="!cliente.ativo && cliente.role !== 'superAdmin'">
+                  <button
+                    @click="emit('reativar', cliente.id)"
+                    class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors"
+                    title="Reativar Cliente"
+                  >
+                    <Icon icon="check-circle" class-name="w-5 h-5" fallback="▶️" />
+                  </button>
+                  
+                  <button
+                    @click="emit('excluir', cliente.id)"
+                    class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                    title="Excluir Cliente"
+                  >
+                    <Icon icon="trash" class-name="w-5 h-5" fallback="🗑️" />
+                  </button>
+                </template>
                 
-                <button
-                  @click="emit('renovar', cliente.id)"
-                  class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors"
-                  title="Renovar Assinatura"
-                >
-                  <Icon icon="calendar" class-name="w-5 h-5" fallback="📅" />
-                </button>
-                
-                <button
-                  v-if="cliente.ativo && cliente.role !== 'superAdmin'"
-                  @click="emit('desativar', cliente.id)"
-                  class="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300 transition-colors"
-                  title="Desativar Cliente"
-                >
-                  <Icon icon="times-circle" class-name="w-5 h-5" fallback="⏸️" />
-                </button>
-                
-                <button
-                  v-if="!cliente.ativo && cliente.role !== 'superAdmin'"
-                  @click="emit('reativar', cliente.id)"
-                  class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors"
-                  title="Reativar Cliente"
-                >
-                  <Icon icon="check-circle" class-name="w-5 h-5" fallback="▶️" />
-                </button>
-                
-                <button
-                  v-if="cliente.role !== 'superAdmin'"
-                  @click="emit('excluir', cliente.id)"
-                  class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
-                  title="Excluir Cliente"
-                >
-                  <Icon icon="trash" class-name="w-5 h-5" fallback="🗑️" />
-                </button>
+                <!-- SuperAdmin apenas visualiza -->
+                <template v-if="cliente.role === 'superAdmin'">
+                  <span class="text-xs text-muted-foreground italic">Super Admin</span>
+                </template>
               </div>
             </td>
           </tr>

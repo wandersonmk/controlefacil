@@ -26,6 +26,8 @@ const showRenovarModal = ref(false)
 const showTokensModal = ref(false)
 const showExcluirModal = ref(false)
 const showEditarModal = ref(false)
+const showDesativarModal = ref(false)
+const showReativarModal = ref(false)
 const selectedCliente = ref<{ id: string, nome: string, availableTokens?: number } | null>(null)
 const clienteParaEditar = ref<any>(null)
 
@@ -61,17 +63,37 @@ const filteredClientes = computed(() => {
 })
 
 // Handlers dos modais
-const handleDesativar = async (clienteId: string) => {
-  if (confirm('Tem certeza que deseja desativar este cliente?')) {
-    await desativarCliente(clienteId)
-    if (toast?.success) toast.success('Cliente desativado com sucesso')
+const handleDesativar = (clienteId: string) => {
+  const cliente = clientes.value.find(c => c.id === clienteId)
+  if (cliente) {
+    selectedCliente.value = { id: cliente.id, nome: cliente.nome }
+    showDesativarModal.value = true
   }
 }
 
-const handleReativar = async (clienteId: string) => {
-  if (confirm('Tem certeza que deseja reativar este cliente?')) {
-    await reativarCliente(clienteId)
+const confirmDesativar = async () => {
+  if (selectedCliente.value) {
+    await desativarCliente(selectedCliente.value.id)
+    if (toast?.success) toast.success('Cliente desativado com sucesso')
+    showDesativarModal.value = false
+    selectedCliente.value = null
+  }
+}
+
+const handleReativar = (clienteId: string) => {
+  const cliente = clientes.value.find(c => c.id === clienteId)
+  if (cliente) {
+    selectedCliente.value = { id: cliente.id, nome: cliente.nome }
+    showReativarModal.value = true
+  }
+}
+
+const confirmReativar = async () => {
+  if (selectedCliente.value) {
+    await reativarCliente(selectedCliente.value.id)
     if (toast?.success) toast.success('Cliente reativado com sucesso')
+    showReativarModal.value = false
+    selectedCliente.value = null
   }
 }
 
@@ -347,6 +369,22 @@ const confirmExcluir = async () => {
         :cliente-id="selectedCliente?.id || ''"
         @close="showExcluirModal = false"
         @confirm="confirmExcluir"
+      />
+
+      <AdminDesativarClienteModal
+        :show="showDesativarModal"
+        :cliente-nome="selectedCliente?.nome || ''"
+        :cliente-id="selectedCliente?.id || ''"
+        @close="showDesativarModal = false"
+        @confirm="confirmDesativar"
+      />
+
+      <AdminReativarClienteModal
+        :show="showReativarModal"
+        :cliente-nome="selectedCliente?.nome || ''"
+        :cliente-id="selectedCliente?.id || ''"
+        @close="showReativarModal = false"
+        @confirm="confirmReativar"
       />
     </div>
   </div>

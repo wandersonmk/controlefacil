@@ -4,6 +4,18 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return
   }
   
+  // Permite acesso direto à página de conta desativada sem executar nenhuma verificação
+  if (to.path === '/conta-desativada') {
+    console.log('[Auth Middleware] Acesso direto permitido para /conta-desativada - pulando todas as verificações')
+    return
+  }
+  
+  // Permite acesso direto à página de assinatura sem verificar status da conta
+  if (to.path === '/assinatura' || to.path === '/ajuda') {
+    console.log('[Auth Middleware] Acesso direto permitido para página de assinatura/ajuda')
+    return
+  }
+  
   try {
     console.log('[Auth Middleware] Iniciando verificação...')
     
@@ -66,9 +78,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       return navigateTo('/login', { replace: true, external: true })
     }
     
-    console.log('[Auth Middleware] Usuário autenticado, verificando trial...')
+    console.log('[Auth Middleware] Usuário autenticado, verificando status da conta...')
     
-    // Verificar se a conta está desativada
+    // Verificar se a conta está desativada (antes de verificar trial)
     try {
       const supabase = useSupabaseClient()
       const { data: { session } } = await supabase.auth.getSession()
@@ -81,25 +93,17 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
           .eq('auth_user_id', session.user.id)
           .single()
         
-        // Se a empresa está desativada e não está na página de conta-desativada
-        if (empresa && empresa.ativo === false && to.path !== '/conta-desativada') {
+        // Se a empresa está desativada, redireciona para conta-desativada (uma vez só)
+        if (empresa && empresa.ativo === false) {
           console.log('[Auth Middleware] Conta desativada, redirecionando...')
-          if (process.client) {
-            window.location.href = '/conta-desativada'
-            return
-          }
           return navigateTo('/conta-desativada', { replace: true })
-        }
-        
-        // Se está na página de conta-desativada mas a conta está ativa, redirecionar
-        if (empresa && empresa.ativo === true && to.path === '/conta-desativada') {
-          console.log('[Auth Middleware] Conta ativa, redirecionando para dashboard...')
-          return navigateTo('/', { replace: true })
         }
       }
     } catch (error) {
       console.error('[Auth Middleware] Erro ao verificar status da conta:', error)
     }
+    
+    console.log('[Auth Middleware] Conta ativa, verificando trial...')
     
     // Verificar status de trial/assinatura
     try {
@@ -123,11 +127,6 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         // Se o trial expirou e o usuário não está na página de assinatura ou ajuda
         if (response.isBlocked && to.path !== '/assinatura' && to.path !== '/ajuda') {
           console.log('[Auth Middleware] Trial expirado, redirecionando para /assinatura')
-          // Usar window.location para garantir carregamento completo dos estilos
-          if (process.client) {
-            window.location.href = '/assinatura'
-            return
-          }
           return navigateTo('/assinatura', { replace: true })
         }
       }
