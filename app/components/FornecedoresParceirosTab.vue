@@ -1,20 +1,18 @@
 <template>
   <div class="bg-card text-card-foreground rounded-xl sm:rounded-lg border border-border shadow-sm">
-    <!-- Header -->
-    <div class="p-4 sm:p-6 border-b border-border">
-      <div class="flex-1">
-        <h2 class="text-lg sm:text-xl font-semibold text-foreground">Fornecedores Parceiros</h2>
-        <p class="text-xs sm:text-sm text-muted-foreground mt-1">
-          Fornecedores recomendados com parcerias especiais
-        </p>
-        <p v-if="fornecedoresParceiros && fornecedoresParceiros.length > 0" class="text-xs text-muted-foreground mt-1">
-          Total de fornecedores: <span class="font-semibold text-primary">{{ fornecedoresFiltrados.length }}</span>
-        </p>
-      </div>
-    </div>
-
     <!-- Filtros -->
     <div class="p-4 sm:p-6 border-b border-border bg-muted/30">
+      <!-- Header com contador -->
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-semibold text-foreground">Filtros</h3>
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-muted-foreground">Total:</span>
+          <span class="px-2 py-1 bg-primary/10 text-primary text-xs font-semibold rounded">
+            {{ fornecedoresFiltrados.length }} {{ fornecedoresFiltrados.length === 1 ? 'fornecedor' : 'fornecedores' }}
+          </span>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- Busca -->
         <div>
@@ -155,7 +153,7 @@
           <div class="flex gap-2">
             <a
               v-if="fornecedor.whatsapp"
-              :href="`https://wa.me/55${fornecedor.whatsapp.replace(/\D/g, '')}`"
+              :href="`https://wa.me/55${fornecedor.whatsapp.replace(/\D/g, '')}?text=${encodeURIComponent('Olá!\nRecebi a indicação pelo Precify App e gostaria de mais informações sobre os produtos de vocês, como funcionamento, valores e formas de contratação.')}`"
               target="_blank"
               class="flex-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium text-center flex items-center justify-center space-x-1"
             >
@@ -206,8 +204,25 @@ const filterEstado = ref('all')
 const filterCidade = ref('all')
 
 // Carregar fornecedores ao montar
-onMounted(() => {
-  fetchFornecedoresParceiros()
+onMounted(async () => {
+  console.log('🔍 FornecedoresParceirosTab: Iniciando carregamento...')
+  await fetchFornecedoresParceiros()
+  console.log('📊 FornecedoresParceirosTab: Fornecedores carregados:', fornecedoresParceiros.value.length)
+  console.log('📊 FornecedoresParceirosTab: Loading:', isLoading.value)
+  console.log('📊 FornecedoresParceirosTab: Error:', error.value)
+})
+
+// Watch para debug
+watch(fornecedoresParceiros, (newVal) => {
+  console.log('👀 FornecedoresParceirosTab: fornecedoresParceiros mudou:', newVal.length)
+}, { deep: true })
+
+watch(isLoading, (newVal) => {
+  console.log('👀 FornecedoresParceirosTab: isLoading mudou:', newVal)
+})
+
+watch(error, (newVal) => {
+  console.log('👀 FornecedoresParceirosTab: error mudou:', newVal)
 })
 
 // Cidades filtradas por estado
@@ -240,7 +255,8 @@ const fornecedoresFiltrados = computed(() => {
       f.empresa.toLowerCase().includes(query) ||
       f.categoria.toLowerCase().includes(query) ||
       f.cidade.toLowerCase().includes(query) ||
-      f.telefone.includes(query)
+      f.telefone.includes(query) ||
+      (f.descricao && f.descricao.toLowerCase().includes(query))
     )
   }
 

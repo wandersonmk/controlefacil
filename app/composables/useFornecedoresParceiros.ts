@@ -57,10 +57,12 @@ export const useFornecedoresParceiros = () => {
     try {
       const { data: session } = await supabase.auth.getSession()
       if (!session?.session?.access_token) {
+        console.error('❌ Usuário não autenticado')
         error.value = 'Usuário não autenticado'
         return
       }
 
+      console.log('📤 Fazendo request para API...')
       const response = await $fetch('/api/fornecedores-parceiros/listar', {
         headers: {
           Authorization: `Bearer ${session.session.access_token}`
@@ -68,6 +70,7 @@ export const useFornecedoresParceiros = () => {
       })
 
       console.log(`✅ ${response.fornecedores.length} fornecedores parceiros encontrados`)
+      console.log('📦 Fornecedores:', response.fornecedores)
       fornecedoresParceiros.value = response.fornecedores
     } catch (err: any) {
       console.error('💥 Erro ao buscar fornecedores parceiros:', err)

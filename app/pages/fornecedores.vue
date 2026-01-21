@@ -13,6 +13,11 @@ const isClient = typeof window !== 'undefined'
 // Aba ativa (meus-fornecedores | parceiros)
 const abaAtiva = ref<'meus-fornecedores' | 'parceiros'>('meus-fornecedores')
 
+// Debug - watch aba ativa
+watch(abaAtiva, (novaAba) => {
+  console.log('🔄 Aba mudou para:', novaAba)
+})
+
 if (isClient) {
   // Só executa useAuth no cliente
   const auth = useAuth()
@@ -75,7 +80,7 @@ if (isClient) {
         <FornecedoresManager />
       </div>
 
-      <div v-else>
+      <div v-else-if="abaAtiva === 'parceiros'">
         <FornecedoresParceirosTab />
       </div>
     </div>

@@ -22,7 +22,9 @@ const toast = await useToastSafe()
 
 // Estados do componente
 const showModal = ref(false)
+const showExcluirModal = ref(false)
 const fornecedorEditando = ref<FornecedorParceiro | null>(null)
+const fornecedorParaExcluir = ref<FornecedorParceiro | null>(null)
 const searchQuery = ref('')
 const filterEstado = ref('all')
 const filterCidade = ref('all')
@@ -72,14 +74,19 @@ const handleEditar = (fornecedor: FornecedorParceiro) => {
   showModal.value = true
 }
 
-const handleExcluir = async (fornecedor: FornecedorParceiro) => {
-  if (!confirm(`Tem certeza que deseja excluir o fornecedor "${fornecedor.empresa}"?`)) {
-    return
-  }
+const handleExcluir = (fornecedor: FornecedorParceiro) => {
+  fornecedorParaExcluir.value = fornecedor
+  showExcluirModal.value = true
+}
 
-  const sucesso = await deleteFornecedorParceiro(fornecedor.id)
+const confirmarExclusao = async () => {
+  if (!fornecedorParaExcluir.value) return
+
+  const sucesso = await deleteFornecedorParceiro(fornecedorParaExcluir.value.id)
   if (sucesso) {
     toast?.success?.('Fornecedor parceiro excluído com sucesso!')
+    showExcluirModal.value = false
+    fornecedorParaExcluir.value = null
   } else {
     toast?.error?.('Erro ao excluir fornecedor parceiro')
   }
@@ -370,12 +377,19 @@ const confirmModal = async (dados: any) => {
         </div>
       </div>
 
-      <!-- Modal -->
+      <!-- Modais -->
       <AdminFornecedorParceiroModal
         :show="showModal"
         :fornecedor="fornecedorEditando"
         @close="showModal = false; fornecedorEditando = null"
         @confirm="confirmModal"
+      />
+
+      <AdminConfirmarExclusaoModal
+        :show="showExcluirModal"
+        :item-nome="fornecedorParaExcluir?.empresa || ''"
+        @close="showExcluirModal = false; fornecedorParaExcluir = null"
+        @confirm="confirmarExclusao"
       />
     </div>
   </div>
