@@ -10,6 +10,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   'desativar': [clienteId: string]
+  'reativar': [clienteId: string]
   'renovar': [clienteId: string]
   'renovar-tokens': [clienteId: string]
   'editar': [clienteId: string]
@@ -208,6 +209,15 @@ const formatWhatsAppUrl = (whatsapp: string | null): string => {
                   title="Desativar Cliente"
                 >
                   <Icon icon="times-circle" class-name="w-5 h-5" fallback="⏸️" />
+                </button>
+                
+                <button
+                  v-if="!cliente.ativo && cliente.role !== 'superAdmin'"
+                  @click="emit('reativar', cliente.id)"
+                  class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition-colors"
+                  title="Reativar Cliente"
+                >
+                  <Icon icon="check-circle" class-name="w-5 h-5" fallback="▶️" />
                 </button>
                 
                 <button

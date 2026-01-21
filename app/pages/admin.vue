@@ -11,6 +11,7 @@ const {
   error,
   loadClientes,
   desativarCliente,
+  reativarCliente,
   renovarAssinatura,
   renovarTokens,
   removerTokens,
@@ -64,6 +65,13 @@ const handleDesativar = async (clienteId: string) => {
   if (confirm('Tem certeza que deseja desativar este cliente?')) {
     await desativarCliente(clienteId)
     if (toast?.success) toast.success('Cliente desativado com sucesso')
+  }
+}
+
+const handleReativar = async (clienteId: string) => {
+  if (confirm('Tem certeza que deseja reativar este cliente?')) {
+    await reativarCliente(clienteId)
+    if (toast?.success) toast.success('Cliente reativado com sucesso')
   }
 }
 
@@ -301,6 +309,7 @@ const confirmExcluir = async () => {
         :clientes="filteredClientes"
         :loading="loading"
         @desativar="handleDesativar"
+        @reativar="handleReativar"
         @renovar="handleRenovar"
         @renovar-tokens="handleRenovarTokens"
         @editar="handleEditar"

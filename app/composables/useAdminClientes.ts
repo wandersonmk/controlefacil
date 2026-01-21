@@ -119,6 +119,30 @@ export const useAdminClientes = () => {
     }
   }
 
+  // Reativa cliente
+  const reativarCliente = async (clienteId: string) => {
+    try {
+      const response = await $fetch<{ success: boolean, message?: string }>('/api/admin/reativar', {
+        method: 'POST',
+        body: { clienteId }
+      })
+
+      if (!response.success) {
+        throw new Error('Erro ao reativar cliente')
+      }
+
+      // Atualiza localmente
+      const cliente = clientes.value.find(c => c.id === clienteId)
+      if (cliente) {
+        cliente.ativo = true
+        cliente.subscription_status = 'active'
+      }
+    } catch (err: any) {
+      console.error('Erro ao reativar cliente:', err)
+      throw err
+    }
+  }
+
   // Renova assinatura do cliente
   const renovarAssinatura = async (
     clienteId: string,
@@ -377,6 +401,7 @@ export const useAdminClientes = () => {
     error,
     loadClientes,
     desativarCliente,
+    reativarCliente,
     renovarAssinatura,
     renovarTokens,
     removerTokens,

@@ -68,6 +68,39 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     
     console.log('[Auth Middleware] Usuário autenticado, verificando trial...')
     
+    // Verificar se a conta está desativada
+    try {
+      const supabase = useSupabaseClient()
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      if (session?.user?.id) {
+        // Busca empresa do usuário para verificar se está ativa
+        const { data: empresa } = await supabase
+          .from('empresas')
+          .select('ativo')
+          .eq('auth_user_id', session.user.id)
+          .single()
+        
+        // Se a empresa está desativada e não está na página de conta-desativada
+        if (empresa && empresa.ativo === false && to.path !== '/conta-desativada') {
+          console.log('[Auth Middleware] Conta desativada, redirecionando...')
+          if (process.client) {
+            window.location.href = '/conta-desativada'
+            return
+          }
+          return navigateTo('/conta-desativada', { replace: true })
+        }
+        
+        // Se está na página de conta-desativada mas a conta está ativa, redirecionar
+        if (empresa && empresa.ativo === true && to.path === '/conta-desativada') {
+          console.log('[Auth Middleware] Conta ativa, redirecionando para dashboard...')
+          return navigateTo('/', { replace: true })
+        }
+      }
+    } catch (error) {
+      console.error('[Auth Middleware] Erro ao verificar status da conta:', error)
+    }
+    
     // Verificar status de trial/assinatura
     try {
       const supabase = useSupabaseClient()
