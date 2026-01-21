@@ -229,6 +229,39 @@ export const useAdminClientes = () => {
     }
   }
 
+  // Edita dados do cliente
+  const editarCliente = async (
+    clienteId: string, 
+    dados: { nome: string, email: string, whatsapp: string | null }
+  ) => {
+    try {
+      const response = await $fetch<{ success: boolean, message?: string }>('/api/admin/editar', {
+        method: 'POST',
+        body: { 
+          clienteId,
+          nome: dados.nome,
+          email: dados.email,
+          whatsapp: dados.whatsapp
+        }
+      })
+
+      if (!response.success) {
+        throw new Error('Erro ao editar cliente')
+      }
+
+      // Atualiza localmente
+      const cliente = clientes.value.find(c => c.id === clienteId)
+      if (cliente) {
+        cliente.nome = dados.nome
+        cliente.email = dados.email
+        cliente.whatsapp = dados.whatsapp
+      }
+    } catch (err: any) {
+      console.error('Erro ao editar cliente:', err)
+      throw err
+    }
+  }
+
   // Verifica se assinatura está vencida
   const isVencido = (cliente: AdminCliente): boolean => {
     if (cliente.subscription_status === 'expired') return true
@@ -318,6 +351,7 @@ export const useAdminClientes = () => {
     renovarAssinatura,
     renovarTokens,
     excluirCliente,
+    editarCliente,
     isVencido,
     diasParaVencimento,
     formatDiasVencimento,

@@ -10,6 +10,9 @@ const isLoading = ref(true)
 let authLoading: any = ref(false)
 const isClient = typeof window !== 'undefined'
 
+// Aba ativa (meus-fornecedores | parceiros)
+const abaAtiva = ref<'meus-fornecedores' | 'parceiros'>('meus-fornecedores')
+
 if (isClient) {
   // Só executa useAuth no cliente
   const auth = useAuth()
@@ -39,9 +42,42 @@ if (isClient) {
       </div>
     </div>
     
-    <!-- Conteúdo principal -->
-    <div v-else>
-      <FornecedoresManager />
+    <!-- Conteúdo principal com abas -->
+    <div v-else class="space-y-4">
+      <!-- Abas -->
+      <div class="bg-card border border-border rounded-xl p-1 flex gap-1">
+        <button
+          @click="abaAtiva = 'meus-fornecedores'"
+          :class="[
+            'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all',
+            abaAtiva === 'meus-fornecedores'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+          ]"
+        >
+          📦 Meus Fornecedores
+        </button>
+        <button
+          @click="abaAtiva = 'parceiros'"
+          :class="[
+            'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all',
+            abaAtiva === 'parceiros'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+          ]"
+        >
+          🤝 Fornecedores Parceiros
+        </button>
+      </div>
+
+      <!-- Conteúdo das abas -->
+      <div v-if="abaAtiva === 'meus-fornecedores'">
+        <FornecedoresManager />
+      </div>
+
+      <div v-else>
+        <FornecedoresParceirosTab />
+      </div>
     </div>
   </div>
 </template>

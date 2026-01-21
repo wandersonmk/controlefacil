@@ -13,7 +13,8 @@ const {
   desativarCliente,
   renovarAssinatura,
   renovarTokens,
-  excluirCliente
+  excluirCliente,
+  editarCliente
 } = useAdminClientes()
 
 const toast = await useToastSafe()
@@ -22,7 +23,9 @@ const toast = await useToastSafe()
 const showRenovarModal = ref(false)
 const showTokensModal = ref(false)
 const showExcluirModal = ref(false)
+const showEditarModal = ref(false)
 const selectedCliente = ref<{ id: string, nome: string } | null>(null)
+const clienteParaEditar = ref<any>(null)
 
 // Filtros
 const searchQuery = ref('')
@@ -102,8 +105,24 @@ const confirmRenovarTokens = async (totalTokens: number) => {
 }
 
 const handleEditar = (clienteId: string) => {
-  if (toast?.info) toast.info('Funcionalidade de editar em desenvolvimento')
-  // TODO: Implementar modal de edição
+  const cliente = clientes.value.find(c => c.id === clienteId)
+  if (cliente) {
+    clienteParaEditar.value = cliente
+    showEditarModal.value = true
+  }
+}
+
+const confirmEditar = async (dados: { nome: string, email: string, whatsapp: string | null }) => {
+  if (clienteParaEditar.value) {
+    try {
+      await editarCliente(clienteParaEditar.value.id, dados)
+      if (toast?.success) toast.success('Cliente editado com sucesso')
+      showEditarModal.value = false
+      clienteParaEditar.value = null
+    } catch (error) {
+      if (toast?.error) toast.error('Erro ao editar cliente')
+    }
+  }
 }
 
 const handleExcluir = async (clienteId: string) => {
@@ -131,6 +150,23 @@ const confirmExcluir = async () => {
 <template>
   <div class="min-h-screen bg-background p-6">
     <div class="max-w-7xl mx-auto space-y-6">
+      <!-- Header com ações rápidas -->
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h1 class="text-2xl font-bold text-foreground">Painel de Administração</h1>
+          <p class="text-sm text-muted-foreground mt-1">Gerencie clientes e configurações do sistema</p>
+        </div>
+        <NuxtLink
+          to="/admin-fornecedores"
+          class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center space-x-2"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          <span>Fornecedores Parceiros</span>
+        </NuxtLink>
+      </div>
+
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 mb-2">
         <AdminStatsCard
@@ -272,6 +308,13 @@ const confirmExcluir = async () => {
         :cliente-id="selectedCliente?.id || ''"
         @close="showTokensModal = false"
         @confirm="confirmRenovarTokens"
+      />
+
+      <AdminEditarClienteModal
+        :show="showEditarModal"
+        :cliente="clienteParaEditar"
+        @close="showEditarModal = false; clienteParaEditar = null"
+        @confirm="confirmEditar"
       />
 
       <AdminExcluirClienteModal
