@@ -5,18 +5,18 @@ definePageMeta({
   layout: 'auth'
 })
 
-// Forçar modo escuro na página de login
+// Forçar modo escuro SEMPRE na página de login
 if (process.client) {
+  // Adiciona classe dark assim que a página é acessada
+  document.documentElement.classList.add('dark')
+  
   onMounted(() => {
+    // Garante que está em dark ao montar
     document.documentElement.classList.add('dark')
   })
   
-  onUnmounted(() => {
-    // Restaurar preferência do usuário ao sair da página
-    const savedTheme = localStorage.getItem('theme')
-    if (savedTheme !== 'dark') {
-      document.documentElement.classList.remove('dark')
-    }
+  onBeforeUnmount(() => {
+    // Não remove o dark aqui - deixa o sistema decidir baseado na rota de destino
   })
 }
 </script>
