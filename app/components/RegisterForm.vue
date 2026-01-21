@@ -155,7 +155,7 @@ async function handleRegister() {
     <div class="relative rounded-xl bg-white/70 dark:bg-white/5 backdrop-blur-xl p-6 lg:p-8 shadow-2xl border border-gray-200/50 dark:border-white/10 overflow-hidden">
       <!-- Borda animada com gradiente -->
       <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500 via-purple-600 via-pink-600 to-orange-500 opacity-100 animate-gradient bg-[length:200%_auto]"></div>
-      <div class="absolute inset-[2px] rounded-xl bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl"></div>
+      <div class="absolute inset-[0.5px] rounded-xl bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xl"></div>
       
       <!-- Conteúdo -->
       <div class="relative z-10">

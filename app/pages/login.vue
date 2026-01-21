@@ -45,9 +45,9 @@ if (process.client) {
         <div class="max-w-lg space-y-8">
           <!-- Logo/Title -->
           <div class="space-y-4">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 border border-purple-500/30">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 border border-purple-500/10">
               <div class="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse shadow-lg shadow-purple-500/50"></div>
-              <span class="text-sm font-medium bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Sistema de Controle e Precificação</span>
+              <span class="text-sm font-medium bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">Sistema de Controle e Precificação</span>
             </div>
             
             <h1 class="text-6xl font-bold tracking-tight">
