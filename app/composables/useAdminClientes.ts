@@ -359,7 +359,7 @@ export const useAdminClientes = () => {
   const formatDiasVencimento = (cliente: AdminCliente): string => {
     const dias = diasParaVencimento(cliente)
     
-    if (dias < 0) return 'Renove o seu plano'
+    if (dias < 0) return 'Faça renovação'
     if (dias === 0) return 'Vence hoje'
     if (dias === 1) return 'Vence amanhã'
     return `${dias} dias`

@@ -103,6 +103,7 @@ const planDisplayText = computed(() => {
 const daysRemainingText = computed(() => {
   if (!subscriptionStatus.value) return '0 dias'
   const days = subscriptionStatus.value.daysRemaining || 0
+  if (days < 0) return 'Faça renovação'
   return days === 1 ? '1 dia' : `${days} dias`
 })
 
@@ -114,6 +115,10 @@ const isTrial = computed(() => {
 
 const planBadgeText = computed(() => {
   const days = subscriptionStatus.value?.daysRemaining || 0
+  
+  if (days < 0) {
+    return 'Faça renovação'
+  }
   
   if (days === 0) {
     return 'Renove o seu plano'

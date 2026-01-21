@@ -85,11 +85,14 @@ export default defineEventHandler(async (event) => {
 
     const hasTrialEndDate = !!empresa.trial_ends_at
 
-    // Regra de bloqueio: quando NÃO está ativo e o trial acabou (0 dias restantes)
+    // Regra de bloqueio: 
+    // 1. Trial expirado (trial_ends_at existe e já passou)
+    // 2. Assinatura ativa mas vencida (subscription_renews_at existe e já passou)
+    // 3. Assinatura cancelada ou expirada
     const isBlocked =
-      subscriptionStatusValue !== 'active' &&
-      hasTrialEndDate &&
-      daysRemainingValue <= 0
+      (subscriptionStatusValue === 'trial' && hasTrialEndDate && daysRemainingValue <= 0) ||
+      (subscriptionStatusValue === 'active' && empresa.subscription_renews_at && daysRemainingValue <= 0) ||
+      (subscriptionStatusValue === 'canceled' || subscriptionStatusValue === 'expired')
 
     return {
       success: true,
