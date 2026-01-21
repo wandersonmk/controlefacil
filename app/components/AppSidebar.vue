@@ -179,6 +179,18 @@
               <span>Ajuda</span>
             </NuxtLink>
           </li>
+
+          <!-- Admin (Painel Administrativo) -->
+          <li v-if="isSuperAdmin">
+            <NuxtLink 
+              to="/admin"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/admin' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="user-shield" class-name="w-5 h-5 mr-3" fallback="🛡️" />
+              <span>Admin</span>
+            </NuxtLink>
+          </li>
         </ul>
       </nav>
 
@@ -415,6 +427,19 @@
               <span>Ajuda</span>
             </NuxtLink>
           </li>
+
+          <!-- Admin (Painel Administrativo) -->
+          <li v-if="isSuperAdmin">
+            <NuxtLink 
+              to="/admin"
+              @click="$emit('close-mobile')"
+              class="flex items-center w-full px-3 py-2 rounded-lg text-sm font-normal transition-colors hover:bg-primary/20 dark:hover:bg-muted group relative"
+              :class="$route.path === '/admin' ? 'bg-primary text-primary-foreground' : 'text-foreground/80 hover:text-primary dark:hover:text-foreground'"
+            >
+              <Icon icon="user-shield" class-name="w-5 h-5 mr-3" fallback="🛡️" />
+              <span>Admin</span>
+            </NuxtLink>
+          </li>
         </ul>
       </nav>
 
@@ -479,12 +504,16 @@ const userEmail = ref<string | null>(null)
 const userName = ref<string | null>(null)
 const isLoggedIn = ref(false)
 
+// Verificar role do usuário
+const { isSuperAdmin, checkUserRole } = useUserRole()
+
 // Toast e montagem SIMPLES
 const toast = ref<any>(null)
 if (process.client) {
   onMounted(async () => {
     toast.value = await useToastSafe()
     checkUserSession()
+    await checkUserRole()
   })
 }
 

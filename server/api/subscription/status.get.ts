@@ -34,33 +34,58 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // Buscar status de assinatura do usuário
-    const { data: subscriptionStatus, error } = await supabase
-      .from('user_subscription_status')
+    // Buscar empresa/assinatura do usuário diretamente da tabela empresas
+    const { data: empresa, error } = await supabase
+      .from('empresas')
       .select('*')
       .eq('auth_user_id', user.id)
       .single()
 
     if (error) {
+      console.error('Erro ao buscar empresa:', error)
       throw createError({
         statusCode: 500,
-        message: 'Erro ao buscar status de assinatura'
+        message: `Erro ao buscar status de assinatura: ${error.message}`
       })
     }
 
-    // Buscar informações de ações disponíveis
-    const { data: subscriptionActions } = await supabase
-      .from('user_subscription_actions')
-      .select('*')
-      .eq('auth_user_id', user.id)
-      .single()
+    if (!empresa) {
+      console.error('Empresa não encontrada para user.id:', user.id)
+      // Retorna dados padrão para usuários sem empresa
+      return {
+        success: true,
+        isBlocked: false,
+        subscriptionStatus: 'trial',
+        subscriptionPlan: 'free',
+        subscriptionPeriod: null,
+        subscriptionRenewsAt: null,
+        trialEndsAt: null,
+        daysRemaining: 7,
+        empresaNome: 'Sem empresa',
+        planDisplayName: 'Gratuito',
+        canRenewSamePlan: true
+      }
+    }
 
-    const subscriptionStatusValue = subscriptionStatus?.subscription_status || 'trial'
-    const daysRemainingValue = subscriptionStatus?.days_remaining || 0
-    const hasTrialEndDate = !!subscriptionStatus?.trial_ends_at
+    const subscriptionStatusValue = empresa.subscription_status || 'trial'
+    
+    // Calcula dias restantes
+    let daysRemainingValue = 0
+    const now = new Date()
+    
+    if (empresa.subscription_status === 'active' && empresa.subscription_renews_at) {
+      const renewDate = new Date(empresa.subscription_renews_at)
+      const diff = renewDate.getTime() - now.getTime()
+      daysRemainingValue = Math.ceil(diff / (1000 * 60 * 60 * 24))
+    } else if (empresa.trial_ends_at) {
+      const trialDate = new Date(empresa.trial_ends_at)
+      const diff = trialDate.getTime() - now.getTime()
+      daysRemainingValue = Math.ceil(diff / (1000 * 60 * 60 * 24))
+    }
+
+    const hasTrialEndDate = !!empresa.trial_ends_at
 
     // Regra de bloqueio: quando NÃO está ativo e o trial acabou (0 dias restantes)
-    // (Não bloqueia plano ativo mesmo que days_remaining esteja 0 no dia da renovação.)
     const isBlocked =
       subscriptionStatusValue !== 'active' &&
       hasTrialEndDate &&
@@ -70,14 +95,16 @@ export default defineEventHandler(async (event) => {
       success: true,
       isBlocked,
       subscriptionStatus: subscriptionStatusValue,
-      subscriptionPlan: subscriptionStatus?.subscription_plan || 'free',
-      subscriptionPeriod: subscriptionStatus?.subscription_period || null,
-      subscriptionRenewsAt: subscriptionStatus?.subscription_renews_at || null,
-      trialEndsAt: subscriptionStatus?.trial_ends_at,
+      subscriptionPlan: empresa.subscription_plan || 'free',
+      subscriptionPeriod: empresa.subscription_period || null,
+      subscriptionRenewsAt: empresa.subscription_renews_at || null,
+      trialEndsAt: empresa.trial_ends_at,
       daysRemaining: daysRemainingValue,
-      empresaNome: subscriptionStatus?.empresa_nome,
-      planDisplayName: subscriptionStatus?.plan_display_name || 'Free',
-      canRenewSamePlan: subscriptionActions?.can_renew_same_plan !== false
+      empresaNome: empresa.nome,
+      planDisplayName: empresa.subscription_plan === 'pro' ? 'Pro' : 
+                       empresa.subscription_plan === 'basic' ? 'Básico' : 
+                       empresa.subscription_plan === 'enterprise' ? 'Enterprise' : 'Gratuito',
+      canRenewSamePlan: true
     }
 
   } catch (error: any) {
