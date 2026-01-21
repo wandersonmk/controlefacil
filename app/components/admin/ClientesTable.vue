@@ -112,7 +112,7 @@ const formatWhatsAppUrl = (whatsapp: string | null): string => {
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="text-sm text-foreground">{{ getPlanLabel(cliente.subscription_plan) }}</div>
               <div class="text-xs text-muted-foreground">
-                {{ cliente.subscription_period === 'trial' ? 'Trial' : cliente.subscription_period.replace('month', ' mês').replace('s', 'es') }}
+                {{ cliente.subscription_period === 'trial' ? 'Trial' : cliente.subscription_period.replace('1month', '1 mês').replace('3months', '3 meses').replace('6months', '6 meses') }}
               </div>
             </td>
             
