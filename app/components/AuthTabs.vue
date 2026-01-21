@@ -11,14 +11,14 @@ function setActiveTab(tab: 'login' | 'register') {
 <template>
   <div class="w-full max-w-md lg:max-w-[450px] mx-auto">
     <!-- Navegação das abas -->
-    <div class="flex bg-muted rounded-lg p-1 mb-6">
+    <div class="flex bg-white/5 rounded-lg p-1 mb-6">
       <button
         @click="setActiveTab('login')"
         :class="[
           'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-200',
           activeTab === 'login'
             ? 'bg-primary text-primary-foreground shadow-sm'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            : 'text-gray-400 hover:text-white hover:bg-white/5'
         ]"
       >
         Entrar
@@ -30,7 +30,7 @@ function setActiveTab(tab: 'login' | 'register') {
           'flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all duration-200',
           activeTab === 'register'
             ? 'bg-primary text-primary-foreground shadow-sm'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+            : 'text-gray-400 hover:text-white hover:bg-white/5'
         ]"
       >
         Cadastrar
