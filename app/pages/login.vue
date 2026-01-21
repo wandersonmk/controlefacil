@@ -4,26 +4,152 @@ definePageMeta({
   middleware: 'guest',
   layout: 'auth'
 })
+
+// Forçar modo escuro na página de login
+if (process.client) {
+  onMounted(() => {
+    document.documentElement.classList.add('dark')
+  })
+  
+  onUnmounted(() => {
+    // Restaurar preferência do usuário ao sair da página
+    const savedTheme = localStorage.getItem('theme')
+    if (savedTheme !== 'dark') {
+      document.documentElement.classList.remove('dark')
+    }
+  })
+}
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-0px)] w-full flex items-center justify-center p-4 lg:p-8 relative overflow-hidden bg-white dark:bg-background">
-    <!-- Background gradiente sutil -->
-    <div class="absolute inset-0 bg-gradient-to-br from-purple-50/30 via-white to-purple-50/20 dark:from-black/50 dark:via-background dark:to-black/40"></div>
-    <div class="absolute inset-0 bg-gradient-to-tl from-purple-100/30 via-white to-purple-50/40 dark:from-primary/8 dark:via-black dark:to-purple-950/15"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(168,85,247,0.08),rgba(255,255,255,0.95))] dark:bg-[radial-gradient(circle_at_50%_120%,rgba(88,28,135,0.12),rgba(0,0,0,0.8))]"></div>
+  <div class="min-h-screen w-full flex relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#0a0a0a] dark:via-[#0f0f0f] dark:to-[#0a0a0a]">
+    <!-- Grid pattern background -->
+    <div class="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] dark:bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)]"></div>
     
-    <!-- Círculos decorativos sutis -->
-    <div class="absolute top-10 left-10 w-96 h-96 bg-gradient-to-br from-purple-100/20 to-purple-200/15 dark:from-black/60 dark:to-purple-950/20 rounded-full blur-3xl animate-pulse"></div>
-    <div class="absolute top-40 right-20 w-72 h-72 bg-gradient-to-br from-purple-50/25 to-purple-100/20 dark:from-purple-950/15 dark:to-black/70 rounded-full blur-3xl animate-pulse" style="animation-delay: 0.5s;"></div>
-    <div class="absolute bottom-10 right-10 w-[500px] h-[500px] bg-gradient-to-br from-purple-100/18 to-purple-50/25 dark:from-black/65 dark:to-purple-950/18 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
-    <div class="absolute bottom-40 left-20 w-80 h-80 bg-gradient-to-br from-purple-50/30 to-purple-100/22 dark:from-purple-950/12 dark:to-black/75 rounded-full blur-3xl animate-pulse" style="animation-delay: 1.5s;"></div>
+    <!-- Gradient orbs - sutis -->
+    <div class="absolute top-0 -left-4 w-96 h-96 bg-purple-300 dark:bg-purple-900 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-20 dark:opacity-10 animate-blob"></div>
+    <div class="absolute top-0 -right-4 w-96 h-96 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-20 dark:opacity-10 animate-blob animation-delay-2000"></div>
+    <div class="absolute -bottom-8 left-20 w-96 h-96 bg-pink-300 dark:bg-pink-900 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-3xl opacity-20 dark:opacity-10 animate-blob animation-delay-4000"></div>
     
-    <!-- Conteúdo -->
-    <div class="relative z-10 w-full max-w-7xl">
-      <AuthTabs />
+    <!-- Content Container -->
+    <div class="relative z-10 w-full flex flex-col lg:flex-row">
+      <!-- Left Side - Form -->
+      <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
+        <div class="w-full max-w-md">
+          <AuthTabs />
+        </div>
+      </div>
+
+      <!-- Right Side - Info -->
+      <div class="hidden lg:flex w-1/2 items-center justify-center p-12 relative">
+        <div class="max-w-lg space-y-8">
+          <!-- Logo/Title -->
+          <div class="space-y-4">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 border border-purple-500/30">
+              <div class="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse shadow-lg shadow-purple-500/50"></div>
+              <span class="text-sm font-medium bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Sistema de Controle e Precificação</span>
+            </div>
+            
+            <h1 class="text-6xl font-bold tracking-tight">
+              <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                PRECIFY
+              </span>
+            </h1>
+            
+            <p class="text-xl text-muted-foreground dark:text-gray-400 leading-relaxed">
+              Controle de precificação, fornecedores, calculadora inteligente e Mentor IA para precificar produtos evitando prejuízos
+            </p>
+          </div>
+
+          <!-- Features -->
+          <div class="grid gap-4">
+            <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 hover:border-primary/30 transition-all">
+              <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-foreground mb-1">Dashboard Inteligente</h3>
+                <p class="text-sm text-muted-foreground dark:text-gray-400">Visualize suas métricas em tempo real</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 hover:border-primary/30 transition-all">
+              <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-foreground mb-1">Calculadora de Preços</h3>
+                <p class="text-sm text-muted-foreground dark:text-gray-400">Precifique com precisão e lucro</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-4 p-4 rounded-2xl bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 hover:border-primary/30 transition-all">
+              <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-foreground mb-1">Relatórios Completos</h3>
+                <p class="text-sm text-muted-foreground dark:text-gray-400">Análises detalhadas do seu negócio</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Social Proof -->
+          <div class="flex items-center gap-6 pt-4">
+            <div class="text-center">
+              <div class="text-3xl font-bold text-foreground">500+</div>
+              <div class="text-sm text-muted-foreground">Empresas ativas</div>
+            </div>
+            <div class="w-px h-12 bg-border"></div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-foreground">98%</div>
+              <div class="text-sm text-muted-foreground">Satisfação</div>
+            </div>
+            <div class="w-px h-12 bg-border"></div>
+            <div class="text-center">
+              <div class="text-3xl font-bold text-foreground">24/7</div>
+              <div class="text-sm text-muted-foreground">Suporte</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+</style>
 
 
