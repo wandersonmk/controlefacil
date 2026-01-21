@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
 
     if (empresasError) throw empresasError
 
-    // Para cada empresa, buscar os tokens do usuário
+    // Para cada empresa, buscar os tokens do usuário e role
     const clientesComTokens = await Promise.all(
       (empresas || []).map(async (empresa) => {
         let tokenData = {
@@ -42,6 +42,8 @@ export default defineEventHandler(async (event) => {
           used_tokens: 0,
           available_tokens: 10000
         }
+
+        let userRole = 'user'
 
         if (empresa.auth_user_id) {
           const { data: tokens } = await supabase
@@ -52,6 +54,17 @@ export default defineEventHandler(async (event) => {
 
           if (tokens) {
             tokenData = tokens
+          }
+
+          // Buscar role do usuário
+          const { data: usuario } = await supabase
+            .from('usuarios')
+            .select('role')
+            .eq('auth_user_id', empresa.auth_user_id)
+            .single()
+
+          if (usuario) {
+            userRole = usuario.role
           }
         }
 
@@ -69,7 +82,8 @@ export default defineEventHandler(async (event) => {
           created_at: empresa.created_at,
           total_tokens: tokenData.total_tokens,
           used_tokens: tokenData.used_tokens,
-          available_tokens: tokenData.available_tokens
+          available_tokens: tokenData.available_tokens,
+          role: userRole
         }
       })
     )

@@ -81,7 +81,16 @@ const formatWhatsAppUrl = (whatsapp: string | null): string => {
           >
             <td class="px-6 py-4 whitespace-nowrap">
               <div>
-                <div class="text-sm font-medium text-foreground">{{ cliente.nome }}</div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-foreground">{{ cliente.nome }}</span>
+                  <span 
+                    v-if="cliente.role === 'superAdmin'"
+                    class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white shadow-sm"
+                    title="Super Administrador"
+                  >
+                    👑 SUPER ADMIN
+                  </span>
+                </div>
                 <div class="text-xs text-muted-foreground">{{ cliente.email }}</div>
                 <div v-if="cliente.whatsapp" class="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                   {{ cliente.whatsapp }}
@@ -193,7 +202,7 @@ const formatWhatsAppUrl = (whatsapp: string | null): string => {
                 </button>
                 
                 <button
-                  v-if="cliente.ativo"
+                  v-if="cliente.ativo && cliente.role !== 'superAdmin'"
                   @click="emit('desativar', cliente.id)"
                   class="text-orange-600 hover:text-orange-900 dark:text-orange-400 dark:hover:text-orange-300 transition-colors"
                   title="Desativar Cliente"
@@ -202,6 +211,7 @@ const formatWhatsAppUrl = (whatsapp: string | null): string => {
                 </button>
                 
                 <button
+                  v-if="cliente.role !== 'superAdmin'"
                   @click="emit('excluir', cliente.id)"
                   class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition-colors"
                   title="Excluir Cliente"

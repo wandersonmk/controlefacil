@@ -132,33 +132,72 @@ const confirmExcluir = async () => {
   <div class="min-h-screen bg-background p-6">
     <div class="max-w-7xl mx-auto space-y-6">
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 mb-2">
         <AdminStatsCard
           title="Total de Clientes"
           :value="stats.totalClientes"
-          icon="users"
+          emoji="👥"
           color="blue"
+          subtitle="Clientes cadastrados"
         />
         
         <AdminStatsCard
           title="Clientes Trial"
           :value="stats.clientesTrial"
-          icon="clock"
+          emoji="🕐"
           color="orange"
+          subtitle="Período de teste"
         />
         
         <AdminStatsCard
           title="Clientes Pro"
           :value="stats.clientesPro"
-          icon="star"
+          emoji="⭐"
           color="purple"
+          subtitle="Planos pagos"
         />
         
         <AdminStatsCard
           title="Clientes Vencidos"
           :value="stats.clientesVencidos"
-          icon="exclamation-circle"
+          emoji="⚠️"
           color="red"
+          subtitle="Assinaturas expiradas"
+        />
+      </div>
+
+      <!-- Segunda linha de cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1.5 mb-2">
+        <AdminStatsCard
+          title="Clientes Básicos"
+          :value="stats.clientesBasic"
+          emoji="📦"
+          color="blue"
+          subtitle="Plano básico"
+        />
+        
+        <AdminStatsCard
+          title="Clientes Pro"
+          :value="stats.clientesPro"
+          emoji="💎"
+          color="purple"
+          subtitle="Plano profissional"
+        />
+        
+        <AdminStatsCard
+          title="Clientes Enterprise"
+          :value="stats.clientesEnterprise"
+          emoji="🏢"
+          color="orange"
+          subtitle="Plano empresarial"
+        />
+        
+        <AdminStatsCard
+          title="Clientes essa Semana"
+          :value="stats.clientesEssaSemana"
+          emoji="🆕"
+          color="blue"
+          subtitle="Últimos 7 dias"
         />
       </div>
 

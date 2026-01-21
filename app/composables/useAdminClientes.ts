@@ -15,6 +15,7 @@ export interface AdminCliente {
   total_tokens: number
   used_tokens: number
   available_tokens: number
+  role?: 'user' | 'admin' | 'superAdmin'
 }
 
 export interface AdminStats {
@@ -25,6 +26,7 @@ export interface AdminStats {
   clientesEnterprise: number
   clientesVencidos: number
   clientesAtivos: number
+  clientesEssaSemana: number
 }
 
 export const useAdminClientes = () => {
@@ -53,6 +55,13 @@ export const useAdminClientes = () => {
       return false
     }).length
 
+    // Clientes cadastrados nos últimos 7 dias
+    const umaSemanaAtras = new Date()
+    umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7)
+    const essaSemana = clientes.value.filter(c => {
+      return new Date(c.created_at) >= umaSemanaAtras
+    }).length
+
     return {
       totalClientes: total,
       clientesTrial: trial,
@@ -60,7 +69,8 @@ export const useAdminClientes = () => {
       clientesBasic: basic,
       clientesEnterprise: enterprise,
       clientesVencidos: vencidos,
-      clientesAtivos: ativos
+      clientesAtivos: ativos,
+      clientesEssaSemana: essaSemana
     }
   })
 
