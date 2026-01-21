@@ -34,7 +34,7 @@ if (process.client) {
     <!-- Content Container -->
     <div class="relative z-10 w-full flex flex-col lg:flex-row">
       <!-- Left Side - Form -->
-      <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
+      <div class="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 min-h-screen lg:min-h-0">
         <div class="w-full max-w-md">
           <AuthTabs />
         </div>
