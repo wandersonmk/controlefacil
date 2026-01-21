@@ -160,8 +160,8 @@ async function handleRegister() {
       <!-- Conteúdo -->
       <div class="relative z-10">
         <div class="space-y-1">
-          <h2 class="text-xl font-semibold">Criar nova conta</h2>
-          <p class="text-sm text-muted-foreground">Preencha os dados para se cadastrar</p>
+          <h2 class="text-xl font-semibold text-white">Criar nova conta</h2>
+          <p class="text-sm text-gray-300">Preencha os dados para se cadastrar</p>
         </div>
 
         <form @submit.prevent="handleRegister" class="mt-6 space-y-3">
@@ -254,6 +254,7 @@ async function handleRegister() {
         type="submit" 
         block 
         :disabled="isLoading || !name || !companyName || !whatsapp || !email || !password || !confirmPassword || !isEmailValid || !isWhatsAppValid || !passwordsMatch || !isPasswordStrong"
+        class="!bg-purple-600 hover:!bg-purple-700 !text-white"
       >
         <span v-if="isLoading">Criando conta...</span>
         <span v-else>Criar conta</span>

@@ -37,4 +37,13 @@
 <script setup lang="ts">
 // Layout para páginas de autenticação (login, registro, obrigado)
 // Não inclui o header
+
+// Forçar modo escuro SEMPRE no layout de autenticação
+if (process.client) {
+  document.documentElement.classList.add('dark')
+  
+  onMounted(() => {
+    document.documentElement.classList.add('dark')
+  })
+}
 </script>

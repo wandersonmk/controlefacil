@@ -2,8 +2,8 @@
   <div class="w-full max-w-sm mx-auto">
     <div class="rounded-xl border border-border/50 bg-secondary p-6 shadow-lg backdrop-blur-sm">
       <div class="space-y-1 mb-4">
-        <h2 class="text-lg font-medium text-foreground/85">Redefinir Senha</h2>
-        <p class="text-sm text-foreground/60">Digite sua nova senha abaixo</p>
+        <h2 class="text-lg font-medium text-white">Redefinir Senha</h2>
+        <p class="text-sm text-gray-300">Digite sua nova senha abaixo</p>
       </div>
       <form @submit.prevent="handleSubmit" class="space-y-3">
         <AppInput
@@ -23,7 +23,12 @@
           :valid="!!confirmPassword && confirmPassword === password"
         />
         <div v-if="error" class="text-xs text-red-500 mt-1 px-1">{{ error }}</div>
-        <AppButton type="submit" block :disabled="isLoading || !isFormValid">
+        <AppButton 
+          type="submit" 
+          block 
+          :disabled="isLoading || !isFormValid"
+          class="!bg-purple-600 hover:!bg-purple-700 !text-white"
+        >
           <span v-if="isLoading">Salvando...</span>
           <span v-else>Salvar nova senha</span>
         </AppButton>

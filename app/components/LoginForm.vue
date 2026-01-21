@@ -86,8 +86,8 @@ async function handleLogin() {
       <!-- Conteúdo -->
       <div class="relative z-10">
     <div class="space-y-1">
-      <h2 class="text-xl font-semibold">Faça login na plataforma</h2>
-      <p class="text-sm text-muted-foreground">Acesse sua conta com email e senha</p>
+      <h2 class="text-xl font-semibold text-white">Faça login na plataforma</h2>
+      <p class="text-sm text-gray-300">Acesse sua conta com email e senha</p>
     </div>
 
     <form @submit.prevent="handleLogin" class="mt-6 space-y-3">
@@ -118,7 +118,7 @@ async function handleLogin() {
       <div class="text-right">
         <NuxtLink 
           to="/recuperar-senha" 
-          class="text-xs text-foreground/55 hover:text-foreground transition-colors"
+          class="text-xs text-gray-300 hover:text-white transition-colors"
         >
           Recuperar senha
         </NuxtLink>
@@ -128,6 +128,7 @@ async function handleLogin() {
         type="submit" 
         block 
         :disabled="isLoading || !email || !password || !isEmailValid"
+        class="!bg-purple-600 hover:!bg-purple-700 !text-white"
       >
         <span v-if="isLoading">Entrando...</span>
         <span v-else>Entrar</span>

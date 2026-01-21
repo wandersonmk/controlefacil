@@ -5,8 +5,8 @@
         <!-- Card principal -->
         <div class="rounded-xl border border-border/50 bg-secondary p-6 shadow-lg backdrop-blur-sm">
           <div class="space-y-1">
-            <h2 class="text-lg font-medium text-foreground/85">Recuperar senha</h2>
-            <p class="text-sm text-foreground/60">Digite seu email para receber as instruções de recuperação</p>
+            <h2 class="text-lg font-medium text-white">Recuperar senha</h2>
+            <p class="text-sm text-gray-300">Digite seu email para receber as instruções de recuperação</p>
           </div>
           <form @submit.prevent="handleSubmit" class="mt-6 space-y-3">
             <div>
@@ -26,6 +26,7 @@
               type="submit" 
               block 
               :disabled="isLoading || !email || !isEmailValid"
+              class="!bg-purple-600 hover:!bg-purple-700 !text-white"
             >
               <span v-if="isLoading">Enviando...</span>
               <span v-else>Enviar instruções</span>
@@ -34,7 +35,7 @@
           <div class="mt-4 text-center">
             <NuxtLink 
               to="/login" 
-              class="text-sm text-foreground/60 hover:text-foreground transition-colors"
+              class="text-sm text-gray-300 hover:text-white transition-colors"
             >
               Voltar para o login
             </NuxtLink>
@@ -57,6 +58,15 @@ definePageMeta({
   layout: 'auth',
   middleware: 'guest'
 })
+
+// Forçar modo escuro SEMPRE na página de recuperação de senha
+if (process.client) {
+  document.documentElement.classList.add('dark')
+  
+  onMounted(() => {
+    document.documentElement.classList.add('dark')
+  })
+}
 
 const email = ref('')
 const isLoading = ref(false)
