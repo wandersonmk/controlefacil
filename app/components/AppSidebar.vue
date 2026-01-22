@@ -14,8 +14,8 @@
       <!-- Header com nome da empresa -->
       <div class="flex items-center p-4 border-b border-border">
         <div class="flex-1 min-w-0">
-          <h1 class="text-2xl font-bold truncate bg-gradient-to-r from-blue-500 via-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
-            PRECIFY
+          <h1 class="text-2xl font-bold truncate bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent animate-gradient bg-[length:300%_auto]">
+            PRECIFY APP
           </h1>
           <p class="text-xs text-muted-foreground font-medium">Sistema de Controle</p>
         </div>
@@ -239,8 +239,8 @@
       <!-- Header com nome da empresa e botão fechar -->
       <div class="flex items-center justify-between p-4 border-b border-border">
         <div class="flex-1 min-w-0">
-          <h1 class="text-lg font-bold truncate bg-gradient-to-r from-blue-500 via-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent animate-gradient bg-[length:200%_auto]">
-            PRECIFY
+          <h1 class="text-lg font-bold truncate bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent animate-gradient bg-[length:300%_auto]">
+            PRECIFY APP
           </h1>
           <p class="text-xs text-muted-foreground font-medium">Sistema de Controle</p>
         </div>

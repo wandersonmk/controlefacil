@@ -51,8 +51,8 @@ if (process.client) {
             </div>
             
             <h1 class="text-6xl font-bold tracking-tight">
-              <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                PRECIFY
+              <span class="bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent animate-gradient bg-[length:300%_auto]">
+                PRECIFY APP
               </span>
             </h1>
             
