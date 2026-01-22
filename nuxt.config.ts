@@ -13,8 +13,9 @@ export default defineNuxtConfig({
     '/login': { ssr: true },
     '/obrigado': { ssr: true },
     '/auth/**': { ssr: true },
+    // Redirect /dashboard para a home
+    '/dashboard': { redirect: '/' },
     // Todas as outras páginas protegidas sem SSR (evita flash de conteúdo)
-    '/dashboard': { ssr: false },
     '/ajuda': { ssr: false },
     '/ajuste-da-ia': { ssr: false },
     '/assinatura': { ssr: false },
@@ -48,6 +49,39 @@ export default defineNuxtConfig({
   css: ['@fortawesome/fontawesome-svg-core/styles.css'],
   app: {
     head: {
+      link: [
+        {
+          rel: 'icon',
+          type: 'image/png',
+          href: '/fvc.png'
+        }
+      ],
+      meta: [
+        {
+          property: 'og:image',
+          content: '/capa.png'
+        },
+        {
+          property: 'og:image:width',
+          content: '1200'
+        },
+        {
+          property: 'og:image:height',
+          content: '630'
+        },
+        {
+          property: 'og:type',
+          content: 'website'
+        },
+        {
+          name: 'twitter:card',
+          content: 'summary_large_image'
+        },
+        {
+          name: 'twitter:image',
+          content: '/capa.png'
+        }
+      ],
       script: [
         {
           src: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js',
