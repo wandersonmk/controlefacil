@@ -16,7 +16,8 @@ const {
   renovarTokens,
   removerTokens,
   excluirCliente,
-  editarCliente
+  editarCliente,
+  diasParaVencimento
 } = useAdminClientes()
 
 const toast = await useToastSafe()
@@ -59,7 +60,19 @@ const filteredClientes = computed(() => {
     filtered = filtered.filter(c => c.subscription_status === filterStatus.value)
   }
 
-  return filtered
+  // Ordena: primeiro por dias restantes (menores primeiro), depois alfabeticamente
+  return filtered.sort((a, b) => {
+    const diasA = diasParaVencimento(a)
+    const diasB = diasParaVencimento(b)
+    
+    // Se os dias restantes são diferentes, ordena por dias (menores primeiro)
+    if (diasA !== diasB) {
+      return diasA - diasB
+    }
+    
+    // Se os dias são iguais, ordena alfabeticamente por nome
+    return a.nome.localeCompare(b.nome, 'pt-BR', { sensitivity: 'base' })
+  })
 })
 
 // Handlers dos modais
