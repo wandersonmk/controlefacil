@@ -6,7 +6,7 @@
       <div class="flex-1">
         <select
           v-model="ordenacao"
-          class="w-full px-3 py-2 text-sm border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          class="w-full px-3 py-2 text-xs sm:text-sm border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
         >
           <option value="recente">Mais Recentes</option>
           <option value="populares">Mais Populares</option>
@@ -18,9 +18,9 @@
       <div class="flex-1">
         <select
           v-model="filtroCategoria"
-          class="w-full px-3 py-2 text-sm border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          class="w-full px-3 py-2 text-xs sm:text-sm border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
         >
-          <option value="">Todas as Categorias</option>
+          <option value="">Todas</option>
           <option value="interface">🎨 Interface</option>
           <option value="funcionalidade">⚡ Funcionalidade</option>
           <option value="performance">🚀 Performance</option>
@@ -34,8 +34,8 @@
         <input
           v-model="busca"
           type="text"
-          placeholder="Buscar sugestões..."
-          class="w-full px-3 py-2 text-sm border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          placeholder="Buscar..."
+          class="w-full px-3 py-2 text-xs sm:text-sm border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
     </div>
@@ -49,13 +49,14 @@
         @curtir="handleCurtir(sugestao.id)"
         @descurtir="handleDescurtir(sugestao.id)"
         @showDetails="handleShowDetails(sugestao.id)"
+        @comentario-added="emit('comentario-added')"
       />
     </div>
 
     <!-- Estado Vazio -->
-    <div v-else class="text-center py-8 border border-dashed border-border rounded-lg">
-      <p class="text-muted-foreground text-sm">
-        Nenhuma sugestão encontrada. Seja o primeiro a compartilhar uma ideia! 💡
+    <div v-else class="text-center py-6 sm:py-8 border border-dashed border-border rounded-lg">
+      <p class="text-muted-foreground text-xs sm:text-sm">
+        Nenhuma sugestão encontrada. Seja o primeiro! 💡
       </p>
     </div>
 
@@ -104,6 +105,7 @@ const emit = defineEmits<{
   curtir: [id: string]
   descurtir: [id: string]
   showDetails: [id: string]
+  'comentario-added': []
 }>()
 
 const ordenacao = ref('recente')

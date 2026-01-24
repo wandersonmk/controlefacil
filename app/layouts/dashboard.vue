@@ -176,6 +176,10 @@ const pageTitle = computed(() => {
       return 'Assinatura'
     case '/tokens':
       return 'Tokens Adicionais'
+    case '/sugestoes':
+      return 'Sugestões & Melhorias'
+    case '/admin-sugestoes':
+      return 'Gerenciar Sugestões'
     default:
       console.log('[Dashboard] Using default title for path:', route.path)
       return 'Dashboard'
@@ -219,6 +223,10 @@ const pageDescription = computed(() => {
       return 'Gerencie seu plano e assinatura'
     case '/tokens':
       return 'Adquira tokens extras para usar o Mentor IA'
+    case '/sugestoes':
+      return 'Compartilhe ideias e melhore a plataforma'
+    case '/admin-sugestoes':
+      return 'Gerenciar e revisar sugestões de usuários'
     default:
       return 'Visão geral do sistema'
   }
