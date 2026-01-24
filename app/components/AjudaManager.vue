@@ -58,17 +58,21 @@
               <p class="text-sm text-muted-foreground mb-4">
                 Aprenda como usar a plataforma com vídeos no nosso canal YouTube
               </p>
+              <p class="text-xs bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded px-3 py-2 text-yellow-700 dark:text-yellow-300 mb-4">
+                📹 Os vídeos estão sendo gravados. Se tiver dúvidas, entre em contato conosco pelo WhatsApp para suporte imediato!
+              </p>
             </div>
             <a
-              href="https://www.youtube.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 transform active:scale-95"
+              href="#"
+              @click.prevent
+              disabled
+              title="Os vídeos estão sendo preparados. Em breve estarão disponíveis!"
+              class="inline-flex items-center space-x-2 px-6 py-3 bg-gray-400 dark:bg-gray-600 text-white font-medium rounded-lg shadow-lg cursor-not-allowed opacity-60 transition-all duration-300"
             >
               <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
               </svg>
-              <span>Acessar YouTube</span>
+              <span>Vídeos em Preparação</span>
             </a>
           </div>
         </div>
