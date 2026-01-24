@@ -17,7 +17,7 @@ const emit = defineEmits<{
   'excluir': [clienteId: string]
 }>()
 
-const { formatDate, getStatusColor, getPlanLabel, isVencido, diasParaVencimento, formatDiasVencimento } = useAdminClientes()
+const { formatDate, getStatusColor, getPlanLabel, isVencido, diasParaVencimento, formatDiasVencimento, getDataVencimento } = useAdminClientes()
 
 const statusLabels: Record<string, string> = {
   trial: 'Trial',
@@ -121,7 +121,7 @@ const formatWhatsAppUrl = (whatsapp: string | null): string => {
                 <span 
                   :class="isVencido(cliente) ? 'text-red-500 font-semibold' : 'text-foreground'"
                 >
-                  {{ formatDate(cliente.trial_ends_at || cliente.subscription_renews_at) }}
+                  {{ formatDate(getDataVencimento(cliente)) }}
                 </span>
               </div>
               <div v-if="isVencido(cliente)" class="text-xs text-red-500 font-medium">

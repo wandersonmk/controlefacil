@@ -27,12 +27,41 @@ export interface AdminStats {
   clientesVencidos: number
   clientesAtivos: number
   clientesEssaSemana: number
+  clientesVencendoHoje: number
 }
 
 export const useAdminClientes = () => {
   const clientes = ref<AdminCliente[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  // Calcula dias até o vencimento (definida antes do stats computed)
+  const diasParaVencimento = (cliente: AdminCliente): number => {
+    let dataVencimento: Date | null = null
+    
+    // Prioridade baseada no status
+    if (cliente.subscription_status === 'active' && cliente.subscription_renews_at) {
+      // Se é ativo, usa a data de renovação (trial_ends_at é apenas histórico)
+      dataVencimento = new Date(cliente.subscription_renews_at)
+    } else if (cliente.subscription_status === 'trial' && cliente.trial_ends_at) {
+      // Se é trial, usa trial_ends_at
+      dataVencimento = new Date(cliente.trial_ends_at)
+    } else if (cliente.trial_ends_at) {
+      // Fallback para trial_ends_at
+      dataVencimento = new Date(cliente.trial_ends_at)
+    } else if (cliente.subscription_renews_at) {
+      // Fallback para subscription_renews_at
+      dataVencimento = new Date(cliente.subscription_renews_at)
+    }
+    
+    if (!dataVencimento) return 0
+    
+    const hoje = new Date()
+    const diff = dataVencimento.getTime() - hoje.getTime()
+    const dias = Math.ceil(diff / (1000 * 60 * 60 * 24))
+    
+    return dias
+  }
 
   // Calcula estatísticas
   const stats = computed<AdminStats>(() => {
@@ -43,16 +72,12 @@ export const useAdminClientes = () => {
     const enterprise = clientes.value.filter(c => c.subscription_plan === 'enterprise').length
     const ativos = clientes.value.filter(c => c.ativo).length
     
-    // Considera vencido se status for expired ou se trial_ends_at passou
+    // Considera vencido APENAS se a data JÁ PASSOU (dias < 0)
+    // Não inclui "vence hoje" (dias = 0)
     const vencidos = clientes.value.filter(c => {
       if (c.subscription_status === 'expired') return true
-      if (c.trial_ends_at) {
-        return new Date(c.trial_ends_at) < new Date()
-      }
-      if (c.subscription_renews_at) {
-        return new Date(c.subscription_renews_at) < new Date()
-      }
-      return false
+      const dias = diasParaVencimento(c)
+      return dias < 0
     }).length
 
     // Clientes cadastrados nos últimos 7 dias
@@ -60,6 +85,12 @@ export const useAdminClientes = () => {
     umaSemanaAtras.setDate(umaSemanaAtras.getDate() - 7)
     const essaSemana = clientes.value.filter(c => {
       return new Date(c.created_at) >= umaSemanaAtras
+    }).length
+
+    // Clientes vencendo hoje (dias = 0)
+    const vencendoHoje = clientes.value.filter(c => {
+      const dias = diasParaVencimento(c)
+      return dias === 0
     }).length
 
     return {
@@ -70,7 +101,8 @@ export const useAdminClientes = () => {
       clientesEnterprise: enterprise,
       clientesVencidos: vencidos,
       clientesAtivos: ativos,
-      clientesEssaSemana: essaSemana
+      clientesEssaSemana: essaSemana,
+      clientesVencendoHoje: vencendoHoje
     }
   })
 
@@ -315,44 +347,11 @@ export const useAdminClientes = () => {
     }
   }
 
-  // Verifica se assinatura está vencida
+  // Verifica se assinatura está vencida (dias < 0)
   const isVencido = (cliente: AdminCliente): boolean => {
     if (cliente.subscription_status === 'expired') return true
-    
-    // Se tem assinatura ativa, verifica subscription_renews_at
-    if (cliente.subscription_status === 'active' && cliente.subscription_renews_at) {
-      return new Date(cliente.subscription_renews_at) < new Date()
-    }
-    
-    // Se está em trial, verifica trial_ends_at
-    if (cliente.subscription_status === 'trial' && cliente.trial_ends_at) {
-      return new Date(cliente.trial_ends_at) < new Date()
-    }
-    
-    return false
-  }
-
-  // Calcula dias até o vencimento
-  const diasParaVencimento = (cliente: AdminCliente): number => {
-    let dataVencimento: string | null = null
-    
-    // Se tem assinatura ativa, usa subscription_renews_at
-    if (cliente.subscription_status === 'active' && cliente.subscription_renews_at) {
-      dataVencimento = cliente.subscription_renews_at
-    }
-    // Se está em trial ou não tem subscription_renews_at, usa trial_ends_at
-    else if (cliente.trial_ends_at) {
-      dataVencimento = cliente.trial_ends_at
-    }
-    
-    if (!dataVencimento) return 0
-    
-    const hoje = new Date()
-    const vencimento = new Date(dataVencimento)
-    const diff = vencimento.getTime() - hoje.getTime()
-    const dias = Math.ceil(diff / (1000 * 60 * 60 * 24))
-    
-    return dias
+    const dias = diasParaVencimento(cliente)
+    return dias < 0
   }
 
   // Formata dias para vencimento com texto
@@ -394,6 +393,20 @@ export const useAdminClientes = () => {
     return labels[plan] || plan
   }
 
+  // Retorna a data correta de vencimento (não o trial_ends_at se é active)
+  const getDataVencimento = (cliente: AdminCliente): string | null => {
+    if (cliente.subscription_status === 'active' && cliente.subscription_renews_at) {
+      return cliente.subscription_renews_at
+    } else if (cliente.subscription_status === 'trial' && cliente.trial_ends_at) {
+      return cliente.trial_ends_at
+    } else if (cliente.trial_ends_at) {
+      return cliente.trial_ends_at
+    } else if (cliente.subscription_renews_at) {
+      return cliente.subscription_renews_at
+    }
+    return null
+  }
+
   return {
     clientes,
     stats,
@@ -412,6 +425,7 @@ export const useAdminClientes = () => {
     formatDiasVencimento,
     formatDate,
     getStatusColor,
-    getPlanLabel
+    getPlanLabel,
+    getDataVencimento
   }
 }

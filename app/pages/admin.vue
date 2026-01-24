@@ -20,6 +20,8 @@ const {
   diasParaVencimento
 } = useAdminClientes()
 
+const { fornecedoresParceiros, fetchFornecedoresParceirosAdmin } = useFornecedoresParceiros()
+
 const toast = await useToastSafe()
 
 // Modais
@@ -36,9 +38,13 @@ const clienteParaEditar = ref<any>(null)
 const searchQuery = ref('')
 const filterStatus = ref('all')
 
+// Contagem de fornecedores parceiros
+const fornecedoresParceiroCount = computed(() => fornecedoresParceiros.value.length)
+
 // Carrega dados ao montar
 onMounted(() => {
   loadClientes()
+  fetchFornecedoresParceirosAdmin()
 })
 
 // Clientes filtrados
@@ -57,7 +63,23 @@ const filteredClientes = computed(() => {
 
   // Filtra por status
   if (filterStatus.value !== 'all') {
-    filtered = filtered.filter(c => c.subscription_status === filterStatus.value)
+    if (filterStatus.value === 'expired') {
+      // Para "expired", mostrar apenas clientes vencidos (dias < 0)
+      filtered = filtered.filter(c => {
+        if (c.subscription_status === 'expired') return true
+        const dias = diasParaVencimento(c)
+        return dias < 0
+      })
+    } else if (filterStatus.value === 'vencendo-hoje') {
+      // Para "vencendo-hoje", mostrar clientes com dias = 0
+      filtered = filtered.filter(c => {
+        const dias = diasParaVencimento(c)
+        return dias === 0
+      })
+    } else {
+      // Para outros status, comparar normalmente
+      filtered = filtered.filter(c => c.subscription_status === filterStatus.value)
+    }
   }
 
   // Ordena: primeiro por dias restantes (menores primeiro), depois alfabeticamente
@@ -271,7 +293,7 @@ const confirmExcluir = async () => {
         
         <AdminStatsCard
           title="Fornecedores Parceiros"
-          :value="7"
+          :value="fornecedoresParceiroCount"
           emoji="🤝"
           color="purple"
           subtitle="Parcerias ativas"
@@ -291,6 +313,14 @@ const confirmExcluir = async () => {
           emoji="🆕"
           color="blue"
           subtitle="Últimos 7 dias"
+        />
+        
+        <AdminStatsCard
+          title="Clientes Vencendo Hoje"
+          :value="stats.clientesVencendoHoje"
+          emoji="⏰"
+          color="red"
+          subtitle="Vencimento hoje"
         />
       </div>
 
@@ -328,6 +358,7 @@ const confirmExcluir = async () => {
               <option value="trial">Trial</option>
               <option value="active">Ativo</option>
               <option value="expired">Expirado</option>
+              <option value="vencendo-hoje">Vence hoje</option>
               <option value="canceled">Cancelado</option>
             </select>
           </div>
