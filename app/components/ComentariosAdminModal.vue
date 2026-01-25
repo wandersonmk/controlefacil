@@ -45,7 +45,7 @@
               Deletar
             </button>
           </div>
-          <p class="text-sm text-foreground break-words">{{ comentario.conteudo }}</p>
+          <p class="text-sm text-foreground break-words">{{ comentario.texto }}</p>
         </div>
       </div>
     </div>
@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useComentarios } from '~/composables/useComentarios'
-import { formatarTempo } from '~/utils/formatarTempo'
+import { formatarTempoRelativo } from '~/utils/formatarTempo'
 
 interface Props {
   sugestaoId: string | null
@@ -66,9 +66,9 @@ interface Comentario {
   id: string
   sugestao_id: string
   usuario_id: string
-  usuario_nome: string
-  empresa_nome: string
-  conteudo: string
+  usuario_nome?: string
+  empresa_nome?: string
+  texto: string
   criado_em: string
 }
 
@@ -84,6 +84,14 @@ const mostrarModal = ref(false)
 const deletando = ref(false)
 
 const { fetchComentarios, deletarComentario: deleteComentarioFromComposable } = useComentarios()
+
+const formatarTempo = (data: string) => {
+  try {
+    return formatarTempoRelativo(new Date(data))
+  } catch {
+    return 'há pouco'
+  }
+}
 
 watch(() => props.visivel, async (novo) => {
   mostrarModal.value = novo

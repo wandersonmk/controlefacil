@@ -62,8 +62,8 @@
           <p class="text-sm text-muted-foreground mb-3">{{ sug.descricao }}</p>
           <div class="flex gap-4 text-xs text-muted-foreground mb-3">
             <span>📅 {{ formatarData(sug.criado_em) }}</span>
-            <span>👍 {{ sug.total_curtidas || 0 }} curtidas</span>
-            <span>💬 {{ sug.total_comentarios || 0 }} comentários</span>
+            <span>👍 {{ sug.curtidas || 0 }} curtidas</span>
+            <span>💬 {{ sug.comentarios || 0 }} comentários</span>
           </div>
           
           <!-- Seletor de Status -->

@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useSugestoes } from '~/composables/useSugestoes'
 
 interface Sugestao {
@@ -108,6 +108,11 @@ const { getStatusLabel, getStatusColor } = useSugestoes()
 
 const isCurtido = ref(props.sugestao.ja_curtiu || false)
 const mostradorComentarios = ref(false)
+
+// Atualizar isCurtido quando a prop mudar
+watch(() => props.sugestao.ja_curtiu, (novoValor) => {
+  isCurtido.value = novoValor || false
+})
 
 const toggleCurtida = () => {
   if (isCurtido.value) {

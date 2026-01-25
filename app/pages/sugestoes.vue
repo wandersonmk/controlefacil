@@ -6,7 +6,7 @@ definePageMeta({
   pageDescription: 'Compartilhe ideias e melhore a plataforma'
 })
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import SugestoesForm from '~/components/SugestoesForm.vue'
 import SugestoesList from '~/components/SugestoesList.vue'
 
@@ -27,14 +27,31 @@ onMounted(async () => {
     const composable = useSugestoes()
     sugestoesComposable.value = composable
     
-    console.log('[sugestoes.vue] Composable inicializado:', composable)
+    console.log('[sugestoes.vue] Composable inicializado')
     
-    await composable.fetchSugestoes()
+    // Watch para sincronizar sugestões do composable com a lista local
+    watch(
+      () => composable.sugestoes.value,
+      (novasSugestoes) => {
+        if (Array.isArray(novasSugestoes)) {
+          console.log('[sugestoes.vue] Sugestões do composable atualizadas')
+          sugestoes.value = novasSugestoes
+        }
+      },
+      { deep: true }
+    )
     
-    // Verificação segura
-    if (composable.sugestoes && composable.sugestoes.value && Array.isArray(composable.sugestoes.value)) {
-      sugestoes.value = composable.sugestoes.value
-    }
+    // Carregar sugestões
+    console.log('[sugestoes.vue] Carregando sugestões...')
+    await composable.fetchSugestoes(false)
+    
+    sugestoes.value = composable.sugestoes.value
+    console.log('[sugestoes.vue] Sugestões carregadas:', sugestoes.value.length)
+    
+    // Carregar curtidas do usuário
+    console.log('[sugestoes.vue] Carregando curtidas do usuário...')
+    await composable.carregarCurtidasDoUsuario()
+    console.log('[sugestoes.vue] Curtidas carregadas')
     
     if (composable.isLoading && composable.isLoading.value !== undefined) {
       isLoading.value = composable.isLoading.value
@@ -42,28 +59,36 @@ onMounted(async () => {
       isLoading.value = false
     }
     
-    console.log('[sugestoes.vue] Sugestões carregadas:', sugestoes.value.length)
+    console.log('[sugestoes.vue] Pronto!')
   } catch (err) {
-    console.error('[sugestoes.vue] Erro ao inicializar composable:', err)
+    console.error('[sugestoes.vue] Erro:', err)
     erro.value = 'Erro ao carregar sugestões'
     isLoading.value = false
   }
 })
 
-const handleCurtir = (id: string) => {
+const handleCurtir = async (id: string) => {
   try {
+    console.log('[sugestoes.vue] Curtindo:', id)
     if (sugestoesComposable.value) {
-      sugestoesComposable.value.curtirSugestao(id)
+      await sugestoesComposable.value.curtirSugestao(id)
+      // Recarregar curtidas após curtir
+      await sugestoesComposable.value.carregarCurtidasDoUsuario()
+      console.log('[sugestoes.vue] Curtida atualizada')
     }
   } catch (err) {
     console.error('[sugestoes.vue] Erro ao curtir:', err)
   }
 }
 
-const handleDescurtir = (id: string) => {
+const handleDescurtir = async (id: string) => {
   try {
+    console.log('[sugestoes.vue] Descurtindo:', id)
     if (sugestoesComposable.value) {
-      sugestoesComposable.value.descurtirSugestao(id)
+      await sugestoesComposable.value.descurtirSugestao(id)
+      // Recarregar curtidas após descurtir
+      await sugestoesComposable.value.carregarCurtidasDoUsuario()
+      console.log('[sugestoes.vue] Curtida removida')
     }
   } catch (err) {
     console.error('[sugestoes.vue] Erro ao descurtir:', err)
